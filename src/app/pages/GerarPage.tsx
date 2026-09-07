@@ -18,6 +18,7 @@ import {
   ResponsibleGamingNotice,
 } from "../../shared/components";
 import { formatBRL } from "../../shared/utils/currency";
+import { ComparePanel } from "./ComparePanel";
 import type { GameConfig, GeneratePortfolioRequest, Modality, PortfolioEnvelope, ProbabilityStatus, QualityPreset, StrategyDefinition } from "../../shared/types";
 
 const STAGE_LABEL: Record<string, string> = {
@@ -347,6 +348,16 @@ export function GerarPage({ modality }: { modality: Modality }) {
             </button>
           </div>
           {savedMessage && <p role="status" className="text-sm text-emerald-700">{savedMessage}</p>}
+
+          <ComparePanel
+            modality={modality}
+            currentStrategyId={result.strategyId}
+            numberOfTickets={result.tickets.length}
+            fixedNumbers={fixedNumbers.length ? fixedNumbers : undefined}
+            excludedNumbers={excludedNumbers.length ? excludedNumbers : undefined}
+            contest={result.contest}
+            currentResult={result}
+          />
         </section>
       )}
 
