@@ -1,0 +1,77 @@
+{
+  "method": "Exact combinatorics and complete enumeration of favourable draws",
+  "historical_data_used": false,
+  "total_possible_draws": 50063860,
+  "elementary_ticket_cost_brl": 6,
+  "number_of_tickets": 7,
+  "total_cost_brl": 42,
+  "per_ticket_exact_hits": {
+    "4": 21465,
+    "5": 324,
+    "6": 1
+  },
+  "portfolios": {
+    "all_combinations_within_seven_numbers": {
+      "at_least_4": {
+        "favourable_draws": 49350,
+        "fraction": "705/715198",
+        "probability": 0.00098574101158001,
+        "percent": 0.098574101158001,
+        "one_in": 1014.4652482269504
+      },
+      "at_least_5": {
+        "favourable_draws": 1120,
+        "fraction": "8/357599",
+        "probability": 2.2371427213163347e-05,
+        "percent": 0.002237142721316335,
+        "one_in": 44699.875
+      },
+      "at_least_6": {
+        "favourable_draws": 7,
+        "fraction": "1/7151980",
+        "probability": 1.3982142008227091e-07,
+        "percent": 1.3982142008227091e-05,
+        "one_in": 7151980.000000001
+      }
+    },
+    "seven_pairwise_disjoint_tickets": {
+      "at_least_4": {
+        "favourable_draws": 152530,
+        "fraction": "2179/715198",
+        "probability": 0.0030467087435926835,
+        "percent": 0.3046708743592684,
+        "one_in": 328.22303809086736
+      },
+      "at_least_5": {
+        "favourable_draws": 2275,
+        "fraction": "65/1430396",
+        "probability": 4.544196152673805e-05,
+        "percent": 0.004544196152673805,
+        "one_in": 22006.092307692306
+      },
+      "at_least_6": {
+        "favourable_draws": 7,
+        "fraction": "1/7151980",
+        "probability": 1.3982142008227091e-07,
+        "percent": 1.3982142008227091e-05,
+        "one_in": 7151980.000000001
+      }
+    }
+  },
+  "uniform_distinct_portfolio_average": {
+    "at_least_4_percent": "0.3042733624161370861706624285",
+    "at_least_5_percent": "0.004544107927130395709947488206",
+    "at_least_6_percent": "0.00001398214200822709235764082114"
+  },
+  "expected_prize_winning_tickets_both_portfolios": 0.0030467087435926835,
+  "relative_improvement_disjoint_vs_random_mean_percent": 0.1306430309820028,
+  "percentage_point_improvement_disjoint_vs_random_mean": 0.00039751194313127416,
+  "relative_improvement_disjoint_vs_concentrated_percent": 209.07801418439718,
+  "poisson_share_scenarios_not_real_world_estimates": {
+    "0.1": 0.9516258196404043,
+    "1.0": 0.6321205588285577,
+    "3.0": 0.3167376438773787
+  },
+  "global_relabeling_invariance_checked": true,
+  "zero_prize_probability_disjoint_percent": 99.69532912564073
+}

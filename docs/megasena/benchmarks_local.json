@@ -1,0 +1,69 @@
+{
+  "environment": {
+    "node": "v22.16.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "notes": [
+    "F4 evaluation uses exact union up to the configured domain threshold (25 tickets) and deterministic Monte Carlo above it.",
+    "F5 evaluation is exact for these sizes.",
+    "Optimization benchmark uses quina_or_better with deliberately small iteration/candidate budgets to measure interactive-scale behavior.",
+    "Times are single-run local observations, not service-level guarantees."
+  ],
+  "rows": [
+    {
+      "n": 1,
+      "validationMs": 0.2611339999999984,
+      "overlapMs": 0.23674700000000115,
+      "f4Ms": 0.19447299999999856,
+      "f5Ms": 0.11772700000000214,
+      "baselineMs": 0.10304599999999908,
+      "optimizationMs": 9.514772000000004
+    },
+    {
+      "n": 7,
+      "validationMs": 0.014963000000001614,
+      "overlapMs": 0.22526899999999728,
+      "f4Ms": 0.12477800000000627,
+      "f5Ms": 0.11676599999999837,
+      "baselineMs": 0.07486199999999599,
+      "optimizationMs": 88.136405
+    },
+    {
+      "n": 10,
+      "validationMs": 0.032730000000000814,
+      "overlapMs": 0.49121099999999274,
+      "f4Ms": 93.172305,
+      "f5Ms": 0.1711779999999976,
+      "baselineMs": 0.00826200000000199,
+      "optimizationMs": 126.17039000000003
+    },
+    {
+      "n": 25,
+      "validationMs": 0.03442200000000639,
+      "overlapMs": 1.8087959999999725,
+      "f4Ms": 293.28407000000004,
+      "f5Ms": 0.7029099999999744,
+      "baselineMs": 0.009784999999965294,
+      "optimizationMs": 323.08687599999996
+    },
+    {
+      "n": 50,
+      "validationMs": 0.057075999999938176,
+      "overlapMs": 2.2608079999999973,
+      "f4Ms": 62.25197700000001,
+      "f5Ms": 7.244359999999915,
+      "baselineMs": 0.015713000000005195,
+      "optimizationMs": 73.12469699999997
+    },
+    {
+      "n": 100,
+      "validationMs": 0.08231399999999667,
+      "overlapMs": 7.895260999999891,
+      "f4Ms": 53.378962999999885,
+      "f5Ms": 17.505687999999964,
+      "baselineMs": 0.02320499999996173,
+      "optimizationMs": 165.0650559999999
+    }
+  ]
+}

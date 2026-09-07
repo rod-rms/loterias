@@ -1,0 +1,429 @@
+{
+  "starterPackVersion": "1.0",
+  "blueprintVersion": "1.1",
+  "generatedAt": "2026-09-07",
+  "repository": "https://github.com/rod-rms/loterias.git",
+  "files": [
+    {
+      "path": ".github/workflows/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "00_START_HERE_CLAUDE_CODE.md",
+      "bytes": 31211,
+      "sha256": "6fd148da2b5c06ba0d7e8a72bbef982c9ddedc6198a1ccd806a2f4d7faa265fd"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 1409,
+      "sha256": "3deb61599a52eb35ebf670c001616735f9dffd4e27682f880086e544d1d558ea"
+    },
+    {
+      "path": "BLUEPRINT_MANIFEST.json",
+      "bytes": 13280,
+      "sha256": "6bf625de3375b161a146063791b0649aed6c6fdd11aa7a69c7fcf00cae114f24"
+    },
+    {
+      "path": "CLAUDE.md",
+      "bytes": 1292,
+      "sha256": "861ae9dd0dfeed1b997243659826081d5ace9e88ea585ee20fac9e5cfc85d0a1"
+    },
+    {
+      "path": "PROMPT_PARA_CLAUDE_CODE.txt",
+      "bytes": 431,
+      "sha256": "95855187166a17276b0cbc26cd0395851e7a5fc835a17732a1f698b12dd018c7"
+    },
+    {
+      "path": "README_BLUEPRINT.md",
+      "bytes": 1305,
+      "sha256": "3f8543f1df889b6e2e1300b75514b31dad27e9a9c210967220008ba04dae490c"
+    },
+    {
+      "path": "README_STARTER_PACK.md",
+      "bytes": 1115,
+      "sha256": "22d81fff51f98a6d718e6db570656f713742a794f3002d5e2b7e68b6b4df6952"
+    },
+    {
+      "path": "docs/global/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/global/ACCEPTANCE_CRITERIA_V1.md",
+      "bytes": 3051,
+      "sha256": "78ecc359088c7f47ca330fb7f66c18b08e5400089a683adf975c37b9e9133ea1"
+    },
+    {
+      "path": "docs/global/ARCHITECTURE_V1.md",
+      "bytes": 3767,
+      "sha256": "1e8ff895f49cdc5c72068234d6f6e49c597155d62e7c6ae97238f35d8e419922"
+    },
+    {
+      "path": "docs/global/DATA_AND_PERSISTENCE_V1.md",
+      "bytes": 3721,
+      "sha256": "1f18c94c5ab13c7e54991f475bf3e6a16c0af653214aceebbd14befa3baa6912"
+    },
+    {
+      "path": "docs/global/DECISIONS_AND_OPEN_POINTS_V1.md",
+      "bytes": 2089,
+      "sha256": "6f1c2eb9f21d5e452772b3be4bfbacc0dfa39a5336ed500efb045363b0a9cb29"
+    },
+    {
+      "path": "docs/global/PRODUCT_SPEC_V1.md",
+      "bytes": 9571,
+      "sha256": "44e717f26a8d6c451e4539b1524a9cde2711f0cbd7efb8c0de3cc17363193dbe"
+    },
+    {
+      "path": "docs/global/REPOSITORY_STRUCTURE_V1.md",
+      "bytes": 2002,
+      "sha256": "cd2356c02aa5485b928d7321103df6535e75518dce4bf024d44ad83576d6a201"
+    },
+    {
+      "path": "docs/global/STRATEGY_CATALOG_V1.md",
+      "bytes": 6634,
+      "sha256": "e5d77236d3b67571c563122982f6c76064157a0212b93ce51da056e76eddd3b2"
+    },
+    {
+      "path": "docs/global/TEST_PLAN_V1.md",
+      "bytes": 2861,
+      "sha256": "271ca37de37b49994d194239a19eedca24da265526f91b78e287a6266d454904"
+    },
+    {
+      "path": "docs/global/UX_AND_SCREENS_V1.md",
+      "bytes": 5302,
+      "sha256": "5fba5a60321428868ef345f6b3451a2694b54efb93fdaa3ee0967a3b506a7199"
+    },
+    {
+      "path": "docs/global/review/REVIEW_CHANGELOG_V1_1.md",
+      "bytes": 1242,
+      "sha256": "21f8964e50cab172b1478f7b6cb9dcbe2f67c620948ee920d162c11e11e875b3"
+    },
+    {
+      "path": "docs/lotofacil/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/lotofacil/LOTOFACIL_DOMAIN_SPEC_V1.md",
+      "bytes": 4954,
+      "sha256": "97ae608c7d5d785e6013fc59538a85dfd35b9274ca1f72be8e8716cd5f404895"
+    },
+    {
+      "path": "docs/megasena/HANDOFF_MANIFEST_V1.md",
+      "bytes": 6907,
+      "sha256": "6ea88148f8fb4c26eaced4d0cf31cc4cedc76090d23f4d43377bd061209055fc"
+    },
+    {
+      "path": "docs/megasena/MEGASENA_APP_INTEGRATION_V1.md",
+      "bytes": 1018,
+      "sha256": "e51094350a172bc7544993f9632e624659a23beaa1706b3f9d3b3d94263ea787"
+    },
+    {
+      "path": "docs/megasena/MEGASENA_BENCHMARKS.md",
+      "bytes": 1474,
+      "sha256": "4bb70f5c319ba3086e50763cd5d57b75a94931909e3202959777edae58eafe57"
+    },
+    {
+      "path": "docs/megasena/MEGASENA_IMPLEMENTATION_SPEC.md",
+      "bytes": 13095,
+      "sha256": "daabbcdccc3b447ff5a8da7aeaa00188569d253c707cd7eb55eeaa184cb3dd96"
+    },
+    {
+      "path": "docs/megasena/MEGASENA_INTEGRATION_NOTES.md",
+      "bytes": 4168,
+      "sha256": "1948b884d9bb742b34e051b966c699ecf9a2a9ca91005ae0d6afbd24d30bdd07"
+    },
+    {
+      "path": "docs/megasena/MEGASENA_KNOWN_LIMITATIONS.md",
+      "bytes": 3187,
+      "sha256": "ec002158d9d77ee283bac774a7e67e5b169fbe1194aef5d868eea72f2042a3fa"
+    },
+    {
+      "path": "docs/megasena/MEGASENA_UI_CONTRACT.md",
+      "bytes": 4360,
+      "sha256": "31e47a85b3d3fbf3f337729fbbb6b81ec7358201619e03213778134fdbb4847f"
+    },
+    {
+      "path": "docs/megasena/README.md",
+      "bytes": 1934,
+      "sha256": "e4200e0bc3a90ea429c2d22e8b84af6ed415b4f2fe84bdd88616e86e285432ee"
+    },
+    {
+      "path": "docs/megasena/benchmarks_local.json",
+      "bytes": 2081,
+      "sha256": "e792d7f50e51f0522118ff3a2cae4e994dda8e3888cac34401804313dced5c3e"
+    },
+    {
+      "path": "public/data/config/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "public/data/config/game-config.json",
+      "bytes": 482,
+      "sha256": "ff8b8c527bb9d88728e8dc17ab650682549d8bb862bf7636985a562c69c85940"
+    },
+    {
+      "path": "public/data/lotofacil/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "public/data/megasena/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "public/images/common/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "public/images/lotofacil/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "public/images/megasena/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reference/lotofacil/Lotofacil_Estrategia_Revisada_v2_Concurso_3780.md",
+      "bytes": 13454,
+      "sha256": "670075f93c5a94d029b324393099c2274a68d89ad19c325ddcd4f676f76ba526"
+    },
+    {
+      "path": "reference/megasena/modelo_megasena_cinco_estrategias_v0_1.md",
+      "bytes": 14778,
+      "sha256": "770005e135b5b89d1555e2b0671dd9317e30b2c97597d195d3b0d154a9216313"
+    },
+    {
+      "path": "reference/megasena/resultados_verificados_original.json",
+      "bytes": 2566,
+      "sha256": "2f275eb5776c7c02d352c58db911ef19faa849cbfd618ec8751e46e5e2afa21e"
+    },
+    {
+      "path": "reference/megasena/verificar_modelo.py",
+      "bytes": 5590,
+      "sha256": "dac0a4cb91556a9a63e5a5627ff20f146359a51e2d19534df06fde556694d983"
+    },
+    {
+      "path": "scripts/lotofacil/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "scripts/megasena/benchmark.ts",
+      "bytes": 2201,
+      "sha256": "61ce0bc9c239fd22df57bece5a512e2edbb72a3f59422d914c3307bf1a624ae6"
+    },
+    {
+      "path": "scripts/megasena/run-benchmark.sh",
+      "bytes": 912,
+      "sha256": "1cecf2c410422b2beca951c3e48870783387f604b81ef482c022e88aed6fafe0"
+    },
+    {
+      "path": "scripts/megasena/run-tests.sh",
+      "bytes": 907,
+      "sha256": "d18184ddbe5e0b64f21fcd9975b641dbb1e2e0d7d8947bed1b0e151f77d2a908"
+    },
+    {
+      "path": "src/app/layout/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/app/providers/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/app/router/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/modules/lotofacil/domain/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/modules/lotofacil/strategies/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/modules/lotofacil/ui/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/modules/lotofacil/workers/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/modules/megasena/domain/audit.ts",
+      "bytes": 1644,
+      "sha256": "031e4fa5d5f07953dbb272c150d5e6dcf9774f081b119bb42a719f4222f796bf"
+    },
+    {
+      "path": "src/modules/megasena/domain/combinatorics.ts",
+      "bytes": 3785,
+      "sha256": "e89431a5a33593b364f0dc9d409149e3f5be9f2a3ce9baf5b3b855e156b7bde6"
+    },
+    {
+      "path": "src/modules/megasena/domain/constants.ts",
+      "bytes": 915,
+      "sha256": "83b6815e6d9a277efae8beaefcec2590af6faf5a94d70e634dfc5d74b65eef36"
+    },
+    {
+      "path": "src/modules/megasena/domain/coverage.ts",
+      "bytes": 6268,
+      "sha256": "3665239586b6d893eb012b58f863b505b7270a164429ac9745865df967d44aa4"
+    },
+    {
+      "path": "src/modules/megasena/domain/index.ts",
+      "bytes": 285,
+      "sha256": "1c589e21c5e8b5fe2a8dcfff8118a83fcdfc31436aee25d7eb388d12b53d7cd1"
+    },
+    {
+      "path": "src/modules/megasena/domain/optimizer.ts",
+      "bytes": 10931,
+      "sha256": "a09e3cf83ffed0546f49228f4308d7a6bdca90315047058647aa419cb3b8d52a"
+    },
+    {
+      "path": "src/modules/megasena/domain/overlap.ts",
+      "bytes": 1949,
+      "sha256": "52f5dc8fb6fc3281ed748c37e97c5fcc699f09185006425924e05720cc6afa70"
+    },
+    {
+      "path": "src/modules/megasena/domain/popularity.ts",
+      "bytes": 2667,
+      "sha256": "8dc0df20609a33d63cd724e2fb5595a2c3d7ad63e3ba92930063f20204e8e5f2"
+    },
+    {
+      "path": "src/modules/megasena/domain/portfolio.ts",
+      "bytes": 7106,
+      "sha256": "8869828a6f208db0c72ad8f4baf3b29afe0102f44fc5cab2b13a16aa8c7f46b4"
+    },
+    {
+      "path": "src/modules/megasena/domain/random.ts",
+      "bytes": 2928,
+      "sha256": "60066449ee31cf475a1c6c99a1e05c50aadd8201fc5211467037eba986d8af37"
+    },
+    {
+      "path": "src/modules/megasena/domain/types.ts",
+      "bytes": 4264,
+      "sha256": "670f62bef35b724834cf9266ce54cb4c52e1542cb01122faf334e5924de04098"
+    },
+    {
+      "path": "src/modules/megasena/domain/validation.ts",
+      "bytes": 7369,
+      "sha256": "dceb5f64deb8d02fdeef9a2979bc743ec55bb9496d1642b2fbd363f6237d7bd6"
+    },
+    {
+      "path": "src/modules/megasena/index.ts",
+      "bytes": 142,
+      "sha256": "3211847c9a8f71a5c1f635972bfbe054d80d8be3cfb3a9c20a518c8e76939b92"
+    },
+    {
+      "path": "src/modules/megasena/strategies/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/modules/megasena/ui/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/modules/megasena/workers/optimizer.worker.ts",
+      "bytes": 871,
+      "sha256": "43a4d246df02428873294da77a647f01caeb7c36e5670b47d5731dd224dd410b"
+    },
+    {
+      "path": "src/shared/components/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/shared/lib/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/shared/types/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "src/shared/utils/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/integration/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/lotofacil/fixtures/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/lotofacil/fixtures/rms_3780_oracle.json",
+      "bytes": 4135,
+      "sha256": "f9d0e36e1b44f36e22d83923126c11d8fec57d0410ab8d3a521d42847af39269"
+    },
+    {
+      "path": "tests/megasena/combinatorics.test.ts",
+      "bytes": 2332,
+      "sha256": "a58bb421f29ada554bbf69806861d7b563f4a95dd3a446678a3427c54294285d"
+    },
+    {
+      "path": "tests/megasena/coverage.test.ts",
+      "bytes": 2148,
+      "sha256": "c8703b825df9b7350d53ab58f6598dced1bff75a87a658c02b5afd2f82934b13"
+    },
+    {
+      "path": "tests/megasena/fixtures/reference_portfolios.json",
+      "bytes": 416,
+      "sha256": "f500029e2c09391e9ec58db59f64d2eabfbd6d6d2f66b984f6722fc73a45a53e"
+    },
+    {
+      "path": "tests/megasena/fixtures/resultados_verificados_v0_1.json",
+      "bytes": 2566,
+      "sha256": "2f275eb5776c7c02d352c58db911ef19faa849cbfd618ec8751e46e5e2afa21e"
+    },
+    {
+      "path": "tests/megasena/invariants.test.ts",
+      "bytes": 2506,
+      "sha256": "42f56b134b9bb60dd230335a4ad0f5a79062f0ccb891801c6bc38497e729f9f8"
+    },
+    {
+      "path": "tests/megasena/optimizer.test.ts",
+      "bytes": 2023,
+      "sha256": "58143b1010ff4643b3e376e61f3eb91253f5fb477dfd9a9806a3c8448c9fc465"
+    },
+    {
+      "path": "tests/megasena/overlap.test.ts",
+      "bytes": 1274,
+      "sha256": "7718093faa23eeaee1e9ca3ded978569c2a3f91c18b6786e06c374abcd3f1793"
+    },
+    {
+      "path": "tests/megasena/portfolio.test.ts",
+      "bytes": 1783,
+      "sha256": "fdb11480a1921aa906dac5602a0ae69828fd66e49ce8733e13c8a578fc9afde6"
+    },
+    {
+      "path": "tests/megasena/validation.test.ts",
+      "bytes": 1659,
+      "sha256": "50ed46049a7224d70d07afbe5def82733860d99a7e75fb33960724a9df940bec"
+    }
+  ],
+  "fileCount": 84
+}

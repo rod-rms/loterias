@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+.tmp-megasena-tests/
+playwright-report/
+test-results/
+coverage/
+
+.DS_Store
+Thumbs.db
+
+*.log
+npm-debug.log*
