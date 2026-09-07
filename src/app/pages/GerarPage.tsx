@@ -17,7 +17,7 @@ import {
   ErrorState,
   ResponsibleGamingNotice,
 } from "../../shared/components";
-import { formatBRL } from "../../shared/utils/currency";
+import { formatBRL, ticketsForBudget } from "../../shared/utils/currency";
 import { ComparePanel } from "./ComparePanel";
 import type { GameConfig, GeneratePortfolioRequest, Modality, PortfolioEnvelope, ProbabilityStatus, QualityPreset, StrategyDefinition } from "../../shared/types";
 
@@ -107,6 +107,23 @@ export function GerarPage({ modality }: { modality: Modality }) {
     if (overlap.length > 0) {
       setValidationError(`Números não podem estar fixos e excluídos ao mesmo tempo: ${overlap.join(", ")}`);
       return;
+    }
+    if (strategy.ticketCount.mode === "range") {
+      const max = strategy.ticketCount.max ?? Infinity;
+      const min = strategy.ticketCount.min ?? 1;
+      const effectiveN = inputMode === "budget" && gameConfig ? ticketsForBudget(budgetBRL, gameConfig.ticketCostBRL) : numberOfTickets;
+      if (effectiveN > max) {
+        setValidationError(
+          inputMode === "budget"
+            ? `O orçamento informado resulta em ${effectiveN} jogos, acima do limite de ${max} suportado por esta estratégia. Reduza o orçamento ou informe a quantidade diretamente.`
+            : `Quantidade acima do limite suportado por esta estratégia (${max}).`,
+        );
+        return;
+      }
+      if (effectiveN < min) {
+        setValidationError(`Quantidade abaixo do mínimo suportado por esta estratégia (${min}).`);
+        return;
+      }
     }
     generate(buildRequest(newSeed));
   }

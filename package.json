@@ -19,7 +19,8 @@
     "test:e2e": "playwright test",
     "test:mega:oracle": "node scripts/megasena/run-tests.mjs",
     "test:lotofacil:oracle": "vitest run tests/lotofacil --reporter=verbose",
-    "data:update": "node scripts/data/update-dataset.mjs all"
+    "data:update": "node scripts/data/update-dataset.mjs all",
+    "data:validate": "node scripts/data/validate-dataset.mjs"
   },
   "dependencies": {
     "dexie": "^4.0.10",

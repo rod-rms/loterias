@@ -35,7 +35,13 @@ function resolveTicketCount(request: GeneratePortfolioRequest, config: GameConfi
   return request.numberOfTickets;
 }
 
-function assertFeasible(numberOfTickets: number, fixedNumbers?: number[], excludedNumbers?: number[]): void {
+function assertFeasible(numberOfTickets: number, strategyMax: number, fixedNumbers?: number[], excludedNumbers?: number[]): void {
+  if (numberOfTickets > strategyMax) {
+    throw new MegaSenaGenerationError(
+      "QUANTITY_EXCEEDS_STRATEGY_LIMIT",
+      `Requested ${numberOfTickets} tickets, but this strategy supports at most ${strategyMax}. The limit is not silently reduced; choose a smaller quantity/budget.`,
+    );
+  }
   const f = new Set(fixedNumbers ?? []).size;
   const e = new Set(excludedNumbers ?? []).size;
   const maxDistinct = Number(comb(MEGASENA_MAX_NUMBER - f - e, MEGASENA_TICKET_SIZE - f));
@@ -77,7 +83,7 @@ async function generateCoverageAdapter(
 ): Promise<PortfolioEnvelope<MegaSenaPortfolioResult, MegaSenaAuditMetadata>> {
   const config = (await loadGameConfig()).megasena;
   const numberOfTickets = resolveTicketCount(request, config);
-  assertFeasible(numberOfTickets, request.fixedNumbers, request.excludedNumbers);
+  assertFeasible(numberOfTickets, definition.ticketCount.max ?? Infinity, request.fixedNumbers, request.excludedNumbers);
   const seed = resolveSeed(request.seed);
   const result = generateMegaSenaPortfolio({
     numberOfTickets,
@@ -98,7 +104,7 @@ export const generateMaxF5Adapter = (request: GeneratePortfolioRequest) => gener
 export async function generateMaxDiversificationAdapter(request: GeneratePortfolioRequest): Promise<PortfolioEnvelope<MegaSenaPortfolioResult, MegaSenaAuditMetadata>> {
   const config = (await loadGameConfig()).megasena;
   const numberOfTickets = resolveTicketCount(request, config);
-  assertFeasible(numberOfTickets, request.fixedNumbers, request.excludedNumbers);
+  assertFeasible(numberOfTickets, MEGASENA_MAX_DIVERSIFICATION.ticketCount.max ?? Infinity, request.fixedNumbers, request.excludedNumbers);
   const seed = resolveSeed(request.seed);
   const generation = generateMegaMaxDiversification({
     numberOfTickets,
@@ -131,7 +137,7 @@ export async function generateMaxDiversificationAdapter(request: GeneratePortfol
 export async function generateUniformRandomAdapter(request: GeneratePortfolioRequest): Promise<PortfolioEnvelope<MegaSenaPortfolioResult, MegaSenaAuditMetadata>> {
   const config = (await loadGameConfig()).megasena;
   const numberOfTickets = resolveTicketCount(request, config);
-  assertFeasible(numberOfTickets, request.fixedNumbers, request.excludedNumbers);
+  assertFeasible(numberOfTickets, MEGASENA_UNIFORM_RANDOM.ticketCount.max ?? Infinity, request.fixedNumbers, request.excludedNumbers);
   const seed = resolveSeed(request.seed);
   const tickets = generateUniformDistinctTickets(numberOfTickets, createSeededRandom(`${seed}:uniform_random`), new Set(), {
     fixedNumbers: request.fixedNumbers,

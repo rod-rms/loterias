@@ -2,6 +2,8 @@
 
 Leia `00_START_HERE_CLAUDE_CODE.md` antes de alterações substanciais.
 
+A v1 foi implementada; veja `docs/global/IMPLEMENTATION_REPORT_V1.md` para status, decisões técnicas e limitações conhecidas antes de assumir que algo falta.
+
 ## Fontes de verdade
 
 1. `00_START_HERE_CLAUDE_CODE.md`

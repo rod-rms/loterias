@@ -47,10 +47,16 @@ function resolveTicketCount(request: GeneratePortfolioRequest, config: GameConfi
   return request.numberOfTickets;
 }
 
-function assertFeasible(numberOfTickets: number, fixedNumbers?: number[], excludedNumbers?: number[]): void {
+function assertFeasible(numberOfTickets: number, strategyMax: number, fixedNumbers?: number[], excludedNumbers?: number[]): void {
   const fe = validateFixedExcluded({ fixedNumbers, excludedNumbers });
   if (!fe.valid) {
     throw new LotofacilGenerationError("INVALID_CONSTRAINTS", fe.issues.map((i) => i.message).join("; "));
+  }
+  if (numberOfTickets > strategyMax) {
+    throw new LotofacilGenerationError(
+      "QUANTITY_EXCEEDS_STRATEGY_LIMIT",
+      `Requested ${numberOfTickets} tickets, but this strategy supports at most ${strategyMax}. The limit is not silently reduced; choose a smaller quantity/budget.`,
+    );
   }
   const maxDistinct = maxDistinctTicketsUnderConstraints({ fixedNumbers, excludedNumbers });
   if (numberOfTickets > maxDistinct) {
@@ -133,7 +139,7 @@ export async function generateRmsV2Adapter(request: GeneratePortfolioRequest): P
 export async function generateMaxDiversificationAdapter(request: GeneratePortfolioRequest): Promise<PortfolioEnvelope<LotofacilPortfolioResult, LotofacilAuditMetadata>> {
   const config = (await loadGameConfig()).lotofacil;
   const numberOfTickets = resolveTicketCount(request, config);
-  assertFeasible(numberOfTickets, request.fixedNumbers, request.excludedNumbers);
+  assertFeasible(numberOfTickets, LOTOFACIL_MAX_DIVERSIFICATION.ticketCount.max ?? Infinity, request.fixedNumbers, request.excludedNumbers);
   const seed = resolveSeed(request.seed);
   const generation = generateMaxDiversification({
     numberOfTickets,
@@ -168,7 +174,7 @@ async function generateMaxCoverageAdapter(
 ): Promise<PortfolioEnvelope<LotofacilPortfolioResult, LotofacilAuditMetadata>> {
   const config = (await loadGameConfig()).lotofacil;
   const numberOfTickets = resolveTicketCount(request, config);
-  assertFeasible(numberOfTickets, request.fixedNumbers, request.excludedNumbers);
+  assertFeasible(numberOfTickets, definition.ticketCount.max ?? Infinity, request.fixedNumbers, request.excludedNumbers);
   const seed = resolveSeed(request.seed);
   const generation = generateMaxCoverage({
     numberOfTickets,
@@ -207,7 +213,7 @@ export const generateMaxCoverage12Adapter = (request: GeneratePortfolioRequest) 
 export async function generateUniformRandomAdapter(request: GeneratePortfolioRequest): Promise<PortfolioEnvelope<LotofacilPortfolioResult, LotofacilAuditMetadata>> {
   const config = (await loadGameConfig()).lotofacil;
   const numberOfTickets = resolveTicketCount(request, config);
-  assertFeasible(numberOfTickets, request.fixedNumbers, request.excludedNumbers);
+  assertFeasible(numberOfTickets, LOTOFACIL_UNIFORM_RANDOM.ticketCount.max ?? Infinity, request.fixedNumbers, request.excludedNumbers);
   const seed = resolveSeed(request.seed);
   const generation = generateUniformRandomPortfolio({
     numberOfTickets,

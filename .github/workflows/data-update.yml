@@ -1,0 +1,50 @@
+name: Update lottery datasets
+
+on:
+  schedule:
+    # Daily, after the CAIXA evening draws.
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update datasets from the official CAIXA source
+        run: npm run data:update
+
+      - name: Validate datasets
+        run: npm run data:validate
+
+      - name: Detect changes
+        id: git-diff
+        run: |
+          if git diff --quiet -- public/data; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push updated datasets
+        if: steps.git-diff.outputs.changed == 'true'
+        run: |
+          git config user.name "loterias-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/data/lotofacil/results.json public/data/megasena/results.json
+          git commit -m "data: update lottery datasets [skip ci]"
+          git push
