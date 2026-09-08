@@ -22,6 +22,7 @@ import {
   ResponsibleGamingNotice,
   Disclosure,
   ExportMenu,
+  BackLink,
 } from "../../shared/components";
 import { formatBRL, ticketsForBudget } from "../../shared/utils/currency";
 import { ComparePanel } from "./ComparePanel";
@@ -193,35 +194,47 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
   const isStale = Boolean(result) && !snapshotsEqual(captureUserInputSnapshot(), lastGeneratedInput);
 
-  function handleGenerate(newSeed?: string) {
-    setValidationError(null);
-    setSavedMessage(null);
-    if (!strategy) return;
+  /** Validates the current form against the selected strategy's rules.
+   * Returns an error message, or null when generation can proceed. Shared
+   * between the main "Gerar jogos" button and the stale-result banner's
+   * "Gerar com a nova configuração" button, so both agree on whether the
+   * current configuration is actually generateable (e.g. right after
+   * "Limpar configuração", with no strategy selected, it must not be). */
+  function validateBeforeGenerate(): string | null {
+    if (!strategy) return null;
     if (strategy.requiresTargetContest && contest === "") {
-      setValidationError("Esta opção exige o concurso em que você pretende jogar.");
-      return;
+      return "Esta opção exige o concurso em que você pretende jogar.";
     }
     const overlap = fixedNumbers.filter((n) => excludedNumbers.includes(n));
     if (overlap.length > 0) {
-      setValidationError(`Uma dezena não pode estar em "Incluir obrigatoriamente" e em "Não usar" ao mesmo tempo: ${overlap.join(", ")}`);
-      return;
+      return `Uma dezena não pode estar em "Incluir obrigatoriamente" e em "Não usar" ao mesmo tempo: ${overlap.join(", ")}`;
     }
     if (strategy.ticketCount.mode === "range") {
       const max = strategy.ticketCount.max ?? Infinity;
       const min = strategy.ticketCount.min ?? 1;
       const effectiveN = inputMode === "budget" && gameConfig ? ticketsForBudget(budgetBRL, gameConfig.ticketCostBRL) : numberOfTickets;
       if (effectiveN > max) {
-        setValidationError(
-          inputMode === "budget"
-            ? `O valor informado resulta em ${effectiveN} jogos, acima do limite de ${max} para esta opção. Reduza o valor ou informe a quantidade diretamente.`
-            : `Quantidade acima do limite desta opção (${max}).`,
-        );
-        return;
+        return inputMode === "budget"
+          ? `O valor informado resulta em ${effectiveN} jogos, acima do limite de ${max} para esta opção. Reduza o valor ou informe a quantidade diretamente.`
+          : `Quantidade acima do limite desta opção (${max}).`;
       }
       if (effectiveN < min) {
-        setValidationError(`Quantidade abaixo do mínimo desta opção (${min}).`);
-        return;
+        return `Quantidade abaixo do mínimo desta opção (${min}).`;
       }
+    }
+    return null;
+  }
+
+  const canGenerateNow = Boolean(strategy) && validateBeforeGenerate() === null;
+
+  function handleGenerate(newSeed?: string) {
+    setValidationError(null);
+    setSavedMessage(null);
+    if (!strategy) return;
+    const errorMessage = validateBeforeGenerate();
+    if (errorMessage) {
+      setValidationError(errorMessage);
+      return;
     }
     const request = buildRequest(newSeed);
     generate(request);
@@ -251,6 +264,12 @@ export function GerarPage({ modality }: { modality: Modality }) {
   }
 
   function handleClearConfiguration() {
+    // Resets only the editable form. Deliberately does NOT touch the
+    // displayed result, `lastGeneratedInput`, or `resolvedSnapshot` —
+    // clearing the configuration is not the same as discarding a result
+    // the user may still want. If a result is currently displayed, it
+    // stays visible and the stale-result banner picks up the mismatch
+    // automatically (the cleared form no longer matches lastGeneratedInput).
     setSelectedStrategyId("");
     setInputMode("quantity");
     setNumberOfTickets(6);
@@ -263,7 +282,6 @@ export function GerarPage({ modality }: { modality: Modality }) {
     setQualityPreset("balanced");
     setValidationError(null);
     setSavedMessage(null);
-    handleDiscardPreviousResult();
   }
 
   async function handleSave() {
@@ -335,6 +353,8 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
   return (
     <div className="space-y-8">
+      <BackLink to="/" label="Voltar ao início" />
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
         <nav aria-label="Outras páginas desta modalidade" className="flex gap-4 text-sm font-medium text-slate-600">
@@ -474,7 +494,13 @@ export function GerarPage({ modality }: { modality: Modality }) {
         <div role="alert" className="space-y-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           <p>Você alterou a configuração depois de gerar estes jogos. Os jogos abaixo ainda correspondem à configuração anterior.</p>
           <div className="flex flex-wrap items-center gap-3">
-            <button type="button" onClick={() => handleGenerate()} className="rounded-md bg-amber-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-amber-700">
+            <button
+              type="button"
+              disabled={!canGenerateNow}
+              title={canGenerateNow ? undefined : "Escolha uma opção e preencha a configuração antes de gerar."}
+              onClick={() => handleGenerate()}
+              className="rounded-md bg-amber-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-amber-600"
+            >
               Gerar com a nova configuração
             </button>
             <button type="button" onClick={handleRestorePreviousConfiguration} className="rounded-md border border-amber-400 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100">
@@ -484,6 +510,9 @@ export function GerarPage({ modality }: { modality: Modality }) {
               Descartar resultado anterior
             </button>
           </div>
+          {!canGenerateNow && (
+            <p className="text-xs text-amber-700">Escolha uma opção acima para poder gerar com a nova configuração.</p>
+          )}
         </div>
       )}
 

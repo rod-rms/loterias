@@ -167,4 +167,106 @@ describe("GerarPage — two-snapshot generation state", () => {
     expect((quantityInput as HTMLInputElement).value).toBe("3");
     expect(screen.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeInTheDocument();
   });
+
+  it("'Limpar configuração' preserves the displayed result, the resolved snapshot, and creates stale state", async () => {
+    render(
+      <MemoryRouter>
+        <GerarPage modality="lotofacil" />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByText("Gerar jogos aleatórios"));
+    const quantityInput = await screen.findByRole("spinbutton", { name: /Quantidade de jogos/ });
+    fireEvent.change(quantityInput, { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
+    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    const ticketsBefore = screen.getByRole("list", { name: /Lista de \d+ jogos/ }).innerHTML;
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
+
+    // The result stays visible, unchanged, and is now marked stale.
+    expect(screen.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: /Lista de \d+ jogos/ }).innerHTML).toBe(ticketsBefore);
+    await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
+
+    // The form itself was reset: no strategy selected any more.
+    expect(screen.getByText("Escolha uma opção acima para continuar.")).toBeInTheDocument();
+
+    // Saving after a clear must still use the frozen (pre-clear) snapshot.
+    fireEvent.click(screen.getByRole("button", { name: "Salvar estes jogos" }));
+    await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(1));
+    expect(savePortfolio.mock.calls[0][0].parameters.numberOfTickets).toBe(3);
+  });
+
+  it("after clearing, 'Gerar com a nova configuração' is disabled until a strategy is selected again", async () => {
+    render(
+      <MemoryRouter>
+        <GerarPage modality="lotofacil" />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByText("Gerar jogos aleatórios"));
+    fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
+    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
+    await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
+
+    expect(screen.getByRole("button", { name: "Gerar com a nova configuração" })).toBeDisabled();
+
+    // Reselecting the strategy with a different quantity than the original
+    // generation keeps the result stale (so the banner stays mounted) while
+    // making the form valid again — isolating the "form invalid" gating
+    // from the separate "form matches exactly -> not stale" behavior.
+    fireEvent.click(screen.getByRole("heading", { name: "Gerar jogos aleatórios" }));
+    fireEvent.change(screen.getByRole("spinbutton", { name: /Quantidade de jogos/ }), { target: { value: "10" } });
+    await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
+    expect(screen.getByRole("button", { name: "Gerar com a nova configuração" })).toBeEnabled();
+  });
+
+  it("restoring the previous configuration after a clear brings back every field and removes the stale warning without regenerating", async () => {
+    render(
+      <MemoryRouter>
+        <GerarPage modality="lotofacil" />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByText("Gerar jogos aleatórios"));
+    const quantityInput = await screen.findByRole("spinbutton", { name: /Quantidade de jogos/ });
+    fireEvent.change(quantityInput, { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
+    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    const ticketsBefore = screen.getByRole("list", { name: /Lista de \d+ jogos/ }).innerHTML;
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
+    await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
+
+    fireEvent.click(screen.getByRole("button", { name: "Restaurar configuração anterior" }));
+
+    await waitFor(() => expect(screen.queryByText(/Você alterou a configuração depois de gerar estes jogos/)).not.toBeInTheDocument());
+    // A strategy is selected again (downstream steps reappear) and the quantity is back to 3.
+    expect(screen.getByRole("heading", { name: "2. Quantos jogos você quer gerar?" })).toBeInTheDocument();
+    expect(screen.getByRole("spinbutton", { name: /Quantidade de jogos/ })).toHaveValue(3);
+    expect(screen.getByRole("list", { name: /Lista de \d+ jogos/ }).innerHTML).toBe(ticketsBefore);
+  });
+
+  it("explicit discard ('Descartar resultado anterior') still removes the result after a clear", async () => {
+    render(
+      <MemoryRouter>
+        <GerarPage modality="lotofacil" />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByText("Gerar jogos aleatórios"));
+    fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
+    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
+    await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
+
+    fireEvent.click(screen.getByRole("button", { name: "Descartar resultado anterior" }));
+
+    expect(screen.queryByRole("heading", { name: "Seus jogos estão prontos" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Você alterou a configuração depois de gerar estes jogos/)).not.toBeInTheDocument();
+  });
 });

@@ -220,3 +220,25 @@ node scripts/data/validate-dataset.mjs → PASS (datasets + status.json)
 Novos cenários E2E desta rodada: redirects de `/lotofacil`/`/megasena`; links de navegação no topo de Gerar; navegação "voltar" determinística; resultado permanece visível e marcado como desatualizado após alteração; restaurar configuração remove o aviso sem gerar de novo; salvar um resultado desatualizado usa a configuração que o gerou (não o formulário editado); "Limpar configuração" não apaga jogos salvos; link de jogo responsável aponta para a URL oficial atual; Metodologia mostra os dados de transparência; dezenas fixas e não usadas configuráveis ao mesmo tempo. Além disso, um teste de componente dedicado (`tests/app/gerarPageSnapshot.test.tsx`) verifica no nível de unidade que salvar usa o snapshot congelado mesmo com o formulário já editado — a regressão mais crítica desta rodada.
 
 Nenhum teste matemático, de oráculo ou de integração foi enfraquecido, removido ou teve sua asserção relaxada.
+
+## 10. Correções pós-revisão manual (mesma branch/PR)
+
+Revisão manual do preview de produção encontrou exatamente dois problemas na Rodada 3, corrigidos sem abrir uma nova rodada de design:
+
+1. **Nenhum `BackLink` em `/lotofacil/gerar` e `/megasena/gerar`.** A página de geração é o hub de cada modalidade, mas não tinha nenhuma forma visível de voltar ao início. Corrigido com `<BackLink to="/" label="Voltar ao início" />` no topo, antes do título e dos links "Meus jogos salvos"/"Metodologia" — mesmo componente reutilizável já usado em Metodologia/Carteiras, sem `navigate(-1)`.
+2. **`handleClearConfiguration()` chamava `handleDiscardPreviousResult()`.** Isso apagava um resultado já gerado ao clicar em "Limpar configuração", contradizendo a decisão já aprovada de que um resultado nunca desaparece sem uma ação explícita de descarte. Corrigido: "Limpar configuração" agora só reseta os campos editáveis do formulário (estratégia, quantidade/orçamento, concurso, personalização, código de reprodução, preset, mensagens de validação) e nunca toca no resultado exibido, em `lastGeneratedInput` ou em `resolvedSnapshot`. Como o formulário limpo normalmente não corresponde mais à configuração que gerou o resultado, o aviso de resultado desatualizado aparece automaticamente — exceto se o usuário editar o formulário de volta exatamente ao estado original, caso em que o aviso não deveria (e não deve) aparecer.
+
+Ajuste relacionado: como o formulário logo após "Limpar configuração" não tem nenhuma opção selecionada, o botão "Gerar com a nova configuração" do aviso de resultado desatualizado fica desabilitado (nunca fica clicável sem fazer nada) até o formulário voltar a ter uma opção selecionada e ser válido o suficiente para gerar — usando a mesma validação já usada pelo botão principal "Gerar jogos", extraída para uma função compartilhada (`validateBeforeGenerate`/`canGenerateNow`).
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (113/113 — +4 testes novos: preservação do resultado e do snapshot após "Limpar configuração", desabilitação/habilitação de "Gerar com a nova configuração", restaurar funciona após limpar, descarte explícito continua removendo o resultado)
+npm run test:mega:oracle  → PASS (24/24, domínio inalterado)
+npm run test:lotofacil:oracle → PASS (38/38, oráculo RMS 3780 inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (41/41 — 39 cenários anteriores + 2 novos/reescritos)
+node scripts/data/validate-dataset.mjs → PASS
+```
+
+Nenhum teste matemático, de oráculo ou de integração foi alterado. Nenhuma mudança de UX, dados, persistência ou arquitetura além das duas correções acima.

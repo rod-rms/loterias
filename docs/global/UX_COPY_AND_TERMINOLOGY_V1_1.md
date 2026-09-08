@@ -161,7 +161,9 @@ Os antigos botões escuros de modo ("Por quantidade" / "Por valor que quero gast
 
 ## 14. "Limpar configuração"
 
-Ação de baixo destaque no passo 4 ("Revisar e gerar") que reseta todo o formulário — estratégia (volta a nenhuma selecionada), quantidade/orçamento, concurso (volta ao sugerido), personalização de dezenas, código de reprodução e preset — e descarta o resultado exibido, se houver. Nunca apaga jogos já salvos em "Meus jogos salvos" (IndexedDB não é tocado).
+Ação de baixo destaque no passo 4 ("Revisar e gerar") que reseta **apenas o formulário editável** — estratégia (volta a nenhuma selecionada), quantidade/orçamento, concurso (volta ao sugerido), personalização de dezenas, código de reprodução e preset, além das mensagens de validação. Nunca apaga jogos já salvos em "Meus jogos salvos" (IndexedDB não é tocado).
+
+**Importante (corrigido após revisão manual):** "Limpar configuração" **preserva** qualquer resultado já gerado — nunca o remove. Se havia um resultado exibido, ele continua visível, com `lastGeneratedInput` e `resolvedSnapshot` intactos; como o formulário limpo não corresponde mais a essa configuração, o aviso de resultado desatualizado (seção 15) aparece automaticamente. Enquanto o formulário limpo não tiver uma opção selecionada (ou não for válido o suficiente para gerar), "Gerar com a nova configuração" fica desabilitado — nunca fica clicável sem fazer nada. A única forma de efetivamente remover um resultado exibido continua sendo uma ação explícita de descarte ("Descartar resultado anterior" no aviso, ou "Limpar resultado" na área do resultado).
 
 ## 15. Resultado desatualizado (stale) — nunca some sozinho
 

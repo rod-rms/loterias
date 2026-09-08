@@ -370,6 +370,23 @@ test.describe("Loterias — critical flows", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
+  test("31b. 'Voltar ao início' está visível em ambas as páginas de geração e leva a '/'", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    const lfBack = page.getByRole("link", { name: "Voltar ao início" });
+    await expect(lfBack).toBeVisible();
+    await lfBack.focus();
+    await expect(lfBack).toBeFocused();
+    await lfBack.click();
+    await expect(page).toHaveURL(/\/$/);
+
+    await page.goto("/megasena/gerar");
+    const msBack = page.getByRole("link", { name: "Voltar ao início" });
+    await expect(msBack).toBeVisible();
+    await expect(msBack).toHaveAttribute("href", "/");
+    await msBack.click();
+    await expect(page).toHaveURL(/\/$/);
+  });
+
   test("32. resultado permanece visível e marcado como desatualizado após alterar a configuração", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
@@ -424,19 +441,53 @@ test.describe("Loterias — critical flows", () => {
     await expect(ticketRows).toHaveCount(3);
   });
 
-  test("35. Limpar configuração reseta o formulário sem apagar jogos salvos", async ({ page }) => {
+  test("35. Limpar configuração reseta o formulário mas preserva o resultado gerado (marcado como desatualizado)", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("3");
     await generateAndWait(page);
-    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
+    const firstTickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
 
     await page.getByRole("button", { name: "Limpar configuração" }).click();
-    await expect(page.getByText("Escolha uma opção acima para continuar.")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
 
+    // The form was reset (no strategy selected), but the result stays visible and unchanged.
+    await expect(page.getByText("Escolha uma opção acima para continuar.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible();
+    const ticketsAfterClear = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
+    expect(ticketsAfterClear).toBe(firstTickets);
+
+    // It is now marked stale, and regenerating is unavailable until the form is valid again.
+    await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Gerar com a nova configuração" })).toBeDisabled();
+
+    // "Limpar configuração" itself never touches saved games in IndexedDB.
+    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
+    await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
     await page.goto("/carteiras");
     await expect(page.getByText(/Gerar jogos aleatórios/)).toBeVisible();
+  });
+
+  test("35b. restaurar após Limpar configuração funciona e o descarte explícito continua sendo a única forma de remover o resultado", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("3");
+    await generateAndWait(page);
+    const firstTickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
+
+    await page.getByRole("button", { name: "Limpar configuração" }).click();
+    await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toBeVisible();
+
+    await page.getByRole("button", { name: "Restaurar configuração anterior" }).click();
+    await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toHaveCount(0);
+    await expect(page.getByRole("spinbutton", { name: /Quantidade de jogos/ })).toHaveValue("3");
+    const ticketsAfterRestore = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
+    expect(ticketsAfterRestore).toBe(firstTickets);
+
+    // Now clear again and use the explicit discard action.
+    await page.getByRole("button", { name: "Limpar configuração" }).click();
+    await page.getByRole("button", { name: "Descartar resultado anterior" }).click();
+    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toHaveCount(0);
   });
 
   test("36. aviso de jogo responsável aponta para a URL oficial atual", async ({ page }) => {
