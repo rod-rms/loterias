@@ -31,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <GameSwitcher />
           <nav aria-label="Navegação principal" className="ml-auto flex items-center gap-4">
             <NavLink to="/carteiras" className={navLinkClass}>
-              Minhas carteiras
+              Meus jogos salvos
             </NavLink>
             <NavLink to="/sobre" className={navLinkClass}>
               Sobre

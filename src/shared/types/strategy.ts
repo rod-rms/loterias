@@ -13,6 +13,27 @@ export interface TicketCountCapability {
 }
 
 /**
+ * Plain-language presentation metadata for a strategy, shown to
+ * non-technical users. Purely presentational: never used for branching
+ * logic, never changes domain behavior. The technical name/id/version stay
+ * available in "Detalhes técnicos" sections.
+ */
+export interface StrategyUxMetadata {
+  /** Short, goal-oriented title shown on the strategy card (e.g. "Variar mais os jogos"). */
+  title: string;
+  /** One or two plain-language sentences describing what the strategy does. */
+  summary: string;
+  /** Short plain-language badge (e.g. "Mais diversidade"), replacing raw evidence labels in the primary flow. */
+  badge: string;
+  /** Title shown in the InfoHelp/expandable explanation. */
+  helpTitle: string;
+  /** Longer plain-language explanation, may include limitations, shown in "Como funciona". */
+  helpBody: string;
+  /** The original technical/internal display name, shown only in technical details. */
+  technicalName: string;
+}
+
+/**
  * Declarative capability contract for a strategy. The UI must configure
  * itself from these fields instead of branching on strategy id.
  */
@@ -41,6 +62,9 @@ export interface StrategyDefinition {
 
   /** Number of previous contests required in the reference window, if any. */
   historyWindowSize?: number;
+
+  /** Plain-language presentation metadata for lay users. See {@link StrategyUxMetadata}. */
+  ux: StrategyUxMetadata;
 }
 
 export interface GeneratePortfolioRequest {

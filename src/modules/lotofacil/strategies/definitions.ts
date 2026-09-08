@@ -26,6 +26,15 @@ export const LOTOFACIL_RMS_V2: StrategyDefinition = {
     "Não afirma que a RMS aumenta a chance de 15 acertos frente a outros 6 jogos distintos.",
     "O histórico define rotação/pools, não dezenas mais prováveis.",
   ],
+  ux: {
+    title: "Carteira equilibrada (RMS)",
+    summary: "Cria 6 jogos com distribuição equilibrada das dezenas e controle de repetição entre os jogos.",
+    badge: "6 jogos fixos",
+    helpTitle: "Como funciona a Carteira equilibrada (RMS)",
+    helpBody:
+      "Usa os 20 concursos anteriores apenas para organizar os grupos de dezenas e construir uma carteira estruturalmente equilibrada. Não prevê quais dezenas serão sorteadas e não aumenta a chance de 15 acertos em relação a outros 6 jogos distintos.",
+    technicalName: "RMS v2",
+  },
 };
 
 export const LOTOFACIL_MAX_DIVERSIFICATION: StrategyDefinition = {
@@ -47,6 +56,15 @@ export const LOTOFACIL_MAX_DIVERSIFICATION: StrategyDefinition = {
   optimizedMetrics: ["equilíbrio de exposição", "sobreposição média/máxima"],
   reportedMetrics: ["F11+", "F12+", "F13+", "F14+", "F15", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER],
+  ux: {
+    title: "Variar mais os jogos",
+    summary: "Cria jogos mais diferentes entre si, distribuindo melhor as dezenas pelo conjunto.",
+    badge: "Mais diversidade",
+    helpTitle: "Como funciona Variar mais os jogos",
+    helpBody:
+      "Busca reduzir repetições entre os jogos e equilibrar quantas vezes cada dezena aparece. Isso aumenta a diversidade do conjunto, não a probabilidade individual de uma dezena ser sorteada.",
+    technicalName: "Diversificação de carteira",
+  },
 };
 
 export const LOTOFACIL_MAX_COVERAGE_11: StrategyDefinition = {
@@ -68,6 +86,15 @@ export const LOTOFACIL_MAX_COVERAGE_11: StrategyDefinition = {
   optimizedMetrics: ["cobertura 11+ (amostrada durante a busca)"],
   reportedMetrics: ["F11+", "F12+", "F13+", "F14+", "F15", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER, "Melhor solução encontrada pelo algoritmo, sem prova de ótimo global."],
+  ux: {
+    title: "Priorizar 11 acertos ou mais",
+    summary: "Organiza os jogos para cobrir mais cenários em que pelo menos um deles faria 11 ou mais acertos.",
+    badge: "Busca otimizada",
+    helpTitle: "Como funciona Priorizar 11 acertos ou mais",
+    helpBody:
+      "O algoritmo testa diferentes conjuntos de jogos e procura aquele que cobre mais resultados possíveis com 11 acertos ou mais. A busca é heurística: encontra boas soluções, mas não garante o melhor conjunto matematicamente possível.",
+    technicalName: "Otimizar cobertura 11+",
+  },
 };
 
 export const LOTOFACIL_MAX_COVERAGE_12: StrategyDefinition = {
@@ -89,6 +116,14 @@ export const LOTOFACIL_MAX_COVERAGE_12: StrategyDefinition = {
   optimizedMetrics: ["cobertura 12+ (amostrada durante a busca)"],
   reportedMetrics: ["F11+", "F12+", "F13+", "F14+", "F15", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER, "Melhor solução encontrada pelo algoritmo, sem prova de ótimo global."],
+  ux: {
+    title: "Priorizar 12 acertos ou mais",
+    summary: "Organiza os jogos para cobrir mais cenários em que pelo menos um deles faria 12 ou mais acertos.",
+    badge: "Busca otimizada",
+    helpTitle: "Como funciona Priorizar 12 acertos ou mais",
+    helpBody: "O algoritmo procura ampliar a cobertura de resultados com 12 acertos ou mais. A busca é heurística e não prevê o próximo sorteio.",
+    technicalName: "Otimizar cobertura 12+",
+  },
 };
 
 export const LOTOFACIL_UNIFORM_RANDOM: StrategyDefinition = {
@@ -110,6 +145,15 @@ export const LOTOFACIL_UNIFORM_RANDOM: StrategyDefinition = {
   optimizedMetrics: [],
   reportedMetrics: ["F11+", "F12+", "F13+", "F14+", "F15", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER, "Não deve ser confundida com a baseline teórica de comparação."],
+  ux: {
+    title: "Gerar jogos aleatórios",
+    summary: "Gera jogos diferentes entre si sem aplicar filtros ou padrões.",
+    badge: "Sem filtros",
+    helpTitle: "Como funciona Gerar jogos aleatórios",
+    helpBody:
+      "Cada combinação válida é gerada de forma uniforme. Esta opção é útil como referência neutra e não deve ser confundida com a média teórica usada nas comparações.",
+    technicalName: "Aleatória distinta",
+  },
 };
 
 export const LOTOFACIL_STRATEGIES: StrategyDefinition[] = [

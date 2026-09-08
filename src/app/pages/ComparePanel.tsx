@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import { useGenerationWorker } from "../../shared/lib/useGenerationWorker";
+import { getMetricPresentation, PRIMARY_METRIC_ORDER } from "../../shared/lib/metricPresentation";
 import { MetricCard, ErrorState } from "../../shared/components";
 import { formatBRL } from "../../shared/utils/currency";
-import type { GeneratePortfolioRequest, Modality, PortfolioEnvelope } from "../../shared/types";
+import type { GeneratePortfolioRequest, Modality, PortfolioEnvelope, ProbabilityStatus } from "../../shared/types";
 
 interface ComparePanelProps {
   modality: Modality;
@@ -13,6 +14,10 @@ interface ComparePanelProps {
   excludedNumbers?: number[];
   contest?: number;
   currentResult: PortfolioEnvelope;
+}
+
+function strategyTitle(strategyId: string): string {
+  return strategyRegistry.get(strategyId)?.ux.title ?? strategyId;
 }
 
 /** Compares at most one additional strategy at a time, with identical N and restrictions. Never declares a winner. */
@@ -44,26 +49,27 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
   if (!active) {
     return (
       <button type="button" onClick={() => setActive(true)} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
-        Comparar com outra estratégia
+        Comparar com outra opção
       </button>
     );
   }
 
   return (
     <div className="rounded-lg border border-slate-300 bg-white p-4">
-      <h3 className="text-sm font-semibold text-slate-800">Comparar com outra estratégia</h3>
+      <h3 className="text-sm font-semibold text-slate-800">Comparar com outra opção</h3>
       <p className="mt-1 text-xs text-slate-500">
-        Mesma quantidade de jogos ({numberOfTickets}) e mesmas restrições. Apenas estratégias compatíveis aparecem abaixo. Nenhuma é declarada vencedora.
+        Mesma quantidade de jogos ({numberOfTickets}) e as mesmas dezenas obrigatórias/não usadas. Só aparecem abaixo as opções compatíveis. Nenhuma é
+        declarada vencedora.
       </p>
       {candidates.length === 0 ? (
-        <p className="mt-2 text-sm text-amber-700">Nenhuma estratégia compatível com N={numberOfTickets} e as restrições atuais.</p>
+        <p className="mt-2 text-sm text-amber-700">Nenhuma outra opção é compatível com {numberOfTickets} jogos e as restrições atuais.</p>
       ) : (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <select value={compareStrategyId} onChange={(e) => setCompareStrategyId(e.target.value)} className="rounded border border-slate-300 px-2 py-1.5 text-sm">
             <option value="">Selecione...</option>
             {candidates.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name}
+                {s.ux.title}
               </option>
             ))}
           </select>
@@ -82,45 +88,52 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
                   Métrica
                 </th>
                 <th scope="col" className="py-1 pr-2">
-                  {currentResult.strategyId}
+                  {strategyTitle(currentResult.strategyId)}
                 </th>
                 <th scope="col" className="py-1 pr-2">
-                  {result.strategyId}
+                  {strategyTitle(result.strategyId)}
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr className="border-t border-slate-100">
-                <td className="py-1 pr-2 font-medium">Custo</td>
+                <td className="py-1 pr-2 font-medium">Custo total</td>
                 <td className="py-1 pr-2">{formatBRL(currentResult.costBRL)}</td>
                 <td className="py-1 pr-2">{formatBRL(result.costBRL)}</td>
-              </tr>
-              <tr className="border-t border-slate-100">
-                <td className="py-1 pr-2 font-medium">Método</td>
-                <td className="py-1 pr-2 text-xs">{currentResult.generationMethod}</td>
-                <td className="py-1 pr-2 text-xs">{result.generationMethod}</td>
               </tr>
             </tbody>
           </table>
           <div className="mt-3 grid grid-cols-2 gap-4">
             {[currentResult, result].map((r) => {
-              const metrics = r.metrics as { probability?: Record<string, { percent: number | null; oneIn?: number | null; status: import("../../shared/types").ProbabilityStatus }>; overlap?: { mean: number } };
+              const metrics = r.metrics as { probability?: Record<string, { probability: number | null; status: ProbabilityStatus }>; overlap?: { mean: number } };
+              const keys = PRIMARY_METRIC_ORDER[modality];
               return (
                 <div key={r.id} className="space-y-2">
-                  <p className="text-xs font-semibold text-slate-600">{r.strategyId}</p>
+                  <p className="text-xs font-semibold text-slate-600">{strategyTitle(r.strategyId)}</p>
                   <div className="grid grid-cols-2 gap-2">
                     {metrics.probability &&
-                      Object.entries(metrics.probability)
+                      keys
+                        .filter((k) => metrics.probability![k])
                         .slice(0, 4)
-                        .map(([key, m]) => <MetricCard key={key} label={key} percent={m.percent} oneIn={m.oneIn} status={m.status} />)}
+                        .map((key) => {
+                          const presentation = getMetricPresentation(modality, key);
+                          return (
+                            <MetricCard
+                              key={key}
+                              label={presentation.label}
+                              probability={metrics.probability![key]!.probability}
+                              status={metrics.probability![key]!.status}
+                            />
+                          );
+                        })}
                   </div>
-                  {metrics.overlap && <p className="text-xs text-slate-500">Sobreposição média: {metrics.overlap.mean.toFixed(2)}</p>}
+                  {metrics.overlap && <p className="text-xs text-slate-500">Repetição média entre jogos: {metrics.overlap.mean.toFixed(2)} dezenas.</p>}
                 </div>
               );
             })}
           </div>
           <p className="mt-3 text-xs text-slate-500">
-            Diferenças refletem métodos distintos, não uma "carteira vencedora". Ambas usam N={numberOfTickets} jogos e o mesmo custo unitário.
+            Diferenças refletem métodos distintos, não um "conjunto vencedor". Ambas as opções usam {numberOfTickets} jogos e o mesmo preço por jogo.
           </p>
         </div>
       )}

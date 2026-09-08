@@ -21,6 +21,15 @@ export const MEGASENA_MAX_F4: StrategyDefinition = {
   optimizedMetrics: ["F4"],
   reportedMetrics: ["F4", "F5", "F6", "sobreposição", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER, "Melhor solução encontrada pelo algoritmo, sem prova de ótimo global."],
+  ux: {
+    title: "Priorizar Quadra ou mais",
+    summary: "Organiza os jogos para cobrir mais cenários em que pelo menos um deles faria Quadra, Quina ou Sena.",
+    badge: "Busca otimizada",
+    helpTitle: "Como funciona Priorizar Quadra ou mais",
+    helpBody:
+      "O algoritmo testa diferentes conjuntos de jogos e procura aquele que cobre mais resultados possíveis com Quadra ou mais. A busca é heurística: encontra boas soluções, mas não garante o melhor conjunto matematicamente possível.",
+    technicalName: "Otimizar cobertura Quadra+",
+  },
 };
 
 export const MEGASENA_MAX_F5: StrategyDefinition = {
@@ -42,6 +51,15 @@ export const MEGASENA_MAX_F5: StrategyDefinition = {
   optimizedMetrics: ["F5"],
   reportedMetrics: ["F4", "F5", "F6", "sobreposição", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER, "Melhor solução encontrada pelo algoritmo, sem prova de ótimo global."],
+  ux: {
+    title: "Priorizar Quina ou mais",
+    summary: "Organiza os jogos para cobrir mais cenários em que pelo menos um deles faria Quina ou Sena.",
+    badge: "Busca otimizada",
+    helpTitle: "Como funciona Priorizar Quina ou mais",
+    helpBody:
+      "O algoritmo procura ampliar a cobertura de resultados com Quina ou mais. A busca é heurística e não prevê o próximo sorteio.",
+    technicalName: "Otimizar cobertura Quina+",
+  },
 };
 
 export const MEGASENA_MAX_DIVERSIFICATION: StrategyDefinition = {
@@ -63,6 +81,15 @@ export const MEGASENA_MAX_DIVERSIFICATION: StrategyDefinition = {
   optimizedMetrics: ["equilíbrio de exposição", "sobreposição"],
   reportedMetrics: ["F4", "F5", "F6", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER, "Não afirma aumento da chance de Sena."],
+  ux: {
+    title: "Variar mais os jogos",
+    summary: "Cria jogos mais diferentes entre si e reduz a repetição de dezenas entre eles.",
+    badge: "Mais diversidade",
+    helpTitle: "Como funciona Variar mais os jogos",
+    helpBody:
+      "Busca reduzir repetições entre os jogos e equilibrar quantas vezes cada dezena aparece. Isso aumenta a diversidade do conjunto, não a probabilidade individual de uma dezena ser sorteada, nem a chance de Sena.",
+    technicalName: "Diversificação de carteira",
+  },
 };
 
 export const MEGASENA_UNIFORM_RANDOM: StrategyDefinition = {
@@ -84,6 +111,15 @@ export const MEGASENA_UNIFORM_RANDOM: StrategyDefinition = {
   optimizedMetrics: [],
   reportedMetrics: ["F4", "F5", "F6", "baseline"],
   disclaimers: [NOT_PREDICTION_DISCLAIMER, "Não deve ser confundida com a baseline teórica de comparação."],
+  ux: {
+    title: "Gerar jogos aleatórios",
+    summary: "Gera jogos diferentes entre si sem aplicar filtros ou padrões.",
+    badge: "Sem filtros",
+    helpTitle: "Como funciona Gerar jogos aleatórios",
+    helpBody:
+      "Cada combinação válida é gerada de forma uniforme. Esta opção é útil como referência neutra e não deve ser confundida com a média teórica usada nas comparações.",
+    technicalName: "Aleatória distinta",
+  },
 };
 
 export const MEGASENA_STRATEGIES: StrategyDefinition[] = [

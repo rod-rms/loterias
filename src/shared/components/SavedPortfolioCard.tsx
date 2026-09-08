@@ -1,5 +1,6 @@
 import type { SavedPortfolio } from "../types";
 import { formatBRL } from "../utils/currency";
+import { strategyRegistry } from "../lib/strategyRegistry";
 
 interface SavedPortfolioCardProps {
   portfolio: SavedPortfolio;
@@ -9,12 +10,13 @@ interface SavedPortfolioCardProps {
 }
 
 export function SavedPortfolioCard({ portfolio, onOpen, onToggleBet, onDelete }: SavedPortfolioCardProps) {
+  const strategyTitle = strategyRegistry.get(portfolio.strategyId)?.ux.title ?? portfolio.strategyId;
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="font-semibold text-slate-900">
-            {portfolio.modality === "lotofacil" ? "Lotofácil" : "Mega-Sena"} · {portfolio.strategyId}
+            {portfolio.modality === "lotofacil" ? "Lotofácil" : "Mega-Sena"} · {strategyTitle}
           </p>
           <p className="text-xs text-slate-500">
             Concurso {portfolio.contest ?? "—"} · {portfolio.tickets.length} jogo(s) · {formatBRL(portfolio.price.ticketCostBRL * portfolio.tickets.length)}
