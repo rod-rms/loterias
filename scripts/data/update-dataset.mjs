@@ -18,6 +18,14 @@
  *   - writes atomically (temp file + rename) only after validation;
  *   - never destroys a previously valid snapshot on failure;
  *   - does not commit; the caller (human or CI workflow) commits.
+ *
+ * Also maintains public/data/status.json, a small data-source transparency
+ * file distinguishing "last time we successfully verified the official
+ * source" (lastCheckedAt) from "last time a new draw actually changed the
+ * local dataset" (lastUpdatedAt). A modality whose check fails this run
+ * keeps its previous status entry untouched — we never write a false
+ * "successful" lastCheckedAt, and we never overwrite a known-good snapshot
+ * with a failed/partial one.
  */
 
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
@@ -27,6 +35,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..", "..");
+const STATUS_FILE = path.join(ROOT, "public", "data", "status.json");
 
 const MODALITIES = {
   lotofacil: {
@@ -42,6 +51,14 @@ const MODALITIES = {
     outFile: path.join(ROOT, "public", "data", "megasena", "results.json"),
   },
 };
+
+// Set by the workflow: true for a manual run or the "final fallback"
+// verification window of each draw's retry sequence, so a successful
+// check with no new contest still updates lastCheckedAt. False (default)
+// for "intermediate" scheduled windows, which log the attempt but leave
+// the versioned status untouched when nothing changed, avoiding a
+// status-only commit for every retry.
+const ALLOW_CHECKED_ONLY_STATUS_WRITE = process.env.ALLOW_CHECKED_ONLY_STATUS_WRITE === "true";
 
 const CONCURRENCY = 2;
 const RETRIES = 6;
@@ -124,6 +141,27 @@ async function loadExistingDataset(modality, cfg) {
   }
 }
 
+async function loadExistingStatus() {
+  if (!existsSync(STATUS_FILE)) return null;
+  try {
+    return JSON.parse(await readFile(STATUS_FILE, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function defaultModalityStatus(cfg) {
+  return {
+    source: cfg.endpoint,
+    latestContest: 0,
+    latestDrawDate: "",
+    lastUpdatedAt: "",
+    lastCheckedAt: "",
+    status: "degraded",
+    gapCount: 0,
+  };
+}
+
 async function fetchLatestContestNumber(cfg) {
   const raw = await fetchJson(`${cfg.endpoint}/`);
   const n = Number(raw?.numero);
@@ -151,6 +189,13 @@ async function atomicWrite(filePath, data) {
   await rename(tmp, filePath);
 }
 
+/**
+ * Performs the official-source check and (if needed) backfill for one
+ * modality. Never throws for per-contest fetch/validation problems — those
+ * are reported as failures/gaps. Only throws when the initial "what is the
+ * latest official contest" check itself fails, since that means we could
+ * not verify the source at all this run.
+ */
 async function updateModality(modality) {
   const cfg = MODALITIES[modality];
   if (!cfg) throw new Error(`unknown modality: ${modality}`);
@@ -168,7 +213,8 @@ async function updateModality(modality) {
   const haveLatest = existing?.latestContest ?? 0;
   if (haveLatest >= latestContest && draws.size >= latestContest) {
     console.log(`[${modality}] snapshot already up to date (contest ${haveLatest}). No changes.`);
-    return { modality, changed: false, latestContest };
+    const finalDraws = Array.from(draws.values()).sort((a, b) => a.contest - b.contest);
+    return { modality, checked: true, changed: false, latestContest, latestDrawDate: finalDraws.at(-1)?.drawDate ?? "", failures: [], gaps: [] };
   }
 
   const missing = [];
@@ -213,7 +259,8 @@ async function updateModality(modality) {
     }
   });
 
-  await persistProgress();
+  const changed = fetchedCount > 0;
+  if (changed) await persistProgress();
 
   const finalDraws = Array.from(draws.values()).sort((a, b) => a.contest - b.contest);
   const gaps = [];
@@ -231,19 +278,88 @@ async function updateModality(modality) {
     console.warn(`[${modality}] WARNING: dataset has ${gaps.length} gap(s) below the latest stored contest.`);
   }
 
-  return { modality, changed: true, latestContest: finalDraws.at(-1)?.contest ?? 0, failures, gaps };
+  return {
+    modality,
+    checked: true,
+    changed,
+    latestContest: finalDraws.at(-1)?.contest ?? 0,
+    latestDrawDate: finalDraws.at(-1)?.drawDate ?? "",
+    failures,
+    gaps,
+  };
+}
+
+async function updateStatusFile(results) {
+  const existingStatus = (await loadExistingStatus()) ?? { schemaVersion: 1 };
+  const nowIso = new Date().toISOString();
+  const merged = { schemaVersion: 1 };
+
+  for (const modality of Object.keys(MODALITIES)) {
+    const cfg = MODALITIES[modality];
+    const previous = existingStatus[modality] ?? defaultModalityStatus(cfg);
+    const result = results.find((r) => r?.modality === modality);
+
+    if (!result || !result.checked) {
+      // The check failed (or was skipped) this run: never write a false
+      // "successful" lastCheckedAt, and never touch the rest of the entry.
+      merged[modality] = previous;
+      continue;
+    }
+
+    if (!result.changed && !ALLOW_CHECKED_ONLY_STATUS_WRITE) {
+      // A successful check with nothing new, on an "intermediate" retry
+      // window (see the workflow's multiple post-draw verification
+      // windows): log it, but don't create a status-only commit for it —
+      // only the final fallback window (or a manual run) persists a
+      // checked-but-unchanged lastCheckedAt, to keep Git history readable.
+      console.log(`[${modality}] check succeeded, nothing new (intermediate window: not persisting lastCheckedAt this run)`);
+      merged[modality] = previous;
+      continue;
+    }
+
+    merged[modality] = {
+      source: cfg.endpoint,
+      latestContest: result.latestContest,
+      latestDrawDate: result.latestDrawDate || previous.latestDrawDate,
+      lastUpdatedAt: result.changed ? nowIso : previous.lastUpdatedAt || nowIso,
+      lastCheckedAt: nowIso,
+      status: result.gaps.length === 0 ? "ok" : "degraded",
+      gapCount: result.gaps.length,
+    };
+  }
+
+  await atomicWrite(STATUS_FILE, merged);
+  return merged;
 }
 
 async function main() {
   const arg = process.argv[2] ?? "all";
   const targets = arg === "all" ? Object.keys(MODALITIES) : [arg];
   const results = [];
+  let anyCheckFailed = false;
+
   for (const modality of targets) {
-    results.push(await updateModality(modality));
+    try {
+      results.push(await updateModality(modality));
+    } catch (err) {
+      anyCheckFailed = true;
+      console.error(`[${modality}] FAILED to verify the official source this run: ${err instanceof Error ? err.message : String(err)}`);
+      console.error(`[${modality}] preserving the last known-good dataset and status; not writing a false successful check.`);
+      results.push({ modality, checked: false });
+    }
   }
-  const anyHardFailure = results.some((r) => r == null);
-  console.log("\nSummary:", JSON.stringify(results.map((r) => ({ modality: r.modality, changed: r.changed, latestContest: r.latestContest, failures: r.failures?.length ?? 0, gaps: r.gaps?.length ?? 0 })), null, 2));
-  process.exit(anyHardFailure ? 1 : 0);
+
+  await updateStatusFile(results);
+
+  console.log(
+    "\nSummary:",
+    JSON.stringify(
+      results.map((r) => ({ modality: r.modality, checked: r.checked, changed: r.changed ?? false, latestContest: r.latestContest ?? null, failures: r.failures?.length ?? 0, gaps: r.gaps?.length ?? 0 })),
+      null,
+      2,
+    ),
+  );
+  process.exit(anyCheckFailed ? 1 : 0);
 }
 
 main().catch((err) => {

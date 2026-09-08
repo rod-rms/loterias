@@ -71,3 +71,23 @@ export function formatPercentagePointDifference(diff: number | null | undefined)
   const formatted = new Intl.NumberFormat(PT_BR, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(abs);
   return `${sign}${formatted} p.p.`;
 }
+
+/**
+ * Humanized version of the same comparison for lay UI: no "p.p." jargon
+ * (that abbreviation is kept for the technical-details view only, via
+ * formatPercentagePointDifference), and a plain sentence describing whether
+ * the difference favors this set of games or the random-equivalent games.
+ * Uses the same effectively-zero / sub-0.0001 thresholds so both formatters
+ * agree on when a difference is real.
+ */
+export function formatComparisonSentence(diff: number | null | undefined): string {
+  if (diff === null || diff === undefined || Number.isNaN(diff)) return "—";
+  if (Math.abs(diff) < EFFECTIVELY_ZERO) return "Mesma cobertura";
+  const abs = Math.abs(diff);
+  if (abs < 0.0001) return "Praticamente igual";
+  const decimals = decimalsForPercent(abs);
+  const formatted = new Intl.NumberFormat(PT_BR, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(abs);
+  return diff > 0
+    ? `${formatted} pontos percentuais a favor deste conjunto`
+    : `${formatted} pontos percentuais abaixo dos jogos aleatórios equivalentes`;
+}

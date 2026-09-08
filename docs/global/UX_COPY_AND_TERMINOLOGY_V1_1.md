@@ -119,7 +119,9 @@ Nas opções avançadas do formulário, "Configurações avançadas" (colapsado)
 
 ## 6. Personalização de dezenas — modelo de interação
 
-Substituiu o ciclo de 3 cliques (fixar → excluir → limpar) por dois modos explícitos, escolhidos via controle segmentado (`role="radiogroup"`): **"Incluir obrigatoriamente"** e **"Não usar"**. No modo ativo, tocar uma dezena alterna sua presença naquela lista; dezenas já pertencentes à outra lista ficam visivelmente desabilitadas (nunca fica ambíguo, e uma dezena nunca é fixa e excluída ao mesmo tempo). Um resumo textual sempre visível ("Obrigatórias: 03, 07" / "Não usar: 18, 21") evita depender só da cor do chip, com ações "Limpar" por lista.
+Substituiu o ciclo de 3 cliques (fixar → excluir → limpar) e, na revisão seguinte (v1.1), também substituiu o controle de modo único ("Incluir obrigatoriamente" / "Não usar" via `radiogroup`), que ainda dava a impressão de um modo pré-selecionado.
+
+Modelo atual: um checkbox "Quer personalizar suas dezenas?" começa **desmarcado** por padrão. Quando marcado, revela **duas seções independentes, usáveis ao mesmo tempo** — "Dezenas que devem aparecer em todos os jogos" e "Dezenas que não quero usar" — cada uma com sua própria grade de dezenas e resumo textual ("Obrigatórias: 03, 07" / "Não usar: 18, 21"). Uma dezena já escolhida em uma seção fica visivelmente desabilitada na outra, preservando a regra de que nunca pertence às duas ao mesmo tempo — mas o usuário não precisa alternar entre "modos" para configurar as duas listas.
 
 ## 7. Componente de ajuda (`InfoHelp`)
 
@@ -148,3 +150,27 @@ Nenhuma capacidade foi removida; apenas reorganizada por prioridade visual.
 ## 11. Badges de atualização de dados por loteria
 
 `DataFreshnessBadge` agora recebe um `label` obrigatório e exibe "Lotofácil · dados até o concurso X" / "Mega-Sena · dados até o concurso Y". O `AppShell` decide quais badges mostrar a partir da rota atual (`useLocation`): em `/lotofacil/*` mostra só a badge da Lotofácil; em `/megasena/*` só a da Mega-Sena; nas demais rotas (Home, Meus jogos salvos, Sobre) mostra as duas, sempre identificadas.
+
+## 12. Navegação simplificada (v1.1)
+
+As páginas de landing por modalidade (`/lotofacil`, `/megasena`) foram removidas — passam a ser apenas redirects para `/<modalidade>/gerar`, que é o hub da modalidade. Os links "Meus jogos salvos" e "Metodologia" da modalidade atual aparecem no topo da própria página de geração, com peso visual neutro e igual entre si (não é um botão de destaque nem um link secundário apagado). Um novo componente `BackLink` padroniza a navegação "voltar" com destino fixo (não histórico do navegador): "← Voltar ao início" em Gerar; "← Voltar para Lotofácil/Mega-Sena" em Metodologia e em Carteiras escopadas por modalidade; "← Voltar ao início" em Carteiras global.
+
+## 13. "Como você quer definir seus jogos?"
+
+Os antigos botões escuros de modo ("Por quantidade" / "Por valor que quero gastar") foram substituídos por um controle de opção (`radio`) explícito, rotulado "Como você quer definir seus jogos?", com as opções "Quantidade de jogos" e "Valor que quero gastar". Nenhuma mudança na lógica de cálculo (`ticketsForBudget`, custo, saldo).
+
+## 14. "Limpar configuração"
+
+Ação de baixo destaque no passo 4 ("Revisar e gerar") que reseta todo o formulário — estratégia (volta a nenhuma selecionada), quantidade/orçamento, concurso (volta ao sugerido), personalização de dezenas, código de reprodução e preset — e descarta o resultado exibido, se houver. Nunca apaga jogos já salvos em "Meus jogos salvos" (IndexedDB não é tocado).
+
+## 15. Resultado desatualizado (stale) — nunca some sozinho
+
+Se a configuração mudar depois de já ter gerado um resultado, o resultado **continua visível**. Um aviso âmbar aparece diretamente acima dele: "Você alterou a configuração depois de gerar estes jogos. Os jogos abaixo ainda correspondem à configuração anterior.", com três ações: **"Gerar com a nova configuração"** (primária), **"Restaurar configuração anterior"** (secundária — devolve o formulário exatamente ao estado que gerou o resultado exibido, sem gerar de novo, e o aviso desaparece), e **"Descartar resultado anterior"** (baixo destaque). Editar o formulário de volta ao estado exato que gerou o resultado também remove o aviso automaticamente, sem nenhuma ação explícita.
+
+## 16. Comparação com jogos aleatórios, sem jargão de "p.p."
+
+A tabela de comparação foi substituída por frases por métrica, sem a abreviação técnica "p.p.": "Seus jogos: 55,86% · Jogos aleatórios equivalentes: 48,91%" seguido de "6,95 pontos percentuais a favor deste conjunto" (ou "... pontos percentuais abaixo dos jogos aleatórios equivalentes" quando negativo). Diferença matematicamente indistinguível de zero mostra "Mesma cobertura"; diferença real porém desprezível (< 0,0001 p.p.) mostra "Praticamente igual". Um `InfoHelp` explica o conceito de "pontos percentuais" na própria seção. Os valores exatos e a formatação técnica com "p.p." (`formatPercentagePointDifference`) continuam existindo como utilitário para uso técnico/exportação, mas não aparecem na tela leiga.
+
+## 17. Link de jogo responsável
+
+A URL usada em "Saiba mais sobre jogo responsável" estava quebrada/obsoleta e foi corrigida para a página oficial atual da CAIXA, centralizada em `RESPONSIBLE_GAMING_URL` (`src/shared/lib/externalLinks.ts`) — abre em nova aba com `rel="noopener noreferrer"`.

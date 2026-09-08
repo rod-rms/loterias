@@ -142,3 +142,14 @@ npm run data:validate  # valida a estrutura dos datasets
 ## 13. Status do push
 
 Commits locais criados por marco (bootstrap, comparação/E2E, CI/docs/fixes finais — ver `git log`). Push para `https://github.com/rod-rms/loterias.git` (branch `main`) realizado após todos os itens acima estarem verdes, conforme a Definition of Done.
+
+## 14. v1.1 — navegação, transparência de dados e persistência (branch `feat/user-friendly-ux-v1-1`, PR #1)
+
+Trabalho subsequente à v1, feito em branch separada e nunca mesclado a `main` nesta entrega. Cobre três rodadas: (1) UX/copywriting/acessibilidade em linguagem simples; (2) polish a partir de revisão manual; (3) navegação, transparência de origem de dados, e correção de um bug de persistência. Detalhes de UX em `UX_REVIEW_V1_1.md` e `UX_COPY_AND_TERMINOLOGY_V1_1.md`; decisões em `DECISIONS_AND_OPEN_POINTS_V1.md`; modelo de dados em `DATA_AND_PERSISTENCE_V1.md`.
+
+Pontos que valem registro aqui (fora do escopo de UX pura):
+
+- **Bug de persistência corrigido:** `SavedPortfolio.dataset` nunca era de fato preenchido no fluxo de salvar, e `parameters` era reconstruído a partir do formulário ao vivo (`buildRequest()`) em vez de usar a configuração congelada no momento da geração — o que quebraria a auditoria/reprodutibilidade sempre que o usuário editasse o formulário entre gerar e salvar. Corrigido com um modelo de dois retratos (`userInputSnapshot` para detectar desatualização, `resolvedGenerationSnapshot` para salvar/auditoria). Regressão coberta em `tests/app/gerarPageSnapshot.test.tsx` e em E2E.
+- **Agenda de atualização de dados revista:** de um cron diário único para seis janelas de verificação pós-sorteio (ver `DATA_AND_PERSISTENCE_V1.md` §5.1 e `.github/workflows/data-update.yml`), com supressão de commits de status ruidosos em janelas intermediárias.
+- **Novo arquivo `public/data/status.json`** valida via `scripts/data/validate-dataset.mjs` e `dataStatusSchema` (Zod).
+- Todos os testes matemáticos/oráculo (Mega e Lotofácil) permaneceram inalterados e verdes durante toda a v1.1.

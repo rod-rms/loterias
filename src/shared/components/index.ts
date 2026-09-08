@@ -21,3 +21,4 @@ export * from "./ErrorState";
 export * from "./ResponsibleGamingNotice";
 export * from "./DataFreshnessBadge";
 export * from "./GameSwitcher";
+export * from "./BackLink";

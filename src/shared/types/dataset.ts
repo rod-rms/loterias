@@ -29,3 +29,25 @@ export interface GameConfig {
   lotofacil: GameConfigEntry;
   megasena: GameConfigEntry;
 }
+
+/**
+ * Versioned data-source transparency metadata (public/data/status.json).
+ * `lastUpdatedAt` and `lastCheckedAt` are deliberately distinct: the local
+ * dataset can be verified against the official source without a new draw
+ * being available yet.
+ */
+export interface ModalityDataStatus {
+  source: string;
+  latestContest: number;
+  latestDrawDate: string;
+  lastUpdatedAt: string;
+  lastCheckedAt: string;
+  status: "ok" | "degraded";
+  gapCount: number;
+}
+
+export interface DataStatus {
+  schemaVersion: number;
+  lotofacil: ModalityDataStatus;
+  megasena: ModalityDataStatus;
+}

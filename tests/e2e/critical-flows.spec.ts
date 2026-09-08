@@ -39,10 +39,17 @@ test.describe("Loterias — critical flows", () => {
   });
 
   test("4. alterar para Mega-Sena", async ({ page }) => {
-    await page.goto("/lotofacil");
+    await page.goto("/lotofacil/gerar");
     await page.getByRole("link", { name: "Mega-Sena" }).first().click();
-    await expect(page).toHaveURL(/\/megasena$/);
-    await expect(page.getByRole("heading", { name: "Mega-Sena" })).toBeVisible();
+    await expect(page).toHaveURL(/\/megasena\/gerar$/);
+    await expect(page.getByRole("heading", { name: "Gerar jogos da Mega-Sena" })).toBeVisible();
+  });
+
+  test("4b. /lotofacil e /megasena redirecionam para a página de geração", async ({ page }) => {
+    await page.goto("/lotofacil");
+    await expect(page).toHaveURL(/\/lotofacil\/gerar$/);
+    await page.goto("/megasena");
+    await expect(page).toHaveURL(/\/megasena\/gerar$/);
   });
 
   test("5. gerar Mega aleatória (fluxo leigo)", async ({ page }) => {
@@ -99,7 +106,7 @@ test.describe("Loterias — critical flows", () => {
   test("10. comparar duas opções compatíveis", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Variar mais os jogos");
-    await page.getByLabel(/Quantidade de jogos/).fill("6");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
     await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill("3780");
     await generateAndWait(page);
     await page.getByRole("button", { name: "Comparar com outra opção" }).click();
@@ -108,17 +115,18 @@ test.describe("Loterias — critical flows", () => {
     await expect(page.getByText(/Diferenças refletem métodos distintos/)).toBeVisible({ timeout: 20000 });
   });
 
-  test("11. validar erro de restrição impossível (modo Não usar)", async ({ page }) => {
+  test("11. validar erro de restrição impossível (dezenas não usadas)", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
-    await page.getByRole("radio", { name: "Não usar", exact: true }).click();
+    await page.getByRole("checkbox", { name: /Quer personalizar suas dezenas/ }).check();
+    const excludedGroup = page.getByRole("group", { name: "Dezenas que não quero usar" });
     // Exclude 11 numbers, leaving only 14 — impossible to form a 15-number ticket.
     for (let n = 1; n <= 11; n += 1) {
-      await page.getByRole("button", { name: new RegExp(`^Dezena ${String(n).padStart(2, "0")}`) }).click();
+      await excludedGroup.getByRole("button", { name: new RegExp(`^Dezena ${String(n).padStart(2, "0")}`) }).click();
     }
     await expect(page.getByText(/Não usar: 01, 02, 03/)).toBeVisible();
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-    await expect(page.getByRole("alert")).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("alert").first()).toBeVisible({ timeout: 20000 });
   });
 
   test("12. validar RMS bloqueada em N diferente de 6", async ({ page }) => {
@@ -165,12 +173,13 @@ test.describe("Loterias — critical flows", () => {
     await context.close();
   });
 
-  test("16. modo Incluir obrigatoriamente (dezenas fixas)", async ({ page }) => {
+  test("16. dezenas que devem aparecer em todos os jogos (fixas)", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
-    await page.getByRole("radio", { name: "Incluir obrigatoriamente", exact: true }).click();
-    await page.getByRole("button", { name: /^Dezena 03/ }).click();
-    await page.getByRole("button", { name: /^Dezena 07/ }).click();
+    await page.getByRole("checkbox", { name: /Quer personalizar suas dezenas/ }).check();
+    const fixedGroup = page.getByRole("group", { name: "Dezenas que devem aparecer em todos os jogos" });
+    await fixedGroup.getByRole("button", { name: /^Dezena 03/ }).click();
+    await fixedGroup.getByRole("button", { name: /^Dezena 07/ }).click();
     await expect(page.getByText(/Obrigatórias: 03, 07/)).toBeVisible();
     await generateAndWait(page);
     // Fixed numbers must appear in every generated ticket.
@@ -179,13 +188,29 @@ test.describe("Loterias — critical flows", () => {
     await expect(ticketsList).toContainText("07");
   });
 
-  test("17. modo Não usar (dezenas excluídas)", async ({ page }) => {
+  test("17. dezenas que não quero usar (excluídas)", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
-    await page.getByRole("radio", { name: "Não usar", exact: true }).click();
-    await page.getByRole("button", { name: /^Dezena 01/ }).click();
+    await page.getByRole("checkbox", { name: /Quer personalizar suas dezenas/ }).check();
+    const excludedGroup = page.getByRole("group", { name: "Dezenas que não quero usar" });
+    await excludedGroup.getByRole("button", { name: /^Dezena 01/ }).click();
     await expect(page.getByText(/Não usar: 01/)).toBeVisible();
     await generateAndWait(page);
+  });
+
+  test("17b. dezenas fixas e não usadas podem ser configuradas ao mesmo tempo", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("checkbox", { name: /Quer personalizar suas dezenas/ }).check();
+    const fixedGroup = page.getByRole("group", { name: "Dezenas que devem aparecer em todos os jogos" });
+    const excludedGroup = page.getByRole("group", { name: "Dezenas que não quero usar" });
+    await fixedGroup.getByRole("button", { name: /^Dezena 03/ }).click();
+    await excludedGroup.getByRole("button", { name: /^Dezena 01/ }).click();
+    await expect(page.getByText(/Obrigatórias: 03/)).toBeVisible();
+    await expect(page.getByText(/Não usar: 01/)).toBeVisible();
+    // A number already claimed by the other section must be disabled in this one.
+    await expect(excludedGroup.getByRole("button", { name: /^Dezena 03/ })).toBeDisabled();
+    await expect(fixedGroup.getByRole("button", { name: /^Dezena 01/ })).toBeDisabled();
   });
 
   test("18. configurações avançadas / código de reprodução", async ({ page }) => {
@@ -209,7 +234,7 @@ test.describe("Loterias — critical flows", () => {
   test("20. probabilidade de Sena minúscula nunca aparece como zero", async ({ page }) => {
     await page.goto("/megasena/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
-    await page.getByLabel(/Quantidade de jogos/).fill("1");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("1");
     await generateAndWait(page);
     const senaValue = page.getByTestId("metric-sena-value");
     await expect(senaValue).toBeVisible();
@@ -247,23 +272,24 @@ test.describe("Loterias — critical flows", () => {
     await expect(page.getByRole("heading", { name: "2. Quantos jogos você quer gerar?" })).toHaveCount(0);
   });
 
-  test("24. diferença de baseline matematicamente idêntica mostra 'Igual'", async ({ page }) => {
+  test("24. diferença de baseline matematicamente idêntica mostra 'Mesma cobertura', sem jargão de p.p.", async ({ page }) => {
     await page.goto("/megasena/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
-    await page.getByLabel(/Quantidade de jogos/).fill("1");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("1");
     await generateAndWait(page);
     // Sena/F6 for N=1 is mathematically identical to its baseline (same N, no restrictions).
-    const senaRow = page.getByRole("row", { name: /Chance de Sena/ });
-    await expect(senaRow).toContainText("Igual");
+    const senaItem = page.locator("li", { hasText: "Chance de Sena" });
+    await expect(senaItem).toContainText("Mesma cobertura");
+    // The lay comparison view must never show the "p.p." abbreviation.
+    await expect(page.getByText(/p\.p\./)).toHaveCount(0);
     // No floating-point noise (e.g. "-0,000000000000%") anywhere on the page.
     await expect(page.getByText(/0,0{6,}\d*\s*%/)).toHaveCount(0);
-    await expect(page.getByText(/[+-]\s*0,0{6,}\d*\s*p\.p\./)).toHaveCount(0);
   });
 
   test("25. resumo de diversidade usa formatação decimal pt-BR", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Variar mais os jogos");
-    await page.getByLabel(/Quantidade de jogos/).fill("6");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
     await generateAndWait(page);
     await expect(page.getByText(/\d,\d dezenas entre si/)).toBeVisible();
     await expect(page.getByText(/\d\.\d dezenas entre si/)).toHaveCount(0);
@@ -272,7 +298,7 @@ test.describe("Loterias — critical flows", () => {
   test("26. probabilidades altas não mostram 'Aproximadamente 1 em X'", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
-    await page.getByLabel(/Quantidade de jogos/).fill("10");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("10");
     await generateAndWait(page);
     // With 10 tickets, "Chance de 11 acertos ou mais" is well above 5% and must show the percentage only.
     const card = page.getByTestId("metric-atLeast11");
@@ -319,5 +345,114 @@ test.describe("Loterias — critical flows", () => {
     await page.getByRole("menuitem", { name: "CSV" }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/\.csv$/);
+  });
+
+  test("30. links de navegação (Meus jogos salvos / Metodologia) aparecem no topo de Gerar", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    const pageNav = page.getByRole("navigation", { name: "Outras páginas desta modalidade" });
+    await expect(pageNav.getByRole("link", { name: "Meus jogos salvos" })).toBeVisible();
+    await expect(pageNav.getByRole("link", { name: "Metodologia" })).toBeVisible();
+    await pageNav.getByRole("link", { name: "Metodologia" }).click();
+    await expect(page).toHaveURL(/\/lotofacil\/metodologia$/);
+  });
+
+  test("31. navegação de volta é determinística (não depende do histórico do navegador)", async ({ page }) => {
+    await page.goto("/lotofacil/metodologia");
+    await page.getByRole("link", { name: /Voltar para Lotofácil/ }).click();
+    await expect(page).toHaveURL(/\/lotofacil\/gerar$/);
+
+    await page.goto("/lotofacil/carteiras");
+    await page.getByRole("link", { name: /Voltar para Lotofácil/ }).click();
+    await expect(page).toHaveURL(/\/lotofacil\/gerar$/);
+
+    await page.goto("/carteiras");
+    await page.getByRole("link", { name: "Voltar ao início" }).click();
+    await expect(page).toHaveURL(/\/$/);
+  });
+
+  test("32. resultado permanece visível e marcado como desatualizado após alterar a configuração", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("3");
+    await generateAndWait(page);
+    const firstTickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
+
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("5");
+    await expect(
+      page.getByText("Você alterou a configuração depois de gerar estes jogos. Os jogos abaixo ainda correspondem à configuração anterior."),
+    ).toBeVisible();
+    // The previous result must still be shown, unchanged, not silently regenerated.
+    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible();
+    const stillSameTickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
+    expect(stillSameTickets).toBe(firstTickets);
+  });
+
+  test("33. restaurar configuração anterior remove o aviso sem gerar novamente", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("3");
+    await generateAndWait(page);
+    const firstTickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
+
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("5");
+    await expect(page.getByRole("button", { name: "Restaurar configuração anterior" })).toBeVisible();
+    await page.getByRole("button", { name: "Restaurar configuração anterior" }).click();
+
+    await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toHaveCount(0);
+    await expect(page.getByRole("spinbutton", { name: /Quantidade de jogos/ })).toHaveValue("3");
+    const tickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
+    expect(tickets).toBe(firstTickets);
+  });
+
+  test("34. salvar um resultado desatualizado usa a configuração que o gerou, não o formulário editado", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("3");
+    await generateAndWait(page);
+
+    // Edit the form after generating, without regenerating.
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("8");
+    await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toBeVisible();
+
+    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
+    await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
+
+    await page.goto("/carteiras");
+    await page.getByRole("button", { name: "Abrir" }).first().click();
+    // The saved portfolio must have exactly the 3 tickets that were displayed, not 8.
+    const ticketRows = page.locator("li", { hasText: /^J\d/ });
+    await expect(ticketRows).toHaveCount(3);
+  });
+
+  test("35. Limpar configuração reseta o formulário sem apagar jogos salvos", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await generateAndWait(page);
+    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
+    await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
+
+    await page.getByRole("button", { name: "Limpar configuração" }).click();
+    await expect(page.getByText("Escolha uma opção acima para continuar.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+
+    await page.goto("/carteiras");
+    await expect(page.getByText(/Gerar jogos aleatórios/)).toBeVisible();
+  });
+
+  test("36. aviso de jogo responsável aponta para a URL oficial atual", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    const link = page.getByRole("link", { name: "Saiba mais sobre jogo responsável" });
+    await expect(link).toHaveAttribute("href", "https://www.caixa.gov.br/jogo-responsavel/Paginas/default.aspx");
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(link).toHaveAttribute("rel", /noopener/);
+    await expect(link).toHaveAttribute("rel", /noreferrer/);
+  });
+
+  test("37. metodologia mostra dados de transparência (fonte, última atualização, última verificação)", async ({ page }) => {
+    await page.goto("/lotofacil/metodologia");
+    await expect(page.getByRole("heading", { name: "Dados e atualizações" })).toBeVisible();
+    await expect(page.getByText("Loterias CAIXA")).toBeVisible();
+    await expect(page.getByText("Última atualização com novo concurso")).toBeVisible();
+    await expect(page.getByText("Última verificação da fonte oficial")).toBeVisible();
   });
 });

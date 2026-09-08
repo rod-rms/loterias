@@ -13,11 +13,11 @@ export function Home() {
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
-        <Link to="/lotofacil" className="rounded-xl border border-lotofacil-400/40 bg-lotofacil-50 p-6 transition hover:border-lotofacil-500">
+        <Link to="/lotofacil/gerar" className="rounded-xl border border-lotofacil-400/40 bg-lotofacil-50 p-6 transition hover:border-lotofacil-500">
           <h2 className="text-lg font-semibold text-lotofacil-600">Gerar jogos da Lotofácil</h2>
           <p className="mt-1 text-sm text-slate-600">Equilibrar meus 6 jogos (RMS), variar mais os jogos, priorizar mais acertos ou gerar jogos aleatórios.</p>
         </Link>
-        <Link to="/megasena" className="rounded-xl border border-megasena-400/40 bg-megasena-50 p-6 transition hover:border-megasena-500">
+        <Link to="/megasena/gerar" className="rounded-xl border border-megasena-400/40 bg-megasena-50 p-6 transition hover:border-megasena-500">
           <h2 className="text-lg font-semibold text-megasena-600">Gerar jogos da Mega-Sena</h2>
           <p className="mt-1 text-sm text-slate-600">Priorizar Quadra ou Quina, variar mais os jogos ou gerar jogos aleatórios.</p>
         </Link>

@@ -67,6 +67,26 @@ Formulários e apresentação. Não implementa matemática.
 
 Somente abstrações semanticamente iguais nas duas modalidades.
 
+### Rotas (v1.1)
+
+`/<modalidade>/gerar` é o ponto de entrada/hub de cada modalidade — reúne seleção de estratégia, geração e, no topo, os links para "Meus jogos salvos" e "Metodologia" daquela modalidade. As antigas páginas de landing (`/lotofacil`, `/megasena`, componente `ModalityHome`) foram removidas por duplicarem o catálogo de estratégias já mostrado em `/gerar`; essas rotas continuam existindo apenas como redirects (`<Navigate replace>`) para `/<modalidade>/gerar`, para não quebrar links/favoritos antigos.
+
+```text
+/                          Home
+/lotofacil                → redirect → /lotofacil/gerar
+/megasena                 → redirect → /megasena/gerar
+/lotofacil/gerar           Gerar jogos (hub da modalidade)
+/lotofacil/carteiras       Jogos salvos (escopo Lotofácil)
+/lotofacil/metodologia     Metodologia (escopo Lotofácil)
+/megasena/gerar             Gerar jogos (hub da modalidade)
+/megasena/carteiras         Jogos salvos (escopo Mega-Sena)
+/megasena/metodologia       Metodologia (escopo Mega-Sena)
+/carteiras                  Jogos salvos (todas as modalidades)
+/sobre                      Sobre
+```
+
+Navegação "voltar" (`BackLink`) usa destinos fixos e determinísticos, não o histórico do navegador: Gerar → Início; Metodologia/Carteiras de uma modalidade → Gerar da mesma modalidade; Carteiras global → Início.
+
 ## 4. Contrato comum
 
 ```ts

@@ -201,3 +201,22 @@ Nenhum teste matemático, de oráculo ou de integração foi enfraquecido, remov
 ## 8. Status Git / CI
 
 Trabalho feito inteiramente na branch `feat/user-friendly-ux-v1-1`, sem merge para `main`, sem novo branch, sem force-push, em ambas as rodadas. Push realizado após todos os testes acima ficarem verdes, para atualizar o PR #1 (draft) e permitir nova revisão do preview antes do merge.
+
+## 9. Rodada 3 — navegação, transparência de dados e persistência (v1.1)
+
+Terceira rodada na mesma branch/PR, focada em: simplificação de navegação (remoção das landing pages por modalidade, links de "Meus jogos salvos"/"Metodologia" no topo de Gerar, `BackLink` determinístico), redesenho de "Como você quer definir seus jogos?" e da personalização de dezenas (duas seções independentes, nunca pré-marcadas), proteção contra resultado desatualizado (nunca some sozinho — ver `DECISIONS_AND_OPEN_POINTS_V1.md` e `DATA_AND_PERSISTENCE_V1.md` §14), humanização da comparação com jogos aleatórios (sem "p.p." na tela leiga), "Limpar configuração", transparência de origem de dados na Metodologia (`public/data/status.json`), correção do link de jogo responsável, e a correção de um bug real: o retrato do dataset (`SavedPortfolio.dataset`) nunca era de fato preenchido ao salvar, e os parâmetros salvos eram reconstruídos do formulário ao vivo em vez de congelados no momento da geração.
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (104/104 — +11 novos: schema de status.json, snapshot do dataset em SavedPortfolio, loadDataStatus, comportamento congelar-ao-salvar/restaurar em GerarPage, URL de jogo responsável)
+npm run test:mega:oracle  → PASS (24/24, domínio inalterado)
+npm run test:lotofacil:oracle → PASS (38/38, oráculo RMS 3780 inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (39/39 — 29 cenários anteriores + 10 novos)
+node scripts/data/validate-dataset.mjs → PASS (datasets + status.json)
+```
+
+Novos cenários E2E desta rodada: redirects de `/lotofacil`/`/megasena`; links de navegação no topo de Gerar; navegação "voltar" determinística; resultado permanece visível e marcado como desatualizado após alteração; restaurar configuração remove o aviso sem gerar de novo; salvar um resultado desatualizado usa a configuração que o gerou (não o formulário editado); "Limpar configuração" não apaga jogos salvos; link de jogo responsável aponta para a URL oficial atual; Metodologia mostra os dados de transparência; dezenas fixas e não usadas configuráveis ao mesmo tempo. Além disso, um teste de componente dedicado (`tests/app/gerarPageSnapshot.test.tsx`) verifica no nível de unidade que salvar usa o snapshot congelado mesmo com o formulário já editado — a regressão mais crítica desta rodada.
+
+Nenhum teste matemático, de oráculo ou de integração foi enfraquecido, removido ou teve sua asserção relaxada.

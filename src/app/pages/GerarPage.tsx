@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import { loadDataset, loadGameConfig, suggestNextContest } from "../../shared/lib/dataLoaders";
 import { useGenerationWorker } from "../../shared/lib/useGenerationWorker";
@@ -24,7 +25,47 @@ import {
 } from "../../shared/components";
 import { formatBRL, ticketsForBudget } from "../../shared/utils/currency";
 import { ComparePanel } from "./ComparePanel";
-import type { GameConfig, GeneratePortfolioRequest, Modality, PortfolioEnvelope, ProbabilityStatus, QualityPreset, StrategyDefinition } from "../../shared/types";
+import type {
+  GameConfig,
+  GeneratePortfolioRequest,
+  LotteryDataset,
+  Modality,
+  PortfolioEnvelope,
+  ProbabilityStatus,
+  QualityPreset,
+  SavedPortfolioDatasetRef,
+  StrategyDefinition,
+} from "../../shared/types";
+
+/** Normalized user-visible configuration captured at the moment "Gerar jogos" is
+ * clicked. Used ONLY to detect whether the form has since changed relative to
+ * the displayed result (staleness) — never for saving or audit. */
+interface UserInputSnapshot {
+  strategyId: string;
+  inputMode: "quantity" | "budget";
+  numberOfTickets: number;
+  budgetBRL: number;
+  contest: number | "";
+  fixedNumbers: number[];
+  excludedNumbers: number[];
+  seed: string;
+  qualityPreset: QualityPreset;
+}
+
+function snapshotsEqual(a: UserInputSnapshot | null, b: UserInputSnapshot | null): boolean {
+  if (!a || !b) return a === b;
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function buildDatasetRef(dataset: LotteryDataset | null): SavedPortfolioDatasetRef | undefined {
+  if (!dataset) return undefined;
+  return {
+    latestContest: dataset.latestContest,
+    importedAt: dataset.importedAt,
+    source: dataset.source,
+    latestDrawDate: dataset.draws.at(-1)?.drawDate,
+  };
+}
 
 const STAGE_LABEL: Record<string, string> = {
   preparing: "Preparando candidatos",
@@ -57,6 +98,7 @@ function metricRows(metrics: unknown, modality: Modality): { label: string; port
 export function GerarPage({ modality }: { modality: Modality }) {
   const strategies = useMemo(() => strategyRegistry.listByModality(modality), [modality]);
   const [config, setConfig] = useState<GameConfig | null>(null);
+  const [dataset, setDataset] = useState<LotteryDataset | null>(null);
   const [suggestedContest, setSuggestedContest] = useState<number | null>(null);
 
   // No strategy is selected by default: pre-selecting the first card (RMS for
@@ -76,13 +118,24 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
+  // Two-snapshot generation state: `lastGeneratedInput` is the normalized
+  // user-visible form used only to detect staleness; `resolvedSnapshot` is
+  // the actual request + dataset reference tied to the displayed result,
+  // used for saving/audit so an edited-but-not-regenerated form can never
+  // leak into what gets persisted.
+  const [lastGeneratedInput, setLastGeneratedInput] = useState<UserInputSnapshot | null>(null);
+  const [resolvedSnapshot, setResolvedSnapshot] = useState<{ request: GeneratePortfolioRequest; datasetRef: SavedPortfolioDatasetRef | undefined } | null>(null);
+
   const strategy: StrategyDefinition | undefined = strategyRegistry.get(selectedStrategyId);
   const { stage, result, error, isRunning, generate, reset } = useGenerationWorker<PortfolioEnvelope>(modality);
 
   useEffect(() => {
     loadGameConfig().then(setConfig).catch(() => undefined);
     loadDataset(modality)
-      .then((d) => setSuggestedContest(suggestNextContest(d)))
+      .then((d) => {
+        setDataset(d);
+        setSuggestedContest(suggestNextContest(d));
+      })
       .catch(() => undefined);
   }, [modality]);
 
@@ -124,6 +177,22 @@ export function GerarPage({ modality }: { modality: Modality }) {
     };
   }
 
+  function captureUserInputSnapshot(newSeed?: string): UserInputSnapshot {
+    return {
+      strategyId: selectedStrategyId,
+      inputMode,
+      numberOfTickets,
+      budgetBRL,
+      contest,
+      fixedNumbers: [...fixedNumbers].sort((a, b) => a - b),
+      excludedNumbers: [...excludedNumbers].sort((a, b) => a - b),
+      seed: newSeed ?? seed,
+      qualityPreset,
+    };
+  }
+
+  const isStale = Boolean(result) && !snapshotsEqual(captureUserInputSnapshot(), lastGeneratedInput);
+
   function handleGenerate(newSeed?: string) {
     setValidationError(null);
     setSavedMessage(null);
@@ -154,11 +223,51 @@ export function GerarPage({ modality }: { modality: Modality }) {
         return;
       }
     }
-    generate(buildRequest(newSeed));
+    const request = buildRequest(newSeed);
+    generate(request);
+    setLastGeneratedInput(captureUserInputSnapshot(newSeed));
+    setResolvedSnapshot({ request, datasetRef: buildDatasetRef(dataset) });
+  }
+
+  function handleRestorePreviousConfiguration() {
+    if (!lastGeneratedInput) return;
+    setSelectedStrategyId(lastGeneratedInput.strategyId);
+    setInputMode(lastGeneratedInput.inputMode);
+    setNumberOfTickets(lastGeneratedInput.numberOfTickets);
+    setBudgetBRL(lastGeneratedInput.budgetBRL);
+    setContest(lastGeneratedInput.contest);
+    setContestTouched(true);
+    setFixedNumbers(lastGeneratedInput.fixedNumbers);
+    setExcludedNumbers(lastGeneratedInput.excludedNumbers);
+    setSeed(lastGeneratedInput.seed);
+    setQualityPreset(lastGeneratedInput.qualityPreset);
+  }
+
+  function handleDiscardPreviousResult() {
+    reset();
+    setLastGeneratedInput(null);
+    setResolvedSnapshot(null);
+    setSavedMessage(null);
+  }
+
+  function handleClearConfiguration() {
+    setSelectedStrategyId("");
+    setInputMode("quantity");
+    setNumberOfTickets(6);
+    setBudgetBRL(50);
+    setContest(suggestedContest ?? "");
+    setContestTouched(false);
+    setFixedNumbers([]);
+    setExcludedNumbers([]);
+    setSeed("");
+    setQualityPreset("balanced");
+    setValidationError(null);
+    setSavedMessage(null);
+    handleDiscardPreviousResult();
   }
 
   async function handleSave() {
-    if (!result || !gameConfig) return;
+    if (!result || !gameConfig || !resolvedSnapshot) return;
     await savePortfolio({
       schemaVersion: 1,
       id: result.id,
@@ -168,9 +277,10 @@ export function GerarPage({ modality }: { modality: Modality }) {
       strategyVersion: result.strategyVersion,
       engineVersion: result.strategyVersion,
       createdAt: result.createdAt,
+      dataset: resolvedSnapshot.datasetRef,
       price: { ticketCostBRL: gameConfig.ticketCostBRL, referenceDate: gameConfig.referenceDate, source: gameConfig.source },
       seed: result.seed,
-      parameters: buildRequest(),
+      parameters: resolvedSnapshot.request,
       tickets: result.tickets,
       metrics: result.metrics,
       audit: result.audit,
@@ -225,7 +335,17 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-bold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
+        <nav aria-label="Outras páginas desta modalidade" className="flex gap-4 text-sm font-medium text-slate-600">
+          <Link to={`/${modality}/carteiras`} className="underline-offset-2 hover:text-slate-900 hover:underline">
+            Meus jogos salvos
+          </Link>
+          <Link to={`/${modality}/metodologia`} className="underline-offset-2 hover:text-slate-900 hover:underline">
+            Metodologia
+          </Link>
+        </nav>
+      </div>
 
       <section aria-labelledby="step-strategy">
         <h2 id="step-strategy" className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
@@ -328,14 +448,19 @@ export function GerarPage({ modality }: { modality: Modality }) {
             )}
             {validationError && <div className="mt-3"><ErrorState title="Não é possível gerar" message={validationError} /></div>}
             {error && <div className="mt-3"><ErrorState title={error.code ?? error.name} message={error.message} /></div>}
-            <button
-              type="button"
-              disabled={isRunning}
-              onClick={() => handleGenerate()}
-              className="mt-4 rounded-md bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {isRunning ? STAGE_LABEL[stage] ?? "Gerando..." : "Gerar jogos"}
-            </button>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                disabled={isRunning}
+                onClick={() => handleGenerate()}
+                className="rounded-md bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {isRunning ? STAGE_LABEL[stage] ?? "Gerando..." : "Gerar jogos"}
+              </button>
+              <button type="button" onClick={handleClearConfiguration} className="text-sm text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline">
+                Limpar configuração
+              </button>
+            </div>
             {isRunning && (
               <p role="status" aria-live="polite" className="mt-2 text-sm text-slate-600">
                 {STAGE_LABEL[stage]}…
@@ -343,6 +468,23 @@ export function GerarPage({ modality }: { modality: Modality }) {
             )}
           </section>
         </>
+      )}
+
+      {result && isStale && (
+        <div role="alert" className="space-y-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <p>Você alterou a configuração depois de gerar estes jogos. Os jogos abaixo ainda correspondem à configuração anterior.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={() => handleGenerate()} className="rounded-md bg-amber-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-amber-700">
+              Gerar com a nova configuração
+            </button>
+            <button type="button" onClick={handleRestorePreviousConfiguration} className="rounded-md border border-amber-400 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100">
+              Restaurar configuração anterior
+            </button>
+            <button type="button" onClick={handleDiscardPreviousResult} className="text-sm text-amber-700 underline-offset-2 hover:underline">
+              Descartar resultado anterior
+            </button>
+          </div>
+        </div>
       )}
 
       {result && (
@@ -414,7 +556,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 Gerar outra opção
               </button>
               <ExportMenu onExportCsv={downloadCsv} onExportJson={downloadJson} />
-              <button type="button" onClick={reset} className="ml-auto text-sm text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline">
+              <button type="button" onClick={handleDiscardPreviousResult} className="ml-auto text-sm text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline">
                 Limpar resultado
               </button>
             </div>

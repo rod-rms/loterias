@@ -10,6 +10,9 @@ export interface SavedPortfolioDatasetRef {
   latestContest: number;
   importedAt: string;
   source: string;
+  /** Optional, backwards-compatible: added when the snapshot schema gained more detail. Older saved portfolios simply omit these. */
+  latestDrawDate?: string;
+  statusSchemaVersion?: number;
 }
 
 export interface CheckedResult {

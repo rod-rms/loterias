@@ -25,6 +25,11 @@
 21. Preços atuais são configuração versionada, não constantes matemáticas.
 22. Comunicação 18+ / jogo responsável.
 23. Deploy alvo: Cloudflare Pages.
+24. (v1.1) Um resultado já gerado nunca é apagado ou regenerado silenciosamente quando a configuração muda depois — fica visível, marcado como desatualizado, com ações explícitas (gerar de novo / restaurar configuração anterior / descartar).
+25. (v1.1) Salvar sempre usa a configuração e o dataset que efetivamente geraram o resultado exibido (snapshot congelado no momento da geração), nunca uma reconstrução a partir do formulário no momento do clique em salvar.
+26. (v1.1) Verificação automática de dados usa múltiplas janelas de retry após cada janela de sorteio (não um único horário diário), por resiliência a atraso/instabilidade da fonte oficial; retries HTTP internos continuam existindo como camada de resiliência separada e complementar.
+27. (v1.1) `lastUpdatedAt` (dataset mudou) e `lastCheckedAt` (fonte verificada, mesmo sem mudança) são conceitos e campos distintos em `public/data/status.json`; a UI nunca os apresenta como a mesma coisa.
+28. (v1.1) URL de jogo responsável corrigida e centralizada em `RESPONSIBLE_GAMING_URL` (`src/shared/lib/externalLinks.ts`).
 
 ## Valores atuais de configuração (07/09/2026)
 

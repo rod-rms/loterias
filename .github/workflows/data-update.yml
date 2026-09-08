@@ -1,9 +1,41 @@
 name: Update lottery datasets
 
+# Resilient post-draw schedule: CAIXA's official publication can lag or be
+# unstable right after a draw, so instead of a single check we run several
+# follow-up windows per draw window and rely on the updater being
+# idempotent (it only fetches missing contests and is a no-op otherwise).
+#
+# Official draw schedule at the time this was written:
+#   Lotofácil: Mon-Fri from 21:00 BRT, Sunday from 11:00 BRT
+#   Mega-Sena: Tue/Thu from 21:00 BRT, Sunday from 11:00 BRT
+# CAIXA's official monthly calendar is authoritative and may override this
+# recurring schedule for holidays/exceptions; use workflow_dispatch for
+# those dates.
+#
+# Follow-up windows (BRT -> UTC, BRT = UTC-3, no DST since 2019):
+#   Evening-draw follow-ups (every day, harmless no-op on non-draw days):
+#     22:45 BRT -> 01:45 UTC (intermediate)
+#     00:30 BRT -> 03:30 UTC (intermediate)
+#     07:00 BRT -> 10:00 UTC (final fallback for the evening draw)
+#   Sunday-morning-draw follow-ups (every day, same reasoning):
+#     13:00 BRT -> 16:00 UTC (intermediate)
+#     15:30 BRT -> 18:30 UTC (intermediate)
+#     20:00 BRT -> 23:00 UTC (final fallback for the Sunday morning draw)
+#
+# "Intermediate" windows log a successful check but do not create a
+# status-only commit when no new contest was found (to avoid noisy Git
+# history); the "final fallback" window for each draw DOES persist
+# lastCheckedAt even with no new contest, so the app can truthfully show
+# the last time the official source was verified. Any window that finds a
+# new contest always commits (that is never considered "noise").
 on:
   schedule:
-    # Daily, after the CAIXA evening draws.
-    - cron: "0 6 * * *"
+    - cron: "45 1 * * *" # 22:45 BRT — evening follow-up 1 (intermediate)
+    - cron: "30 3 * * *" # 00:30 BRT — evening follow-up 2 (intermediate)
+    - cron: "0 10 * * *" # 07:00 BRT — evening follow-up 3 (final fallback)
+    - cron: "0 16 * * *" # 13:00 BRT — Sunday-morning follow-up 1 (intermediate)
+    - cron: "30 18 * * *" # 15:30 BRT — Sunday-morning follow-up 2 (intermediate)
+    - cron: "0 23 * * *" # 20:00 BRT — Sunday-morning follow-up 3 (final fallback)
   workflow_dispatch: {}
 
 permissions:
@@ -26,6 +58,13 @@ jobs:
         run: npm ci
 
       - name: Update datasets from the official CAIXA source
+        # Manual runs (workflow_dispatch) and the two "final fallback"
+        # crons are allowed to persist a checked-only status update (no new
+        # contest, but the source was successfully verified). All other
+        # scheduled runs only persist a status change when a new contest
+        # was actually imported, to avoid noisy status-only commits.
+        env:
+          ALLOW_CHECKED_ONLY_STATUS_WRITE: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '0 10 * * *' || github.event.schedule == '0 23 * * *' }}
         run: npm run data:update
 
       - name: Validate datasets
@@ -45,6 +84,6 @@ jobs:
         run: |
           git config user.name "loterias-data-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/data/lotofacil/results.json public/data/megasena/results.json
+          git add public/data/lotofacil/results.json public/data/megasena/results.json public/data/status.json
           git commit -m "data: update lottery datasets"
           git push

@@ -49,20 +49,23 @@ export function QuantityBudgetInput({
   return (
     <div className="space-y-3">
       {strategy.supportsBudget && (
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Como você quer definir a quantidade">
-          {(["quantity", "budget"] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              role="radio"
-              aria-checked={inputMode === mode}
-              onClick={() => onInputModeChange(mode)}
-              className={`rounded-md border px-3 py-1.5 text-sm ${inputMode === mode ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700"}`}
-            >
-              {mode === "quantity" ? "Por quantidade" : "Por valor que quero gastar"}
-            </button>
-          ))}
-        </div>
+        <fieldset className="space-y-1.5">
+          <legend className="mb-1 text-sm font-medium text-slate-700">Como você quer definir seus jogos?</legend>
+          <div className="flex flex-wrap gap-4">
+            {(["quantity", "budget"] as const).map((mode) => (
+              <label key={mode} className="inline-flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="quantity-budget-mode"
+                  checked={inputMode === mode}
+                  onChange={() => onInputModeChange(mode)}
+                  className="h-4 w-4 border-slate-300"
+                />
+                {mode === "quantity" ? "Quantidade de jogos" : "Valor que quero gastar"}
+              </label>
+            ))}
+          </div>
+        </fieldset>
       )}
 
       {inputMode === "quantity" ? (

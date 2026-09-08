@@ -11,9 +11,11 @@ import {
 } from "../../shared/lib/portfolioStore";
 import { loadDataset } from "../../shared/lib/dataLoaders";
 import { checkTicketsAgainstDraw, highestScore } from "../../shared/lib/checkResult";
-import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState } from "../../shared/components";
+import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink } from "../../shared/components";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import type { Modality, SavedPortfolio } from "../../shared/types";
+
+const MODALITY_LABEL: Record<Modality, string> = { lotofacil: "Lotofácil", megasena: "Mega-Sena" };
 
 export function CarteirasPage({ modality }: { modality?: Modality }) {
   const [portfolios, setPortfolios] = useState<SavedPortfolio[]>([]);
@@ -91,6 +93,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
 
   return (
     <div className="space-y-6">
+      <BackLink to={modality ? `/${modality}/gerar` : "/"} label={modality ? `Voltar para ${MODALITY_LABEL[modality]}` : "Voltar ao início"} />
       <h1 className="text-2xl font-bold">Meus jogos salvos</h1>
 
       <div className="flex flex-wrap items-center gap-3">
