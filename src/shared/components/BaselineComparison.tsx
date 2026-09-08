@@ -1,17 +1,11 @@
 import { InfoHelp } from "./InfoHelp";
-import { formatProbabilityPercent } from "../utils/probabilityFormat";
+import { formatPercentagePointDifference, formatProbabilityPercent } from "../utils/probabilityFormat";
 
 interface BaselineRow {
   label: string;
   portfolioProbability: number | null;
   baselineProbability: number | null;
   absoluteDifference: number | null;
-}
-
-function formatDiff(diffPercentagePoints: number | null): string {
-  if (diffPercentagePoints === null) return "—";
-  const sign = diffPercentagePoints >= 0 ? "+" : "-";
-  return `${sign}${formatProbabilityPercent(Math.abs(diffPercentagePoints) / 100)}`;
 }
 
 export function BaselineComparison({ kind, rows }: { kind: string; rows: BaselineRow[] }) {
@@ -54,7 +48,7 @@ export function BaselineComparison({ kind, rows }: { kind: string; rows: Baselin
                 <td className="py-1 pr-2 font-medium text-slate-700">{row.label}</td>
                 <td className="py-1 pr-2">{formatProbabilityPercent(row.portfolioProbability)}</td>
                 <td className="py-1 pr-2">{formatProbabilityPercent(row.baselineProbability)}</td>
-                <td className="py-1">{formatDiff(row.absoluteDifference)}</td>
+                <td className="py-1">{formatPercentagePointDifference(row.absoluteDifference)}</td>
               </tr>
             ))}
           </tbody>

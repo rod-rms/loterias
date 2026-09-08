@@ -19,6 +19,8 @@ import {
   ExposureSummary,
   ErrorState,
   ResponsibleGamingNotice,
+  Disclosure,
+  ExportMenu,
 } from "../../shared/components";
 import { formatBRL, ticketsForBudget } from "../../shared/utils/currency";
 import { ComparePanel } from "./ComparePanel";
@@ -57,7 +59,9 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const [config, setConfig] = useState<GameConfig | null>(null);
   const [suggestedContest, setSuggestedContest] = useState<number | null>(null);
 
-  const [selectedStrategyId, setSelectedStrategyId] = useState<string>(strategies[0]?.id ?? "");
+  // No strategy is selected by default: pre-selecting the first card (RMS for
+  // Lotofácil) could read as an implicit recommendation by the app.
+  const [selectedStrategyId, setSelectedStrategyId] = useState<string>("");
   const [inputMode, setInputMode] = useState<"quantity" | "budget">("quantity");
   const [numberOfTickets, setNumberOfTickets] = useState(6);
   const [budgetBRL, setBudgetBRL] = useState(50);
@@ -67,7 +71,6 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const [excludedNumbers, setExcludedNumbers] = useState<number[]>([]);
   const [seed, setSeed] = useState("");
   const [qualityPreset, setQualityPreset] = useState<QualityPreset>("balanced");
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -81,6 +84,13 @@ export function GerarPage({ modality }: { modality: Modality }) {
     loadDataset(modality)
       .then((d) => setSuggestedContest(suggestNextContest(d)))
       .catch(() => undefined);
+  }, [modality]);
+
+  // Defensive reset: if this component instance is ever reused across a
+  // modality change (rather than remounted by the router), never carry a
+  // strategy selection from one modality over to the other.
+  useEffect(() => {
+    setSelectedStrategyId("");
   }, [modality]);
 
   useEffect(() => {
@@ -97,6 +107,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
   const maxNumber = modality === "lotofacil" ? 25 : 60;
   const gameConfig = config?.[modality];
+  const supportsNumberCustomization = Boolean(strategy?.supportsFixedNumbers || strategy?.supportsExcludedNumbers);
 
   function buildRequest(newSeed?: string): GeneratePortfolioRequest {
     return {
@@ -225,6 +236,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
             <StrategyCard key={s.id} strategy={s} selected={s.id === selectedStrategyId} onSelect={() => setSelectedStrategyId(s.id)} />
           ))}
         </div>
+        {!strategy && <p className="mt-3 text-sm text-slate-500">Escolha uma opção acima para continuar.</p>}
       </section>
 
       {strategy && gameConfig && (
@@ -247,7 +259,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
           <section aria-labelledby="step-contest" className="space-y-5">
             <h2 id="step-contest" className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-              3. Concurso e personalização
+              {supportsNumberCustomization ? "3. Concurso e personalização" : "3. Concurso"}
             </h2>
 
             <div>
@@ -256,7 +268,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                   Concurso em que você pretende jogar
                   <InfoHelp
                     title="Concurso em que você pretende jogar"
-                    body="Usamos este número para identificar e salvar seus jogos. Algumas opções, como a Carteira equilibrada (RMS), também usam os concursos anteriores como referência para montar o conjunto."
+                    body="Usamos este número para identificar e salvar seus jogos. Algumas opções, como Equilibrar meus 6 jogos (RMS), também usam os concursos anteriores como referência para montar o conjunto."
                   />
                 </span>
                 <input
@@ -281,7 +293,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
               )}
             </div>
 
-            {(strategy.supportsFixedNumbers || strategy.supportsExcludedNumbers) && (
+            {supportsNumberCustomization && (
               <NumberCustomizer
                 maxNumber={maxNumber}
                 fixedNumbers={fixedNumbers}
@@ -294,22 +306,12 @@ export function GerarPage({ modality }: { modality: Modality }) {
             )}
 
             {(strategy.supportsUserSeed || strategy.supportsQualityPreset) && (
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setShowAdvanced((v) => !v)}
-                  aria-expanded={showAdvanced}
-                  className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
-                >
-                  {showAdvanced ? "Ocultar configurações avançadas" : "Configurações avançadas"}
-                </button>
-                {showAdvanced && (
-                  <div className="mt-3 space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    {strategy.supportsUserSeed && <SeedInput value={seed} onChange={setSeed} />}
-                    {strategy.supportsQualityPreset && <QualityPresetSelector value={qualityPreset} onChange={setQualityPreset} />}
-                  </div>
-                )}
-              </div>
+              <Disclosure title="Configurações avançadas" subtitle="Opcional">
+                <div className="space-y-4">
+                  {strategy.supportsUserSeed && <SeedInput value={seed} onChange={setSeed} />}
+                  {strategy.supportsQualityPreset && <QualityPresetSelector value={qualityPreset} onChange={setQualityPreset} />}
+                </div>
+              </Disclosure>
             )}
           </section>
 
@@ -398,57 +400,46 @@ export function GerarPage({ modality }: { modality: Modality }) {
             <SimpleDiversitySummary overlapMean={overlap.mean} exposureMin={exposure.exposure ? Math.min(...Object.values(exposure.exposure)) : 0} exposureMax={exposure.exposure ? Math.max(...Object.values(exposure.exposure)) : 0} />
           )}
 
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={copyAll} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
-              Copiar todos
-            </button>
-            <button type="button" onClick={downloadCsv} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
-              Exportar CSV
-            </button>
-            <button type="button" onClick={downloadJson} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
-              Exportar JSON
-            </button>
-            <button type="button" onClick={handleSave} className="rounded border border-emerald-400 bg-emerald-50 px-3 py-1.5 text-sm text-emerald-700">
-              Salvar estes jogos
-            </button>
-            <button type="button" onClick={() => handleGenerate()} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
-              Gerar outra opção
-            </button>
-            <button type="button" onClick={() => handleGenerate(String(result.seed))} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
-              Gerar novamente este mesmo conjunto
-            </button>
-            <button type="button" onClick={reset} className="ml-auto rounded border border-slate-200 px-3 py-1.5 text-sm text-slate-500">
-              Limpar resultado
-            </button>
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={handleSave} className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                Salvar estes jogos
+              </button>
+              <button type="button" onClick={copyAll} className="rounded-md border border-slate-400 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50">
+                Copiar todos
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={() => handleGenerate()} className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">
+                Gerar outra opção
+              </button>
+              <ExportMenu onExportCsv={downloadCsv} onExportJson={downloadJson} />
+              <button type="button" onClick={reset} className="ml-auto text-sm text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline">
+                Limpar resultado
+              </button>
+            </div>
+            <ComparePanel
+              modality={modality}
+              currentStrategyId={result.strategyId}
+              numberOfTickets={result.tickets.length}
+              fixedNumbers={fixedNumbers.length ? fixedNumbers : undefined}
+              excludedNumbers={excludedNumbers.length ? excludedNumbers : undefined}
+              contest={result.contest}
+              currentResult={result}
+            />
           </div>
           {savedMessage && <p role="status" className="text-sm text-emerald-700">{savedMessage}</p>}
 
-          <div className="space-y-3 border-t border-slate-100 pt-3">
-            <button
-              type="button"
-              onClick={() => setShowDetailedAnalysis((v) => !v)}
-              aria-expanded={showDetailedAnalysis}
-              className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
-            >
-              {showDetailedAnalysis ? "Ocultar análise detalhada" : "Ver análise detalhada"}
-            </button>
-            {showDetailedAnalysis && (
+          <div className="space-y-2 border-t border-slate-100 pt-3">
+            <Disclosure title="Ver análise detalhada" open={showDetailedAnalysis} onOpenChange={setShowDetailedAnalysis}>
               <div className="space-y-3">
                 {overlap && <OverlapSummary min={overlap.min} max={overlap.max} mean={overlap.mean} histogram={overlap.histogram} />}
                 {exposure && <ExposureSummary exposure={exposure.exposure} />}
               </div>
-            )}
+            </Disclosure>
 
-            <button
-              type="button"
-              onClick={() => setShowTechnicalDetails((v) => !v)}
-              aria-expanded={showTechnicalDetails}
-              className="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
-            >
-              {showTechnicalDetails ? "Ocultar detalhes técnicos do resultado" : "Detalhes técnicos do resultado"}
-            </button>
-            {showTechnicalDetails && (
-              <dl className="grid grid-cols-1 gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 sm:grid-cols-2">
+            <Disclosure title="Detalhes técnicos do resultado" open={showTechnicalDetails} onOpenChange={setShowTechnicalDetails}>
+              <dl className="grid grid-cols-1 gap-2 text-xs text-slate-600 sm:grid-cols-2">
                 <div>
                   <dt className="font-medium text-slate-700">Estratégia (nome técnico)</dt>
                   <dd>{strategyRegistry.get(result.strategyId)?.ux.technicalName ?? result.strategyId}</dd>
@@ -472,22 +463,21 @@ export function GerarPage({ modality }: { modality: Modality }) {
                   <dd>{result.evaluationMethod}</dd>
                 </div>
                 <div className="sm:col-span-2">
+                  <button
+                    type="button"
+                    onClick={() => handleGenerate(String(result.seed))}
+                    className="rounded border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    Gerar novamente este mesmo conjunto
+                  </button>
+                </div>
+                <div className="sm:col-span-2">
                   <dt className="font-medium text-slate-700">Metadados de auditoria</dt>
                   <dd className="overflow-x-auto whitespace-pre-wrap break-all font-mono">{JSON.stringify(result.audit, null, 2)}</dd>
                 </div>
               </dl>
-            )}
+            </Disclosure>
           </div>
-
-          <ComparePanel
-            modality={modality}
-            currentStrategyId={result.strategyId}
-            numberOfTickets={result.tickets.length}
-            fixedNumbers={fixedNumbers.length ? fixedNumbers : undefined}
-            excludedNumbers={excludedNumbers.length ? excludedNumbers : undefined}
-            contest={result.contest}
-            currentResult={result}
-          />
         </section>
       )}
 

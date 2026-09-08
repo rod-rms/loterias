@@ -1,4 +1,5 @@
 import { InfoHelp } from "./InfoHelp";
+import { formatDecimalPtBR } from "../utils/numberFormat";
 
 interface OverlapSummaryProps {
   min: number;
@@ -19,7 +20,7 @@ export function OverlapSummary({ min, max, mean, histogram }: OverlapSummaryProp
         />
       </h4>
       <p className="mt-1 text-xs text-slate-500">
-        Resumo: mínimo {min}, média {mean.toFixed(2)}, máximo {max} dezenas em comum por par de jogos.
+        Resumo: mínimo {min}, média {formatDecimalPtBR(mean, 2)}, máximo {max} dezenas em comum por par de jogos.
       </p>
       <ul className="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
         {entries.map(([value, count]) => (

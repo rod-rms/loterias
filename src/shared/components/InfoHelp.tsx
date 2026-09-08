@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { CircleHelp } from "lucide-react";
 
 export interface InfoHelpProps {
@@ -6,8 +6,15 @@ export interface InfoHelpProps {
   title: string;
   /** Plain-language explanatory copy. Never put information here that is required to use the feature correctly. */
   body: string;
-  /** Accessible label for the trigger button when title alone isn't enough context (e.g. "Ajuda sobre X"). */
+  /** Accessible label for the icon-only trigger when title alone isn't enough context (e.g. "Ajuda sobre X"). Ignored when `triggerContent` is provided. */
   label?: string;
+  /**
+   * Replaces the default icon-only trigger with visible content (e.g. a
+   * "Como funciona?" text + icon). When set, the button's accessible name
+   * comes from this visible content instead of `label`/`aria-label`, per
+   * WCAG 2.5.3 (visible text should match the accessible name).
+   */
+  triggerContent?: ReactNode;
   className?: string;
 }
 
@@ -18,7 +25,7 @@ export interface InfoHelpProps {
  * information must never live exclusively inside this component; it only
  * ever supplements visible content.
  */
-export function InfoHelp({ title, body, label, className }: InfoHelpProps) {
+export function InfoHelp({ title, body, label, triggerContent, className }: InfoHelpProps) {
   const [open, setOpen] = useState(false);
   const popoverId = useId();
   const containerRef = useRef<HTMLSpanElement>(null);
@@ -50,7 +57,7 @@ export function InfoHelp({ title, body, label, className }: InfoHelpProps) {
         type="button"
         aria-expanded={open}
         aria-describedby={open ? popoverId : undefined}
-        aria-label={label ?? `Mais informações: ${title}`}
+        aria-label={triggerContent ? undefined : (label ?? `Mais informações: ${title}`)}
         onClick={() => setOpen(true)}
         onMouseEnter={() => setOpen(true)}
         onFocus={() => setOpen(true)}
@@ -59,9 +66,13 @@ export function InfoHelp({ title, body, label, className }: InfoHelpProps) {
           if (!containerRef.current?.contains(document.activeElement)) setOpen(false);
           void e;
         }}
-        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+        className={
+          triggerContent
+            ? "inline-flex items-center gap-1 rounded text-slate-600 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            : "inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+        }
       >
-        <CircleHelp aria-hidden className="h-4 w-4" />
+        {triggerContent ?? <CircleHelp aria-hidden className="h-4 w-4" />}
       </button>
       {open && (
         <span

@@ -27,10 +27,10 @@ export const LOTOFACIL_RMS_V2: StrategyDefinition = {
     "O histórico define rotação/pools, não dezenas mais prováveis.",
   ],
   ux: {
-    title: "Carteira equilibrada (RMS)",
-    summary: "Cria 6 jogos com distribuição equilibrada das dezenas e controle de repetição entre os jogos.",
+    title: "Equilibrar meus 6 jogos (RMS)",
+    summary: "Cria exatamente 6 jogos com distribuição equilibrada das dezenas e controle de repetição entre eles.",
     badge: "6 jogos fixos",
-    helpTitle: "Como funciona a Carteira equilibrada (RMS)",
+    helpTitle: "Como funciona Equilibrar meus 6 jogos (RMS)",
     helpBody:
       "Usa os 20 concursos anteriores apenas para organizar os grupos de dezenas e construir uma carteira estruturalmente equilibrada. Não prevê quais dezenas serão sorteadas e não aumenta a chance de 15 acertos em relação a outros 6 jogos distintos.",
     technicalName: "RMS v2",

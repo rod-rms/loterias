@@ -7,15 +7,15 @@ export function Home() {
       <section className="rounded-2xl border border-slate-200 bg-white p-8">
         <h1 className="text-2xl font-bold text-slate-900">Monte seus jogos com estratégia e transparência</h1>
         <p className="mt-2 max-w-2xl text-slate-600">
-          Escolha como deseja organizar seus jogos da Lotofácil ou Mega-Sena, compare diferentes abordagens e veja as probabilidades do conjunto. Nenhuma
-          estratégia prevê o sorteio: toda combinação válida continua tendo a mesma chance de ser sorteada.
+          Escolha como organizar seus jogos da Lotofácil ou Mega-Sena, compare diferentes abordagens e veja as probabilidades do conjunto. Nenhuma opção
+          prevê o sorteio: toda combinação válida continua tendo a mesma chance de ser sorteada.
         </p>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
         <Link to="/lotofacil" className="rounded-xl border border-lotofacil-400/40 bg-lotofacil-50 p-6 transition hover:border-lotofacil-500">
           <h2 className="text-lg font-semibold text-lotofacil-600">Gerar jogos da Lotofácil</h2>
-          <p className="mt-1 text-sm text-slate-600">Carteira equilibrada (RMS), variar mais os jogos, priorizar mais acertos ou gerar jogos aleatórios.</p>
+          <p className="mt-1 text-sm text-slate-600">Equilibrar meus 6 jogos (RMS), variar mais os jogos, priorizar mais acertos ou gerar jogos aleatórios.</p>
         </Link>
         <Link to="/megasena" className="rounded-xl border border-megasena-400/40 bg-megasena-50 p-6 transition hover:border-megasena-500">
           <h2 className="text-lg font-semibold text-megasena-600">Gerar jogos da Mega-Sena</h2>

@@ -1,4 +1,5 @@
 import { InfoHelp } from "./InfoHelp";
+import { formatDecimalPtBR } from "../utils/numberFormat";
 
 interface SimpleDiversitySummaryProps {
   overlapMean: number;
@@ -18,7 +19,7 @@ export function SimpleDiversitySummary({ overlapMean, exposureMin, exposureMax }
         />
       </h4>
       <p className="mt-1 text-sm text-slate-600">
-        Em média, cada par de jogos compartilha <strong>{overlapMean.toFixed(1)}</strong> dezenas entre si, e cada dezena aparece entre{" "}
+        Em média, cada par de jogos compartilha <strong>{formatDecimalPtBR(overlapMean, 1)}</strong> dezenas entre si, e cada dezena aparece entre{" "}
         <strong>{exposureMin}</strong> e <strong>{exposureMax}</strong> vezes no conjunto.
       </p>
     </div>

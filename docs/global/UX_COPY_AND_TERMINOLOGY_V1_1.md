@@ -38,12 +38,16 @@ Um usuário leigo deve conseguir gerar e entender um conjunto de jogos sem saber
 | `exact` (status) | "Cálculo exato" | — |
 | `estimated` (status) | "Estimativa" | — |
 | `upper_bound` / `lower_bound` / `not_computed` | "Limite superior" / "Limite inferior" / "Não calculado" | — |
+| "Carteiras e estratégias auditáveis" (subtítulo global) | "Jogos organizados com transparência" | Linguagem de auditabilidade permanece em Metodologia/docs técnicos |
+| "Dados atualizados até o concurso X" (badge, sem identificar a loteria) | "Lotofácil · dados até o concurso X" / "Mega-Sena · dados até o concurso Y" | — |
+| Diferença de baseline com ruído de ponto flutuante (`-0,000000000000%`) | "Igual" (diferença indistinguível de zero) ou "+ menos de 0,0001 p.p." (diferença real, porém minúscula) | Valor numérico exato permanece em "Detalhes técnicos" |
+| `toFixed(1)`/`toFixed(2)` em inglês ("8.0 dezenas") | Formatação decimal pt-BR ("8,0 dezenas") via `formatDecimalPtBR` | — |
 
 ## 3. Nomes de estratégia (título de UX)
 
 | ID interno | Nome técnico (Detalhes técnicos) | Título exibido | Badge |
 |---|---|---|---|
-| `lotofacil.rms_v2` | RMS v2 | Carteira equilibrada (RMS) | 6 jogos fixos |
+| `lotofacil.rms_v2` | RMS v2 | Equilibrar meus 6 jogos (RMS) | 6 jogos fixos |
 | `lotofacil.max_diversification` | Diversificação de carteira | Variar mais os jogos | Mais diversidade |
 | `lotofacil.max_coverage_11` | Otimizar cobertura 11+ | Priorizar 11 acertos ou mais | Busca otimizada |
 | `lotofacil.max_coverage_12` | Otimizar cobertura 12+ | Priorizar 12 acertos ou mais | Busca otimizada |
@@ -54,6 +58,14 @@ Um usuário leigo deve conseguir gerar e entender um conjunto de jogos sem saber
 | `megasena.uniform_random` | Aleatória distinta | Gerar jogos aleatórios | Sem filtros |
 
 Cada estratégia carrega esses valores em `StrategyDefinition.ux` (`title`, `summary`, `badge`, `helpTitle`, `helpBody`, `technicalName`), lido pela UI de forma inteiramente orientada por metadados — nenhuma página faz `if (strategyId === ...)`.
+
+### 3.1 Passe de polimento (revisão manual do preview)
+
+Após revisão manual do preview publicado, os seguintes ajustes foram aplicados:
+
+- **Nenhuma opção é pré-selecionada ao entrar na tela Gerar.** A primeira versão selecionava automaticamente o primeiro cartão (RMS, no caso da Lotofácil), o que podia ser lido como uma recomendação implícita do aplicativo. Agora todos os cartões começam neutros; os passos 2+ ficam ocultos até o usuário escolher explicitamente uma opção, e a mensagem "Escolha uma opção acima para continuar." aparece abaixo dos cartões. Trocar de modalidade nunca herda uma seleção.
+- **Título da RMS revisado:** de "Carteira equilibrada (RMS)" para "**Equilibrar meus 6 jogos (RMS)**" — mais próximo da intenção do usuário ("o que eu quero fazer") do que de uma descrição de produto.
+- **"Como funciona?" é a explicação primária de cada estratégia**, com texto visível (não apenas um ícone) usando `InfoHelp` com `triggerContent`. "Detalhes técnicos" (nome técnico, ID, versão, evidência) permanece como um link secundário, visualmente mais discreto, mas nunca removido.
 
 ## 4. Formatação de probabilidade (adaptativa)
 
@@ -73,7 +85,19 @@ Exemplos reais do domínio:
 - `0,0277%` → `0,0277%`
 - Sena com N=1 (`1/50.063.860` ≈ 0,000001997%) → exibido com casas suficientes para nunca aparecer como `0%`
 
-A representação "1 em X" (`formatOneIn`) complementa probabilidades pequenas ("Aproximadamente 1 em 544.793") e é omitida quando a probabilidade é nula ou está próxima de 100% (onde "1 em 1" não agrega informação).
+A representação "1 em X" (`formatOneIn`) complementa apenas probabilidades genuinamente raras: é omitida sempre que a probabilidade é `>= 5%` (eventos comuns, onde "Aproximadamente 1 em 2" para ~55% não ajuda), nula, ou próxima de 100% (onde "1 em 1" não agrega informação). Abaixo de 5%, mostra "Aproximadamente 1 em X" quando útil.
+
+### 4.1 Diferença de probabilidade em pontos percentuais (`formatPercentagePointDifference`)
+
+Usada na tabela "Comparação com jogos aleatórios equivalentes" para a coluna de diferença. Corrige um bug real observado no preview: ruído de ponto flutuante aparecendo como `-0,000000000000%` ou `+0,0000003%`.
+
+| Situação | Exibição |
+|---|---|
+| Diferença indistinguível de zero em precisão dupla (`< 1e-9`) | **"Igual"** |
+| Diferença real, porém menor que 0,0001 p.p. | **"+ menos de 0,0001 p.p."** / **"- menos de 0,0001 p.p."** |
+| Diferença maior, com sinal | precisão adaptativa igual à de `formatProbabilityPercent`, com sufixo " p.p." |
+
+Para métricas de "jackpot" (Sena na Mega-Sena, 15 acertos na Lotofácil), a carteira e a baseline não-restrita de mesmo N são matematicamente idênticas (`F6 = N / M` não depende de sobreposição) — por isso a UI mostra corretamente "Igual" nesses casos, e isso não é um bug de exibição. O valor numérico exato continua disponível nos metadados de auditoria em "Detalhes técnicos do resultado".
 
 ## 5. Regras de divulgação progressiva ("progressive disclosure")
 
@@ -102,3 +126,25 @@ Substituiu o ciclo de 3 cliques (fixar → excluir → limpar) por dois modos ex
 `src/shared/components/InfoHelp.tsx`. Abre em clique/toque, hover (desktop) e foco por teclado — nunca depende só de hover. Fecha com Escape, clique fora, ou ao sair do elemento sem foco. Usa `aria-expanded`, `aria-describedby` e `role="tooltip"` no conteúdo. Informação crítica nunca existe exclusivamente dentro de um `InfoHelp` — ele sempre complementa texto já visível.
 
 **Nota de implementação:** a primeira versão fazia `onClick` alternar (toggle) o estado enquanto `onMouseEnter`/`onFocus` já haviam aberto o popover — como o clique do mouse dispara `focus` antes de `click`, o toggle fechava o popover imediatamente após abri-lo. A correção fez clique/hover/foco sempre abrirem (idempotente); o fechamento fica a cargo de Escape, clique fora, ou `mouseleave` sem foco remanescente.
+
+## 8. Componente `Disclosure` (acordeões)
+
+`src/shared/components/Disclosure.tsx` padroniza todos os controles de expandir/recolher ("Configurações avançadas", "Ver análise detalhada", "Detalhes técnicos do resultado"): botão sempre `flex` (block-level), chevron visível que gira ao abrir, `aria-expanded`, área de toque adequada, e um subtítulo opcional (ex.: badge "Opcional" em "Configurações avançadas").
+
+**Bug corrigido:** no preview, "Ver análise detalhada" e "Detalhes técnicos do resultado" apareciam visualmente colados ("Ver análise detalhadaDetalhes técnicos do resultado"). Causa: os botões eram `<button>` simples (`display: inline-block` por padrão); dois elementos inline-block adjacentes com espaço horizontal disponível permanecem lado a lado em vez de empilhar, mesmo dentro de um contêiner `space-y-*`. A correção usa `flex w-full` no botão do `Disclosure`, tornando-o sempre um bloco de largura total — testado via E2E comparando as posições verticais (`boundingBox`) dos dois controles.
+
+## 9. Hierarquia de ações no resultado
+
+- **Primárias** (destaque visual maior): "Salvar estes jogos", "Copiar todos".
+- **Secundárias** (visual mais discreto): "Gerar outra opção", "Comparar com outra opção", "Exportar" (menu único agrupando CSV/JSON via `ExportMenu`), "Limpar resultado" (a mais discreta de todas).
+- **"Gerar novamente este mesmo conjunto"** foi movida para dentro de "Detalhes técnicos do resultado", ao lado do código de reprodução (seed) — é uma ação de reprodutibilidade avançada, não uma ação principal do resultado.
+
+Nenhuma capacidade foi removida; apenas reorganizada por prioridade visual.
+
+## 10. Título dinâmico do passo 3
+
+"3. Concurso e personalização" só aparece quando a estratégia selecionada suporta dezenas obrigatórias/não usadas (`supportsFixedNumbers || supportsExcludedNumbers`); caso contrário (ex.: RMS), o título é simplesmente "3. Concurso". Decidido por capacidade declarada na `StrategyDefinition`, nunca por `if (strategyId === ...)`.
+
+## 11. Badges de atualização de dados por loteria
+
+`DataFreshnessBadge` agora recebe um `label` obrigatório e exibe "Lotofácil · dados até o concurso X" / "Mega-Sena · dados até o concurso Y". O `AppShell` decide quais badges mostrar a partir da rota atual (`useLocation`): em `/lotofacil/*` mostra só a badge da Lotofácil; em `/megasena/*` só a da Mega-Sena; nas demais rotas (Home, Meus jogos salvos, Sobre) mostra as duas, sempre identificadas.

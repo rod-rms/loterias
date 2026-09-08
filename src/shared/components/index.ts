@@ -6,6 +6,8 @@ export * from "./QuantityBudgetInput";
 export * from "./QualityPresetSelector";
 export * from "./SeedInput";
 export * from "./InfoHelp";
+export * from "./Disclosure";
+export * from "./ExportMenu";
 export * from "./MetricCard";
 export * from "./MetricStatusBadge";
 export * from "./PortfolioTicketList";

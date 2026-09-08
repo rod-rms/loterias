@@ -4,6 +4,7 @@ import { useGenerationWorker } from "../../shared/lib/useGenerationWorker";
 import { getMetricPresentation, PRIMARY_METRIC_ORDER } from "../../shared/lib/metricPresentation";
 import { MetricCard, ErrorState } from "../../shared/components";
 import { formatBRL } from "../../shared/utils/currency";
+import { formatDecimalPtBR } from "../../shared/utils/numberFormat";
 import type { GeneratePortfolioRequest, Modality, PortfolioEnvelope, ProbabilityStatus } from "../../shared/types";
 
 interface ComparePanelProps {
@@ -127,7 +128,7 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
                           );
                         })}
                   </div>
-                  {metrics.overlap && <p className="text-xs text-slate-500">Repetição média entre jogos: {metrics.overlap.mean.toFixed(2)} dezenas.</p>}
+                  {metrics.overlap && <p className="text-xs text-slate-500">Repetição média entre jogos: {formatDecimalPtBR(metrics.overlap.mean, 2)} dezenas.</p>}
                 </div>
               );
             })}

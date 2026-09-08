@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CircleHelp } from "lucide-react";
 import type { StrategyDefinition } from "../types";
 import { StrategyBadge } from "./StrategyBadge";
 import { InfoHelp } from "./InfoHelp";
@@ -25,6 +26,7 @@ export function StrategyCard({ strategy, selected, onSelect }: StrategyCardProps
 
   return (
     <div
+      data-testid={`strategy-card-${strategy.id}`}
       className={`w-full rounded-xl border p-4 text-left transition ${
         selected ? "border-slate-900 bg-slate-900/[0.03] ring-1 ring-slate-900" : "border-slate-200 bg-white hover:border-slate-400"
       }`}
@@ -43,13 +45,22 @@ export function StrategyCard({ strategy, selected, onSelect }: StrategyCardProps
         <p className="mt-2 text-xs text-slate-500">{quantityLabel}</p>
       </button>
 
-      <div className="mt-2 flex flex-wrap items-center gap-3">
-        <InfoHelp title={strategy.ux.helpTitle} body={strategy.ux.helpBody} label={`Como funciona: ${strategy.ux.title}`} />
+      <div className="mt-2 flex flex-wrap items-center gap-4">
+        <InfoHelp
+          title={strategy.ux.helpTitle}
+          body={strategy.ux.helpBody}
+          triggerContent={
+            <span className="inline-flex items-center gap-1 text-sm font-medium underline-offset-2 hover:underline">
+              Como funciona?
+              <CircleHelp aria-hidden className="h-3.5 w-3.5" />
+            </span>
+          }
+        />
         <button
           type="button"
           onClick={() => setShowTechnical((v) => !v)}
           aria-expanded={showTechnical}
-          className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-800 hover:underline"
+          className="text-xs font-medium text-slate-400 underline-offset-2 hover:text-slate-700 hover:underline"
         >
           {showTechnical ? "Ocultar detalhes técnicos" : "Detalhes técnicos"}
         </button>

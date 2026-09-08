@@ -26,12 +26,18 @@ export function QuantityBudgetInput({
   if (strategy.ticketCount.mode === "fixed") {
     const n = strategy.ticketCount.fixed ?? 0;
     return (
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-        <p className="text-sm text-slate-700">
-          Quantidade de jogos: <strong>{n}</strong>
-        </p>
-        <p className="mt-1 text-xs text-slate-500">Esta opção foi criada e validada para exatamente {n} jogos.</p>
-        <p className="mt-2 text-sm font-medium text-slate-800">Custo total: {formatBRL(costUsed(n, ticketCostBRL))}</p>
+      <div className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+        <span className="font-semibold text-slate-800">
+          {n} {n === 1 ? "jogo" : "jogos"}
+        </span>
+        <span className="text-slate-400" aria-hidden>
+          ·
+        </span>
+        <span className="text-slate-600">Esta opção foi criada e validada para exatamente {n} jogos.</span>
+        <span className="text-slate-400" aria-hidden>
+          ·
+        </span>
+        <span className="font-medium text-slate-800">Custo total: {formatBRL(costUsed(n, ticketCostBRL))}</span>
       </div>
     );
   }

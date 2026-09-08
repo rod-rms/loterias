@@ -116,10 +116,88 @@ Nenhum teste matemático, de oráculo ou de integração foi enfraquecido ou rem
 ## 6. Limitações conhecidas desta revisão
 
 - A página de Metodologia (`MetodologiaPage.tsx`) manteve linguagem mais técnica deliberadamente — ela é o espaço sancionado pela própria especificação para termos como "baseline", "F4/F5" e "heurística".
-- O subtítulo de marca "Carteiras e estratégias auditáveis" no cabeçalho do app foi mantido; é um rótulo de marca explicitamente definido em `00_START_HERE_CLAUDE_CODE.md` (seção 8), não um termo de fluxo operacional, então não foi considerado dentro do escopo de "evitar jargão no fluxo primário".
 - Nenhuma auditoria automatizada de acessibilidade (ex. axe-core) foi executada nesta revisão; as melhorias foram guiadas por semântica ARIA manual e pelos testes E2E de interação por teclado/toque.
 - Testes de breakpoint mobile foram feitos via Playwright (`hasTouch`/`isMobile`) e inspeção de build; não houve teste em dispositivo físico.
 
-## 7. Status Git / CI
+## 7. Polish pass — revisão manual do preview
 
-Trabalho feito inteiramente na branch `feat/user-friendly-ux-v1-1`, sem merge para `main`. Nenhum force-push. Após todos os testes acima ficarem verdes, a branch foi enviada (`push`) para `origin` para permitir revisão do preview antes do merge.
+Segunda rodada, após revisão manual do preview publicado do PR #1. Continuação na mesma branch (`feat/user-friendly-ux-v1-1`), sem novo branch, sem merge.
+
+### 7.1 Arquivos novos
+
+```text
+src/shared/components/Disclosure.tsx
+src/shared/components/ExportMenu.tsx
+src/shared/utils/numberFormat.ts
+tests/shared/numberFormat.test.ts
+```
+
+### 7.2 Arquivos modificados nesta rodada
+
+```text
+src/shared/types/strategy.ts                    (sem mudança de contrato; ver definitions.ts)
+src/modules/lotofacil/strategies/definitions.ts  (título/summary da RMS revisados)
+src/shared/components/StrategyCard.tsx           ("Como funciona?" com texto visível via InfoHelp triggerContent; Detalhes técnicos secundário; data-testid por estratégia)
+src/shared/components/InfoHelp.tsx               (+ prop triggerContent, para expor texto visível como gatilho em vez de apenas o ícone)
+src/shared/components/QuantityBudgetInput.tsx    (bloco de quantidade fixa da RMS mais compacto, inline)
+src/shared/components/DataFreshnessBadge.tsx     (+ label obrigatório: "Lotofácil · ..." / "Mega-Sena · ...")
+src/shared/components/BaselineComparison.tsx     (usa formatPercentagePointDifference — corrige ruído de ponto flutuante)
+src/shared/components/OverlapSummary.tsx         (formatDecimalPtBR na média de sobreposição)
+src/shared/components/SimpleDiversitySummary.tsx (formatDecimalPtBR na média de repetição)
+src/shared/components/index.ts                   (+ exports Disclosure, ExportMenu)
+src/shared/utils/probabilityFormat.ts             (+ formatPercentagePointDifference; formatOneIn agora oculta abaixo de 5%, não só perto de 100%)
+src/app/layout/AppShell.tsx                       (subtítulo "Jogos organizados com transparência"; badges de frescor por rota via useLocation)
+src/app/pages/Home.tsx                            (corpo do hero revisado; título da RMS atualizado no card da Lotofácil)
+src/app/pages/GerarPage.tsx                       (nenhuma opção selecionada por padrão; mensagem "Escolha uma opção acima para continuar."; título dinâmico do passo 3; Configurações avançadas/Ver análise detalhada/Detalhes técnicos usando Disclosure; hierarquia de ações primária/secundária; Exportar unificado; "Gerar novamente este mesmo conjunto" movido para Detalhes técnicos)
+src/app/pages/ComparePanel.tsx                    (formatDecimalPtBR na repetição média)
+tests/e2e/critical-flows.spec.ts                  (3 cenários existentes ajustados ao novo título da RMS/trigger de ajuda; +9 novos cenários)
+docs/global/UX_COPY_AND_TERMINOLOGY_V1_1.md       (seções 3.1, 4.1, 8–11)
+docs/global/UX_REVIEW_V1_1.md                     (esta seção)
+```
+
+### 7.3 Resumo antes/depois desta rodada
+
+| Antes | Depois |
+|---|---|
+| Primeira estratégia pré-selecionada ao abrir "Gerar" (RMS na Lotofácil) | Nenhuma opção selecionada por padrão; "Escolha uma opção acima para continuar." até o usuário escolher |
+| "Carteira equilibrada (RMS)" | "Equilibrar meus 6 jogos (RMS)" |
+| Badges de frescor sem identificar a loteria | "Lotofácil · dados até o concurso 3779" / "Mega-Sena · dados até o concurso 3054"; escopadas por rota |
+| "Carteiras e estratégias auditáveis" (subtítulo global) | "Jogos organizados com transparência" |
+| Diferença de baseline exibindo `-0,000000000000%` / `+0,0000003%` | "Igual" (diferença zero/ruído de ponto flutuante) ou "+ menos de 0,0001 p.p." (diferença real e minúscula) |
+| "8.0 dezenas" (ponto decimal em inglês) | "8,0 dezenas" (vírgula, pt-BR) em todos os resumos numéricos |
+| "Aproximadamente 1 em 2" para uma chance de ~55% | Reciprocal oculto para qualquer probabilidade ≥ 5%; mantido apenas para eventos raros |
+| "Ver análise detalhadaDetalhes técnicos do resultado" (botões colados) | Dois controles `Disclosure` claramente separados, com chevron e área de toque |
+| "Configurações avançadas" parecendo texto simples | Controle de disclosure com borda, chevron e badge "Opcional" |
+| "3. Concurso e personalização" sempre, mesmo para a RMS (que não personaliza dezenas) | "3. Concurso" quando a estratégia não suporta dezenas obrigatórias/excluídas; "3. Concurso e personalização" quando suporta — decidido por capacidade, não por ID |
+| Bloco de quantidade da RMS em caixa grande de largura total | Linha compacta: "6 jogos · Esta opção foi criada e validada para exatamente 6 jogos. · Custo total: R$ 21,00" |
+| 6 botões de ação com o mesmo peso visual | Primárias ("Salvar estes jogos", "Copiar todos") destacadas; secundárias mais discretas; CSV/JSON agrupados em um único "Exportar"; "Gerar novamente este mesmo conjunto" movida para Detalhes técnicos |
+| "Detalhes técnicos" em destaque igual ao da explicação leiga no cartão de estratégia | "Como funciona?" com texto visível é a explicação primária; "Detalhes técnicos" secundário e mais discreto |
+
+### 7.4 Testes executados (após o polish pass)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (93/93 — +9 testes novos: formatPercentagePointDifference, formatOneIn 5%, formatDecimalPtBR)
+npm run test:mega:oracle  → PASS (24/24, domínio inalterado)
+npm run test:lotofacil:oracle → PASS (oráculo RMS 3780 inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (29/29 — 20 cenários anteriores + 9 novos)
+```
+
+Novos cenários E2E desta rodada:
+21. nenhuma opção selecionada por padrão (cartões neutros, passo 2 ausente, botão "Gerar jogos" ausente);
+22. selecionar uma opção revela o restante do fluxo;
+23. trocar de modalidade não seleciona nenhuma opção implicitamente;
+24. diferença de baseline matematicamente idêntica mostra "Igual", sem ruído de ponto flutuante em nenhuma parte da página;
+25. resumo de diversidade usa vírgula decimal (pt-BR), nunca ponto;
+26. probabilidade alta (10 jogos, ~acima de 5%) não mostra "Aproximadamente 1 em X";
+27. "Ver análise detalhada" e "Detalhes técnicos do resultado" são controles distintos e não sobrepostos (verificado por posição vertical via `boundingBox`), com estados `aria-expanded` independentes;
+28. título dinâmico do passo 3 (RMS → "3. Concurso"; estratégia com personalização → "3. Concurso e personalização");
+29. exportar continua funcional (CSV) após a reorganização da hierarquia de ações.
+
+Nenhum teste matemático, de oráculo ou de integração foi enfraquecido, removido ou teve sua asserção relaxada.
+
+## 8. Status Git / CI
+
+Trabalho feito inteiramente na branch `feat/user-friendly-ux-v1-1`, sem merge para `main`, sem novo branch, sem force-push, em ambas as rodadas. Push realizado após todos os testes acima ficarem verdes, para atualizar o PR #1 (draft) e permitir nova revisão do preview antes do merge.
