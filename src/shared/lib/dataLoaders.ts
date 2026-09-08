@@ -1,5 +1,5 @@
-import { gameConfigSchema, lotteryDatasetSchema } from "./schemas";
-import type { GameConfig, LotteryDataset, Modality } from "../types";
+import { dataStatusSchema, gameConfigSchema, lotteryDatasetSchema } from "./schemas";
+import type { DataStatus, GameConfig, LotteryDataset, Modality } from "../types";
 
 const BASE_URL = import.meta.env.BASE_URL ?? "/";
 
@@ -50,4 +50,14 @@ export function referenceWindow(dataset: LotteryDataset, contest: number, window
 
 export function suggestNextContest(dataset: LotteryDataset): number {
   return dataset.latestContest + 1;
+}
+
+let dataStatusCache: DataStatus | null = null;
+
+/** Data-source transparency metadata (public/data/status.json): distinguishes "last verified" from "last changed". */
+export async function loadDataStatus(): Promise<DataStatus> {
+  if (dataStatusCache) return dataStatusCache;
+  const raw = await fetchJson("data/status.json");
+  dataStatusCache = dataStatusSchema.parse(raw);
+  return dataStatusCache;
 }

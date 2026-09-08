@@ -1,12 +1,6 @@
 import type { ProbabilityStatus } from "../types";
-
-const LABEL: Record<ProbabilityStatus, string> = {
-  exact: "Exato",
-  estimated: "Estimado",
-  upper_bound: "Limite superior",
-  lower_bound: "Limite inferior",
-  not_computed: "Não calculado",
-};
+import { getStatusPresentation } from "../lib/statusPresentation";
+import { InfoHelp } from "./InfoHelp";
 
 const CLASS: Record<ProbabilityStatus, string> = {
   exact: "bg-emerald-50 text-emerald-700 border-emerald-300",
@@ -17,5 +11,11 @@ const CLASS: Record<ProbabilityStatus, string> = {
 };
 
 export function MetricStatusBadge({ status }: { status: ProbabilityStatus }) {
-  return <span className={`rounded border px-1.5 py-0.5 text-[10px] font-medium ${CLASS[status]}`}>{LABEL[status]}</span>;
+  const presentation = getStatusPresentation(status);
+  return (
+    <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium ${CLASS[status]}`}>
+      {presentation.label}
+      <InfoHelp title={presentation.helpTitle} body={presentation.helpBody} />
+    </span>
+  );
 }

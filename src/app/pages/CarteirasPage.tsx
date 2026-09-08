@@ -11,8 +11,11 @@ import {
 } from "../../shared/lib/portfolioStore";
 import { loadDataset } from "../../shared/lib/dataLoaders";
 import { checkTicketsAgainstDraw, highestScore } from "../../shared/lib/checkResult";
-import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState } from "../../shared/components";
+import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink } from "../../shared/components";
+import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import type { Modality, SavedPortfolio } from "../../shared/types";
+
+const MODALITY_LABEL: Record<Modality, string> = { lotofacil: "Lotofácil", megasena: "Mega-Sena" };
 
 export function CarteirasPage({ modality }: { modality?: Modality }) {
   const [portfolios, setPortfolios] = useState<SavedPortfolio[]>([]);
@@ -90,7 +93,8 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Minhas carteiras</h1>
+      <BackLink to={modality ? `/${modality}/gerar` : "/"} label={modality ? `Voltar para ${MODALITY_LABEL[modality]}` : "Voltar ao início"} />
+      <h1 className="text-2xl font-bold">Meus jogos salvos</h1>
 
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm">
@@ -134,7 +138,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
       {importError && <ErrorState title="Backup inválido" message={importError} />}
       {importPreview && (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
-          <p className="text-sm">Este arquivo contém {importPreview.count} carteira(s). Confirmar importação?</p>
+          <p className="text-sm">Este arquivo contém {importPreview.count} conjunto(s) de jogos. Confirmar importação?</p>
           <div className="mt-2 flex gap-2">
             <button type="button" onClick={confirmImport} className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white">
               Confirmar
@@ -148,7 +152,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
       {message && <p role="status" className="text-sm text-slate-600">{message}</p>}
 
       {portfolios.length === 0 ? (
-        <EmptyState title="Nenhuma carteira salva" description="Gere uma carteira e salve para vê-la aqui." />
+        <EmptyState title="Nenhum jogo salvo ainda" description="Gere um conjunto de jogos e salve para vê-lo aqui." />
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {portfolios.map((p) => (
@@ -158,7 +162,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               onOpen={() => setSelected(p)}
               onToggleBet={() => setMarkedAsBet(p.id, !p.markedAsBet).then(refresh)}
               onDelete={() => {
-                if (confirm("Excluir esta carteira?")) deletePortfolio(p.id).then(refresh);
+                if (confirm("Excluir este conjunto de jogos?")) deletePortfolio(p.id).then(refresh);
               }}
             />
           ))}
@@ -166,9 +170,9 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
       )}
 
       {selected && (
-        <div role="dialog" aria-modal="true" aria-label="Detalhes da carteira" className="rounded-xl border border-slate-300 bg-white p-4">
+        <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-slate-300 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">Detalhes — {selected.strategyId}</h2>
+            <h2 className="font-semibold">Detalhes — {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
             <button type="button" onClick={() => setSelected(null)} className="rounded border border-slate-300 px-2 py-1 text-sm">
               Fechar
             </button>

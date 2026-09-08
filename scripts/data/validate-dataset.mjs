@@ -17,6 +17,9 @@ const MODALITIES = {
   megasena: { ticketSize: 6, maxNumber: 60, file: path.join(ROOT, "public/data/megasena/results.json") },
 };
 
+const STATUS_FILE = path.join(ROOT, "public/data/status.json");
+const STATUS_ENUM = new Set(["ok", "degraded"]);
+
 let failed = false;
 
 function fail(message) {
@@ -57,5 +60,31 @@ for (const [modality, cfg] of Object.entries(MODALITIES)) {
 
   console.log(`OK: ${modality} dataset has ${dataset.draws.length} draws, latestContest=${dataset.latestContest}`);
 }
+
+function validateModalityStatus(modality, entry) {
+  if (!entry || typeof entry !== "object") {
+    fail(`status.json: missing "${modality}" entry`);
+    return;
+  }
+  if (typeof entry.source !== "string" || entry.source.length === 0) fail(`status.json: ${modality}.source must be a non-empty string`);
+  if (!Number.isInteger(entry.latestContest) || entry.latestContest < 0) fail(`status.json: ${modality}.latestContest must be a non-negative integer`);
+  if (typeof entry.latestDrawDate !== "string" || entry.latestDrawDate.length === 0) fail(`status.json: ${modality}.latestDrawDate must be a non-empty string`);
+  if (typeof entry.lastUpdatedAt !== "string" || entry.lastUpdatedAt.length === 0) fail(`status.json: ${modality}.lastUpdatedAt must be a non-empty string`);
+  if (typeof entry.lastCheckedAt !== "string" || entry.lastCheckedAt.length === 0) fail(`status.json: ${modality}.lastCheckedAt must be a non-empty string`);
+  if (!STATUS_ENUM.has(entry.status)) fail(`status.json: ${modality}.status must be "ok" or "degraded" (got ${entry.status})`);
+  if (!Number.isInteger(entry.gapCount) || entry.gapCount < 0) fail(`status.json: ${modality}.gapCount must be a non-negative integer`);
+
+  const dataset = MODALITIES[modality] ? JSON.parse(readFileSync(MODALITIES[modality].file, "utf8")) : null;
+  if (dataset && entry.latestContest !== dataset.latestContest) {
+    fail(`status.json: ${modality}.latestContest (${entry.latestContest}) does not match dataset latestContest (${dataset.latestContest})`);
+  }
+}
+
+const status = JSON.parse(readFileSync(STATUS_FILE, "utf8"));
+if (status.schemaVersion !== 1) fail(`status.json: unexpected schemaVersion (${status.schemaVersion})`);
+for (const modality of Object.keys(MODALITIES)) {
+  validateModalityStatus(modality, status[modality]);
+}
+console.log("OK: status.json passes schema and cross-reference checks");
 
 process.exit(failed ? 1 : 0);

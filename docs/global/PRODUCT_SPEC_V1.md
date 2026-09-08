@@ -150,6 +150,12 @@ Exibir:
 
 Não usar “ótimo global” quando o algoritmo for heurístico. Usar “melhor solução encontrada” quando não houver prova de ótimo.
 
+### 9.1 Resultado desatualizado (stale) — v1.1
+
+Se o usuário alterar a configuração (estratégia, quantidade/orçamento, concurso, personalização de dezenas, seed, preset) **depois** de já ter gerado um resultado, o resultado exibido não é apagado nem regenerado automaticamente. Ele permanece visível, com um aviso destacado indicando que não corresponde mais à configuração atual, e três ações explícitas: gerar com a nova configuração, restaurar a configuração anterior (sem gerar de novo), ou descartar o resultado anterior. Editar o formulário de volta exatamente à configuração que gerou o resultado exibido remove o aviso automaticamente.
+
+Salvar um resultado (“Salvar estes jogos”) sempre usa a configuração e o retrato do dataset que efetivamente o geraram — nunca uma reconstrução a partir do estado atual do formulário, mesmo que este já tenha sido editado sem gerar novamente.
+
 ## 10. Baseline aleatória vs estratégia Aleatória
 
 São conceitos diferentes:
@@ -257,6 +263,12 @@ Explicar:
 - limitações de rateio/popularidade;
 - jogo responsável.
 
+### 17.1 Divulgação progressiva e dados de origem (v1.1)
+
+A Metodologia usa divulgação progressiva: "Como este aplicativo funciona" (linguagem simples, cobrindo os pontos acima) é a seção primária; todo o material técnico rigoroso listado acima permanece disponível, na íntegra, em "Detalhes técnicos" (recolhido por padrão).
+
+Por modalidade, a Metodologia também mostra uma seção "Dados e atualizações" com: nome da fonte oficial (Loterias CAIXA) e URL, último concurso na base local, data desse sorteio, situação da base, data/hora da última atualização com concurso novo e data/hora da última verificação bem-sucedida da fonte oficial (mesmo sem novidade) — carregados de `public/data/status.json`, nunca fixos no código.
+
 ## 18. Jogo responsável
 
 A aplicação não é uma plataforma de apostas, mas deve manter comunicação compatível com jogo responsável:
@@ -265,7 +277,7 @@ A aplicação não é uma plataforma de apostas, mas deve manter comunicação c
 - não incentivar recuperação de perdas;
 - não usar notificações, contadores ou linguagem de urgência para estimular gasto;
 - sempre mostrar custo antes da geração;
-- incluir link informativo para a página de Jogo Responsável da CAIXA na área “Sobre/Metodologia”, sem sugerir vínculo oficial.
+- incluir link informativo para a página de Jogo Responsável da CAIXA na área “Sobre/Metodologia”, sem sugerir vínculo oficial (URL atual, corrigida na v1.1: `https://www.caixa.gov.br/jogo-responsavel/Paginas/default.aspx`, centralizada em `RESPONSIBLE_GAMING_URL`).
 
 ## 19. Fora do escopo
 

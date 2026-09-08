@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "lotofacil": {
+    "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil",
+    "latestContest": 3779,
+    "latestDrawDate": "2026-09-03",
+    "lastUpdatedAt": "2026-09-07T22:38:23.130Z",
+    "lastCheckedAt": "2026-09-07T22:38:23.130Z",
+    "status": "ok",
+    "gapCount": 0
+  },
+  "megasena": {
+    "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena",
+    "latestContest": 3054,
+    "latestDrawDate": "2026-09-06",
+    "lastUpdatedAt": "2026-09-07T22:40:17.449Z",
+    "lastCheckedAt": "2026-09-07T22:40:17.449Z",
+    "status": "ok",
+    "gapCount": 0
+  }
+}

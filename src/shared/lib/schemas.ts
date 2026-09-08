@@ -82,6 +82,8 @@ export const savedPortfolioSchema = z.object({
       latestContest: z.number().int().nonnegative(),
       importedAt: z.string(),
       source: z.string(),
+      latestDrawDate: z.string().optional(),
+      statusSchemaVersion: z.number().int().positive().optional(),
     })
     .optional(),
   price: z.object({
@@ -99,6 +101,22 @@ export const savedPortfolioSchema = z.object({
   checkedResult: checkedResultSchema.optional(),
 });
 
+const modalityDataStatusSchema = z.object({
+  source: z.string().min(1),
+  latestContest: z.number().int().nonnegative(),
+  latestDrawDate: z.string().min(1),
+  lastUpdatedAt: z.string().min(1),
+  lastCheckedAt: z.string().min(1),
+  status: z.enum(["ok", "degraded"]),
+  gapCount: z.number().int().nonnegative(),
+});
+
+export const dataStatusSchema = z.object({
+  schemaVersion: z.number().int().positive(),
+  lotofacil: modalityDataStatusSchema,
+  megasena: modalityDataStatusSchema,
+});
+
 export const loteriasBackupSchema = z.object({
   schemaVersion: z.number().int().positive(),
   exportedAt: z.string().min(1),
@@ -109,3 +127,4 @@ export const loteriasBackupSchema = z.object({
 export type ParsedLotteryDataset = z.infer<typeof lotteryDatasetSchema>;
 export type ParsedGameConfig = z.infer<typeof gameConfigSchema>;
 export type ParsedBackup = z.infer<typeof loteriasBackupSchema>;
+export type ParsedDataStatus = z.infer<typeof dataStatusSchema>;
