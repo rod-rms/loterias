@@ -2,39 +2,26 @@
 
 Registro de mudanças voltadas ao usuário e à operação do produto. Não é um espelho de cada commit — para o histórico técnico completo, use `git log`.
 
-## [Unreleased] — v1.1
+## [Unreleased]
 
-### Navegação e estrutura
+Nada pendente no momento.
 
-- As páginas de landing por modalidade (`/lotofacil`, `/megasena`) foram removidas; agora redirecionam para a página de geração (`/lotofacil/gerar`, `/megasena/gerar`), que passa a ser o ponto de entrada de cada modalidade.
-- Os links "Meus jogos salvos" e "Metodologia" da modalidade atual aparecem no topo da página de geração, com o mesmo peso visual.
-- Navegação "voltar" passou a ser determinística (destinos fixos em vez de depender do histórico do navegador): Gerar → Início; Metodologia e Carteiras da modalidade → Gerar da mesma modalidade; Carteiras global → Início.
+## [1.1.0] — 2026-09-08
 
-### Geração de jogos
+Primeira revisão de experiência do usuário sobre a v1, cobrindo Lotofácil e Mega-Sena. Sem mudanças na matemática das loterias, nos algoritmos de estratégia, nas regras da RMS ou nos preços — apenas navegação, apresentação, transparência de dados e persistência.
 
-- Nenhuma estratégia vem pré-selecionada por padrão, para não sugerir implicitamente uma recomendação.
-- "Como você quer definir seus jogos?" substitui os antigos botões escuros de modo por um controle de opção explícito ("Quantidade de jogos" / "Valor que quero gastar").
-- Personalização de dezenas redesenhada: "Quero personalizar" começa desligado, e quando ligado mostra duas seções independentes e usáveis ao mesmo tempo — "Dezenas que devem aparecer em todos os jogos" e "Dezenas que não quero usar" — mantendo a regra de que uma dezena nunca pertence às duas.
-- "Limpar configuração" reseta todo o formulário (estratégia, quantidade/valor, concurso sugerido, personalização, código de reprodução) sem apagar jogos já salvos.
-- **Resultados desatualizados nunca são apagados silenciosamente.** Se a configuração for alterada depois de gerar jogos, o resultado anterior continua visível, com um aviso destacado e três ações: gerar com a nova configuração, restaurar a configuração anterior (sem gerar de novo) ou descartar o resultado anterior.
-- Salvar um resultado sempre usa a configuração e o dataset exatamente como estavam no momento em que aquele resultado foi gerado — mesmo que o formulário tenha sido editado depois, sem gerar novamente.
+- **Terminologia e ajuda em linguagem simples**: nomes de estratégia, explicações ("Como funciona?") e um sistema de ajuda contextual acessível (`InfoHelp`) substituem termos técnicos na tela principal; o material técnico rigoroso continua disponível em "Detalhes técnicos".
+- **Nenhuma estratégia pré-selecionada por padrão**, para não sugerir implicitamente uma recomendação.
+- **Navegação simplificada entre Lotofácil e Mega-Sena**: a página de geração de cada modalidade passa a ser o ponto de entrada direto (Home → Gerar), com as antigas páginas de destino por modalidade agora redirecionando para lá.
+- **Navegação "voltar" acessível e determinística** ("Voltar ao início" e equivalentes), com destino fixo em vez de depender do histórico do navegador.
+- **Personalização de dezenas redesenhada**: desligada por padrão, com duas seções independentes ("devem aparecer em todos os jogos" / "não quero usar") usáveis ao mesmo tempo.
+- **Apresentação de probabilidades e comparações melhorada**: formatação adaptativa que nunca mostra uma chance real como "0%", e comparação com jogos aleatórios equivalentes em linguagem simples, sem jargão técnico.
+- **Proteção contra resultado desatualizado**: alterar a configuração depois de gerar jogos nunca apaga o resultado automaticamente — ele continua visível, com aviso claro e opções para gerar de novo, restaurar a configuração anterior ou descartar explicitamente. "Limpar configuração" reseta apenas o formulário e nunca remove um resultado já gerado.
+- **Retrato do dataset salvo junto com cada jogo gerado**, para auditoria futura de qual base de dados originou aquele conjunto.
+- **Metodologia sincronizada** com uma seção de transparência de dados por modalidade (fonte oficial, último concurso, última atualização, última verificação).
+- **Verificação de dados mais resiliente**: múltiplas janelas de checagem após os sorteios oficiais da CAIXA, em vez de um único horário arbitrário por dia.
+- **Correção do link de jogo responsável**, que apontava para uma URL oficial obsoleta.
 
-### Comparação com jogos aleatórios
+## [1.0.0] — 2026-09-07
 
-- A comparação com jogos aleatórios equivalentes foi humanizada: sem a abreviação "p.p." na interface leiga, com frases como "6,95 pontos percentuais a favor deste conjunto" ou "Mesma cobertura" quando não há diferença real. Os valores exatos continuam disponíveis nos detalhes técnicos.
-
-### Metodologia
-
-- Reorganizada com divulgação progressiva: "Como este aplicativo funciona" (linguagem simples) é a seção principal; todo o material técnico rigoroso anterior continua disponível em "Detalhes técnicos".
-- Nova seção "Dados e atualizações" por modalidade, mostrando fonte oficial, último concurso na base, data do último sorteio, situação da base, última atualização com novo concurso e última verificação da fonte oficial — carregada de metadados versionados, nunca fixa no código.
-
-### Dados e persistência
-
-- Novo arquivo versionado `public/data/status.json` com metadados de transparência por modalidade. Distingue explicitamente "última atualização" (quando um novo concurso realmente entrou na base) de "última verificação" (quando a fonte oficial foi conferida com sucesso, mesmo sem novidade).
-- Jogos salvos agora armazenam um retrato do dataset usado na geração (último concurso, data de importação, fonte), de forma compatível com jogos salvos anteriormente (que simplesmente não têm esse campo).
-- A verificação automática de novos concursos passou de um horário único e arbitrário para múltiplas janelas de checagem após os sorteios oficiais (ver `.github/workflows/data-update.yml`), por ser mais resiliente a atrasos/instabilidade na publicação da CAIXA. Janelas intermediárias não geram commit quando não há novidade; a janela final de cada sequência registra a verificação mesmo sem concurso novo, para que o app mostre a data real da última verificação.
-- Corrigido o link "Saiba mais sobre jogo responsável", que apontava para uma URL obsoleta da CAIXA; agora aponta para a página oficial atual.
-
-### Documentação
-
-- Especificações de produto, arquitetura e dados atualizadas para refletir a nova navegação, o ciclo de vida de atualização de dados e a separação entre o que fica no repositório (produto) e o que fica no IndexedDB do usuário (jogos salvos, preferências).
+Primeira versão pública: geração de jogos simples para Lotofácil (15 dezenas) e Mega-Sena (6 dezenas), catálogo de estratégias auditáveis, métricas exatas/estimadas com status explícito, histórico local de jogos salvos e datasets oficiais versionados.
