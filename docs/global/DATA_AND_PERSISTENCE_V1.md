@@ -89,7 +89,12 @@ A partir da v1.1, a verificação automática não roda mais em um horário úni
 - Sorteios noturnos (Lotofácil seg-sex, Mega-Sena ter/qui, a partir das 21:00 BRT): checagens de acompanhamento às 22:45, 00:30 e 07:00 BRT (esta última é a janela final de contingência).
 - Sorteios de domingo de manhã (Lotofácil e Mega-Sena, a partir das 11:00 BRT): checagens de acompanhamento às 13:00, 15:30 e 20:00 BRT (esta última é a janela final de contingência).
 
-O workflow roda essas seis janelas todo dia (é inofensivo/idempotente checar em dias sem sorteio daquela janela) e mantém `workflow_dispatch` para verificação manual em datas excepcionais — o **calendário oficial mensal da CAIXA é a fonte de verdade** para feriados e alterações de agenda, e prevalece sobre esta agenda recorrente.
+O workflow restringe cada sequência de janelas aos dias em que o sorteio correspondente de fato ocorre, em vez de rodar todo dia. Como Lotofácil e Mega-Sena juntas cobrem sorteios noturnos de segunda a sexta (união dos dois calendários), a sequência noturna roda apenas nesses dias; a sequência de domingo de manhã roda apenas aos domingos. Concretamente, em UTC (BRT = UTC-3, sem horário de verão desde 2019):
+
+- Sequência noturna (22:45 → 00:30 → 07:00 BRT, referente a um sorteio de segunda a sexta): como 22:45 BRT de um dia útil já cai em UTC no dia seguinte, e as duas checagens seguintes (00:30 e 07:00 BRT) já são o dia seguinte tanto em BRT quanto em UTC, a sequência inteira roda em `terça a sábado` (UTC) — o conjunto de dias que sucede um sorteio de segunda a sexta.
+- Sequência de domingo de manhã (13:00 → 15:30 → 20:00 BRT): permanece inteiramente no mesmo dia em BRT e UTC, então roda apenas aos `domingos` (UTC).
+
+Isso mantém exatamente a mesma sequência de retries por sorteio, apenas sem executar o workflow em dias/horários em que nenhum sorteio relevante ocorreu. `workflow_dispatch` continua disponível para verificação manual em datas excepcionais — o **calendário oficial mensal da CAIXA é a fonte de verdade** para feriados e alterações de agenda, e prevalece sobre esta agenda recorrente.
 
 Duas camadas de resiliência distintas, ambas mantidas:
 

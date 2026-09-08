@@ -5,19 +5,42 @@ name: Update lottery datasets
 # follow-up windows per draw window and rely on the updater being
 # idempotent (it only fetches missing contests and is a no-op otherwise).
 #
-# Official draw schedule at the time this was written:
+# Official recurring draw schedule at the time this was written:
 #   Lotofácil: Mon-Fri from 21:00 BRT, Sunday from 11:00 BRT
 #   Mega-Sena: Tue/Thu from 21:00 BRT, Sunday from 11:00 BRT
 # CAIXA's official monthly calendar is authoritative and may override this
 # recurring schedule for holidays/exceptions; use workflow_dispatch for
 # those dates.
 #
-# Follow-up windows (BRT -> UTC, BRT = UTC-3, no DST since 2019):
-#   Evening-draw follow-ups (every day, harmless no-op on non-draw days):
+# The union of evening-draw days across both modalities is Mon-Fri BRT, so
+# the evening follow-up sequence below is scoped to Mon-Fri BRT draws only
+# (it used to run every day; that was functionally harmless — the updater
+# is idempotent — but wasteful, since most of those runs could never find
+# anything to do). The Sunday-morning sequence covers both modalities on
+# the one day they share a morning draw.
+#
+# BRT = UTC-3 (no DST since 2019), so a BRT time past 21:00 always lands
+# after midnight UTC on the SAME calendar day, and a BRT time in the early
+# hours of the "next" BRT day (00:30, 07:00) is still that next day in UTC
+# too — the two clocks stay within the same UTC day for everything after
+# 03:00 UTC. Concretely, for a Mon-Fri BRT evening draw:
+#   22:45 BRT (still the draw's own weekday)      -> 01:45 UTC, next day    => cron weekdays shift Mon-Fri -> Tue-Sat
+#   00:30 BRT (already the following weekday)     -> 03:30 UTC, same day   => Tue-Sat
+#   07:00 BRT (still that following weekday)      -> 10:00 UTC, same day   => Tue-Sat (this is the final fallback)
+# So the whole evening sequence runs on UTC cron days Tue-Sat (2-6), which
+# is exactly the set of days that follow a Mon-Fri BRT evening draw.
+#
+# For the Sunday-morning draw (11:00 BRT), every follow-up in its sequence
+# (13:00, 15:30, 20:00 BRT) is still Sunday in both BRT and UTC, so those
+# crons simply use UTC cron day Sunday (0).
+#
+# Follow-up windows:
+#   Evening-draw follow-ups (UTC cron days Tue-Sat = the day after each
+#   Mon-Fri BRT evening draw):
 #     22:45 BRT -> 01:45 UTC (intermediate)
 #     00:30 BRT -> 03:30 UTC (intermediate)
 #     07:00 BRT -> 10:00 UTC (final fallback for the evening draw)
-#   Sunday-morning-draw follow-ups (every day, same reasoning):
+#   Sunday-morning-draw follow-ups (UTC cron day Sunday):
 #     13:00 BRT -> 16:00 UTC (intermediate)
 #     15:30 BRT -> 18:30 UTC (intermediate)
 #     20:00 BRT -> 23:00 UTC (final fallback for the Sunday morning draw)
@@ -30,12 +53,12 @@ name: Update lottery datasets
 # new contest always commits (that is never considered "noise").
 on:
   schedule:
-    - cron: "45 1 * * *" # 22:45 BRT — evening follow-up 1 (intermediate)
-    - cron: "30 3 * * *" # 00:30 BRT — evening follow-up 2 (intermediate)
-    - cron: "0 10 * * *" # 07:00 BRT — evening follow-up 3 (final fallback)
-    - cron: "0 16 * * *" # 13:00 BRT — Sunday-morning follow-up 1 (intermediate)
-    - cron: "30 18 * * *" # 15:30 BRT — Sunday-morning follow-up 2 (intermediate)
-    - cron: "0 23 * * *" # 20:00 BRT — Sunday-morning follow-up 3 (final fallback)
+    - cron: "45 1 * * 2-6" # 22:45 BRT Mon-Fri (draw day) -> 01:45 UTC Tue-Sat — evening follow-up 1 (intermediate)
+    - cron: "30 3 * * 2-6" # 00:30 BRT Tue-Sat (day after a Mon-Fri draw) -> 03:30 UTC Tue-Sat — evening follow-up 2 (intermediate)
+    - cron: "0 10 * * 2-6" # 07:00 BRT Tue-Sat -> 10:00 UTC Tue-Sat — evening follow-up 3 (final fallback)
+    - cron: "0 16 * * 0" # 13:00 BRT Sunday -> 16:00 UTC Sunday — Sunday-morning follow-up 1 (intermediate)
+    - cron: "30 18 * * 0" # 15:30 BRT Sunday -> 18:30 UTC Sunday — Sunday-morning follow-up 2 (intermediate)
+    - cron: "0 23 * * 0" # 20:00 BRT Sunday -> 23:00 UTC Sunday — Sunday-morning follow-up 3 (final fallback)
   workflow_dispatch: {}
 
 permissions:
@@ -59,12 +82,13 @@ jobs:
 
       - name: Update datasets from the official CAIXA source
         # Manual runs (workflow_dispatch) and the two "final fallback"
-        # crons are allowed to persist a checked-only status update (no new
-        # contest, but the source was successfully verified). All other
-        # scheduled runs only persist a status change when a new contest
-        # was actually imported, to avoid noisy status-only commits.
+        # crons ("0 10 * * 2-6" and "0 23 * * 0") are allowed to persist a
+        # checked-only status update (no new contest, but the source was
+        # successfully verified). All other scheduled runs only persist a
+        # status change when a new contest was actually imported, to avoid
+        # noisy status-only commits.
         env:
-          ALLOW_CHECKED_ONLY_STATUS_WRITE: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '0 10 * * *' || github.event.schedule == '0 23 * * *' }}
+          ALLOW_CHECKED_ONLY_STATUS_WRITE: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '0 10 * * 2-6' || github.event.schedule == '0 23 * * 0' }}
         run: npm run data:update
 
       - name: Validate datasets
