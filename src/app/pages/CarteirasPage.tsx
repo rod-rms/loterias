@@ -90,7 +90,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     }
     const checkedResult = checkTicketsAgainstDraw(portfolio.tickets, draw);
     await saveCheckedResult(portfolio.id, checkedResult);
-    refresh();
+    await refresh();
     // Keep the open detail view in sync immediately, instead of waiting for
     // a later re-open — `selected` is a snapshot, not a live reference into `portfolios`.
     setSelected((prev) => (prev && prev.id === portfolio.id ? { ...prev, checkedResult } : prev));
