@@ -261,3 +261,25 @@ Isso importa porque "Salvar estes jogos" deve sempre persistir a configuração 
 ## 15. Link de jogo responsável (v1.1)
 
 A URL usada em "Saiba mais sobre jogo responsável" (`https://loterias.caixa.gov.br/Paginas/jogo-responsavel.aspx`) ficou obsoleta/quebrada. Foi substituída pela página oficial atual (`https://www.caixa.gov.br/jogo-responsavel/Paginas/default.aspx`), centralizada em `src/shared/lib/externalLinks.ts` (`RESPONSIBLE_GAMING_URL`) para nunca mais ser duplicada por componente.
+
+## 16. Conferência de resultado — apresentação completa e rótulos (v1.1.1)
+
+`CheckedResult` continua com o mesmo schema (`contest`, `numbers`, `checkedAt`, `hitsPerTicket`, mais os campos opcionais já existentes) — nada foi removido, nada de premiação foi adicionado. Carteiras e backups salvos antes da v1.1.1 continuam sendo lidos normalmente.
+
+O que mudou foi apenas a **apresentação**, derivada dos dados já existentes, sem duplicar valores calculados no IndexedDB:
+
+- `src/shared/lib/resultLabels.ts` fornece `getResultLabel(modality, hits)` (rótulo convencional: "Quadra"/"Quina"/"Sena" para Mega-Sena; "11 acertos".."15 acertos" para Lotofácil; `null` abaixo do limiar) e `summarizeBestTickets`/`summarizeCheckedResult`, que calculam a maior pontuação, todos os jogos empatados nela, e uma frase pronta em pt-BR que trata corretamente 1, 2, ou 3+ jogos empatados.
+- Nenhum desses rótulos ou frases usa semântica de prêmio/dinheiro ("premiação", "prêmio", "ganhou", "aposta vencedora" são proibidos nesta camada).
+- A tela de "Meus jogos salvos" mostra, juntos: o resultado oficial do concurso, o número de acertos por jogo, as dezenas destacadas, e o(s) melhor(es) jogo(s) — nunca resumidos em uma única frase genérica.
+
+## 17. Validação de concurso-alvo e simulação histórica (v1.1.1)
+
+Ver `PRODUCT_SPEC_V1.md` §7.2–7.3 para as regras completas. Do ponto de vista de dados:
+
+- toda a validação (`src/shared/lib/targetContest.ts`) usa exclusivamente o dataset já carregado (`LotteryDataset`) — nunca dispara uma nova requisição HTTP a partir do navegador;
+- a garantia de "sem espiada ao futuro" para estratégias com histórico (RMS v2) é implementada na função de recorte de janela (`referenceWindow`, já existente desde a v1), que calcula os concursos esperados relativos ao concurso-alvo e nunca considera concursos posteriores presentes no dataset;
+- testes de regressão dedicados (`tests/lotofacil/noLookAhead.test.ts`) provam, com um dataset sintético: que toda entrada histórica passada à RMS tem `contest < T`; que gerar com o dataset completo ou com um dataset fisicamente truncado em `T-1` produz o mesmo resultado; e que alterar concursos posteriores a `T` não muda o resultado gerado.
+
+## 18. Transparência de armazenamento local (v1.1.1)
+
+Reforço de copy (não muda a arquitetura): Sobre e "Meus jogos salvos" explicam que os jogos salvos existem apenas no navegador/dispositivo atual, sem conta nem sincronização em nuvem; que outro dispositivo/perfil não vê os mesmos jogos automaticamente; que qualquer pessoa usando o mesmo perfil de navegador pode acessá-los; e que limpar dados do site pode apagá-los — daí a recomendação de "Exportar backup" antes de limpar dados ou trocar de dispositivo. Mecanismo de persistência inalterado: IndexedDB via Dexie, sem login, sem backend, sem sincronização.

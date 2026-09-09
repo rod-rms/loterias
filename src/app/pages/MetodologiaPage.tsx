@@ -146,8 +146,8 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
           <section>
             <h3 className="text-base font-semibold">Limitações de rateio/popularidade</h3>
             <p className="mt-1 text-sm text-slate-600">
-              A popularidade de escolhas de outros apostadores é logicamente separada da probabilidade física do sorteio. A v1 não calcula um rateio
-              calibrado.
+              A popularidade de escolhas de outros apostadores é logicamente separada da probabilidade física do sorteio. Esta versão do aplicativo não
+              calcula um rateio calibrado.
             </p>
           </section>
         </div>

@@ -23,7 +23,10 @@ import {
   Disclosure,
   ExportMenu,
   BackLink,
+  HistoricalContestNotice,
+  NextContestNotice,
 } from "../../shared/components";
+import { validateTargetContest } from "../../shared/lib/targetContest";
 import { formatBRL, ticketsForBudget } from "../../shared/utils/currency";
 import { ComparePanel } from "./ComparePanel";
 import type {
@@ -163,6 +166,12 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const gameConfig = config?.[modality];
   const supportsNumberCustomization = Boolean(strategy?.supportsFixedNumbers || strategy?.supportsExcludedNumbers);
 
+  // Deterministic target-contest validation against the already-loaded
+  // dataset — no new network request. Only evaluated once a contest number
+  // and the dataset are both available; an empty contest field is left to
+  // each strategy's own requiresTargetContest rule.
+  const contestValidation = dataset && contest !== "" ? validateTargetContest(contest, dataset) : null;
+
   function buildRequest(newSeed?: string): GeneratePortfolioRequest {
     return {
       modality,
@@ -204,6 +213,9 @@ export function GerarPage({ modality }: { modality: Modality }) {
     if (!strategy) return null;
     if (strategy.requiresTargetContest && contest === "") {
       return "Esta opção exige o concurso em que você pretende jogar.";
+    }
+    if (contestValidation && (contestValidation.status === "blocked_future" || contestValidation.status === "blocked_gap" || contestValidation.status === "blocked_invalid")) {
+      return contestValidation.message;
     }
     const overlap = fixedNumbers.filter((n) => excludedNumbers.includes(n));
     if (overlap.length > 0) {
@@ -430,6 +442,19 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 <p className="mt-1 text-xs text-slate-500">
                   Esta opção usa os {strategy.historyWindowSize} concursos imediatamente anteriores como referência para montar o conjunto.
                 </p>
+              )}
+              {contestValidation?.status === "ok_historical" && (
+                <div className="mt-2">
+                  <HistoricalContestNotice draw={contestValidation.draw} />
+                </div>
+              )}
+              {contestValidation?.status === "ok_next" && (
+                <div className="mt-2">
+                  <NextContestNotice />
+                </div>
+              )}
+              {contestValidation && (contestValidation.status === "blocked_future" || contestValidation.status === "blocked_gap" || contestValidation.status === "blocked_invalid") && (
+                <p className="mt-1 text-sm font-medium text-rose-700">{contestValidation.message}</p>
               )}
             </div>
 

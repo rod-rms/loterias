@@ -176,3 +176,22 @@ A tabela de comparação foi substituída por frases por métrica, sem a abrevia
 ## 17. Link de jogo responsável
 
 A URL usada em "Saiba mais sobre jogo responsável" estava quebrada/obsoleta e foi corrigida para a página oficial atual da CAIXA, centralizada em `RESPONSIBLE_GAMING_URL` (`src/shared/lib/externalLinks.ts`) — abre em nova aba com `rel="noopener noreferrer"`.
+
+## 18. Concurso-alvo e simulação histórica (v1.1.1)
+
+O campo "Concurso em que você pretende jogar" passa a reagir ao valor digitado:
+
+- concurso igual ao próximo disponível: nota neutra e discreta "Próximo concurso disponível" (nunca inventa uma data de sorteio, já que o app não tem essa informação com autoridade);
+- concurso já realizado (existe na base local): bloco "Concurso {N} já realizado em {DD/MM/AAAA}" com "Resultado oficial" e as dezenas sorteadas, seguido de "Você está fazendo uma simulação histórica. O resultado deste sorteio não será usado para montar os jogos.";
+- concurso muito à frente do disponível: mensagem de bloqueio dinâmica, ex. "Esse concurso ainda não está disponível para geração. A base oficial está atualizada até o concurso 3055. O próximo concurso disponível é o 3056.";
+- concurso ausente da base local (lacuna) ou valor inválido (zero, negativo, decimal): bloqueado com mensagem específica.
+
+Tudo isso usa somente o dataset já carregado — nenhuma nova requisição à CAIXA a partir do navegador.
+
+## 19. Conferência de jogos salvos — resultado completo (v1.1.1)
+
+A conferência de uma carteira salva deixou de resumir tudo em "Conferido: maior pontuação X acertos." Agora mostra, juntos: "Resultado oficial — Concurso N" com as dezenas sorteadas; uma frase identificando o(s) melhor(es) jogo(s), tratando empates corretamente ("J3 foi o melhor jogo, com 4 acertos · Quadra." / "J2 e J5 foram os melhores jogos, com 4 acertos cada · Quadra." / "J2, J4 e J6 tiveram a maior pontuação..."); e, junto de cada jogo na lista, seu número de acertos e o rótulo convencional quando aplicável ("Quadra"/"Quina"/"Sena" para Mega-Sena, "11 acertos" a "15 acertos" para Lotofácil). Nunca usa linguagem de premiação ("premiação", "prêmio", "ganhou", "aposta vencedora") — apenas o número de acertos e o nome convencional do resultado.
+
+## 20. Versão do aplicativo e transparência de armazenamento (v1.1.1)
+
+O rodapé agora mostra "Loterias v{versão} · Não afiliado à CAIXA · Uso destinado a maiores de 18 anos · Não é uma plataforma de apostas.", com a versão vinda de `package.json` via a constante de build `APP_VERSION` — nunca escrita à mão em um componente. Em Sobre e em "Meus jogos salvos", a copy sobre armazenamento local foi reforçada: os jogos salvos existem apenas naquele navegador/dispositivo, sem conta nem sincronização em nuvem, e "Exportar backup" é a forma recomendada de preservá-los antes de limpar dados ou trocar de dispositivo. Também foi trocada uma frase que dizia "A v1 não calcula..." por linguagem natural de produto ("Esta versão do aplicativo não calcula...") — identificadores técnicos de versão (estratégia, motor, dataset) permanecem intactos onde já eram metadados de auditoria.

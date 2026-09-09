@@ -30,6 +30,11 @@
 26. (v1.1) Verificação automática de dados usa múltiplas janelas de retry após cada janela de sorteio (não um único horário diário), por resiliência a atraso/instabilidade da fonte oficial; retries HTTP internos continuam existindo como camada de resiliência separada e complementar.
 27. (v1.1) `lastUpdatedAt` (dataset mudou) e `lastCheckedAt` (fonte verificada, mesmo sem mudança) são conceitos e campos distintos em `public/data/status.json`; a UI nunca os apresenta como a mesma coisa.
 28. (v1.1) URL de jogo responsável corrigida e centralizada em `RESPONSIBLE_GAMING_URL` (`src/shared/lib/externalLinks.ts`).
+29. (v1.1.1) Concurso-alvo é validado contra o dataset local (próximo concurso, concurso histórico existente, futuro distante bloqueado, lacuna bloqueada, valor inválido bloqueado) — nunca por uma nova requisição de rede.
+30. (v1.1.1) Simulação histórica é uma capacidade de primeira classe: escolher um concurso já realizado mostra o resultado oficial e gera normalmente, mas o histórico fornecido a qualquer estratégia nunca inclui o concurso-alvo nem concursos posteriores — garantido na fronteira de dados (`referenceWindow`), não só visualmente.
+31. (v1.1.1) Histórico insuficiente para uma janela exigida (ex.: RMS v2) bloqueia a geração; nunca reduz a janela, usa concursos futuros, ou cai para o histórico mais recente disponível como substituto.
+32. (v1.1.1) Rótulos de resultado ("Quadra"/"Quina"/"Sena", "11 a 15 acertos") são puramente descritivos do número de acertos — nunca semântica de premiação/dinheiro. Tabelas de rateio/premiação ficam fora de escopo até nova decisão explícita.
+33. (v1.1.1) `package.json` é a única fonte de verdade da versão visível do app, injetada em build-time como `__APP_VERSION__`; nenhum componente escreve a versão como literal.
 
 ## Valores atuais de configuração (07/09/2026)
 

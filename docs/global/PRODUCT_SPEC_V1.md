@@ -115,6 +115,33 @@ O domínio deve validar `N` contra esse máximo antes de iniciar a busca.
 
 Restrições impossíveis nunca devem ser ajustadas silenciosamente.
 
+### 7.2 Validação do concurso-alvo (v1.1.1)
+
+Definições, a partir do dataset local validado da modalidade:
+
+- `latestContest` = último concurso oficial disponível na base local;
+- `nextContest` = `latestContest + 1`.
+
+Estados permitidos:
+
+- `contest === nextContest`: caso normal (sorteio futuro/pretendido) — gera normalmente;
+- `contest <= latestContest` e existe exatamente esse concurso na base: **simulação histórica** — gera normalmente, sujeita aos requisitos de histórico da estratégia (7.3);
+- `contest > nextContest`: concurso futuro ainda não suportado — **bloqueia** a geração, com mensagem dinâmica citando `latestContest` e `nextContest` reais;
+- `contest <= latestContest` mas ausente da base (lacuna): **bloqueia** a geração;
+- valor inválido (zero, negativo, decimal, não numérico): **bloqueia** a geração.
+
+Essa validação usa somente o dataset já carregado — nunca dispara uma nova requisição à fonte oficial a partir do navegador.
+
+### 7.3 Simulação histórica e a garantia de "sem espiada ao futuro"
+
+Ao escolher um concurso histórico, a tela mostra o resultado oficial daquele sorteio (dezenas, data) e deixa explícito que é uma simulação — aquele resultado não é usado para montar os jogos.
+
+Para qualquer estratégia que leia histórico de concursos (ex.: RMS v2), o histórico fornecido ao algoritmo para um concurso-alvo `T` deve conter **apenas** concursos com `contest < T` — nunca `T` nem qualquer concurso posterior a `T`. Essa regra é garantida na fronteira entre a camada de dados e o domínio (não apenas visualmente): a função que recorta a janela de referência (`referenceWindow`) sempre calcula os contests esperados a partir de `T` para trás, independentemente de quais concursos futuros também existam no dataset.
+
+Se a janela histórica exigida não estiver completa (ex.: RMS v2 exige exatamente os 20 concursos imediatamente antes de `T`), a geração é **bloqueada** com mensagem clara. Nunca é aceitável: usar concursos posteriores, reduzir silenciosamente o tamanho da janela, relaxar regras da estratégia, ou usar o histórico mais recente disponível como substituto.
+
+Para `nextContest`, o histórico disponível até `latestContest` continua sendo usado normalmente — a regra acima nunca deve truncar acidentalmente esse caso comum.
+
 ## 8. Seed e reprodutibilidade
 
 Toda geração deve possuir uma seed registrada.
@@ -237,6 +264,26 @@ Quando houver resultado disponível:
 - calcular maior pontuação;
 - salvar conferência;
 - não inferir prêmio monetário sem tabela de premiação daquele concurso validada.
+
+### 15.1 Apresentação completa do resultado conferido (v1.1.1)
+
+A conferência não resume o resultado em uma única frase. Deve mostrar, juntos:
+
+- o resultado oficial do concurso (dezenas sorteadas);
+- o número de acertos de cada jogo salvo individualmente;
+- as dezenas sorteadas destacadas em cada jogo;
+- o(s) jogo(s) com a maior pontuação, com tratamento correto de empate (dois ou mais jogos podem empatar na maior pontuação — a UI deve identificar todos, nunca assumir um único vencedor);
+- o rótulo convencional de resultado, quando aplicável (ver 15.2);
+- a data/hora da conferência, com baixo destaque visual.
+
+### 15.2 Rótulos de resultado (nunca premiação)
+
+Um rótulo puramente descritivo do número de acertos, nunca semântica de prêmio/dinheiro:
+
+- Mega-Sena: 4 acertos → "Quadra"; 5 → "Quina"; 6 → "Sena"; abaixo de 4, sem rótulo especial.
+- Lotofácil: 11 a 15 acertos → "11 acertos" a "15 acertos"; abaixo de 11, sem rótulo especial.
+
+Proibido em qualquer rótulo ou frase desta seção: "premiação", "prêmio", "aposta premiada", "faixa de premiação", "ganhou", "aposta vencedora", ou qualquer valor monetário. Tabelas oficiais de rateio/premiação por concurso são um item de backlog futuro (v1.2+), não implementado nesta versão.
 
 ## 16. Exportação de carteira
 

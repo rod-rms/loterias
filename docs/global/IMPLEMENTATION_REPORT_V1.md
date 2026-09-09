@@ -169,3 +169,32 @@ npm run data:validate     → PASS
 ```
 
 Estado pronto para release: todos os gates de qualidade verdes na branch `feat/user-friendly-ux-v1-1` antes da fusão com `main`.
+
+## 15. v1.1.1 — validação de concurso, simulação histórica e conferência de resultados (branch `feat/v1.1.1-historical-validation-checking`, draft PR)
+
+Release de manutenção focada, construída a partir do `main` pós-v1.1.0. Quatro objetivos: validar corretamente o concurso-alvo; suportar simulação histórica segura ("sem espiada ao futuro"); melhorar a conferência de jogos salvos; e pequenos detalhes de transparência (versão visível, explicação de armazenamento local). **Não adiciona premiação/rateio nem cálculo de valores monetários.**
+
+Pontos técnicos que valem registro:
+
+- **`shared/lib/targetContest.ts`** (`validateTargetContest`): validação determinística do concurso-alvo a partir do dataset já carregado — próximo concurso, concurso histórico existente, futuro bloqueado, lacuna bloqueada, valor inválido bloqueado. Ver `PRODUCT_SPEC_V1.md` §7.2.
+- **Garantia de "sem espiada ao futuro"**: já era estruturalmente garantida desde a v1 pela função `referenceWindow` (`shared/lib/dataLoaders.ts`), usada pelos adapters de estratégia — o trabalho desta release foi principalmente **provar isso com testes de regressão dedicados** (`tests/lotofacil/noLookAhead.test.ts`, release-blocking): fatiamento do dataset histórico, equivalência entre dataset completo e dataset truncado em `T-1`, e invariância a mutações em concursos posteriores a `T`. Nenhuma mudança de comportamento foi necessária no domínio RMS para satisfazer essa garantia.
+- **`shared/lib/resultLabels.ts`**: rótulos de resultado ("Quadra"/"Quina"/"Sena", "11 a 15 acertos") e resumo de melhor(es) jogo(s) com tratamento de empate — puramente derivados de `hitsPerTicket` já existente em `CheckedResult`, sem novos campos persistidos.
+- **`shared/components/HistoricalContestNotice.tsx`** e integração em `GerarPage`: mostra o resultado oficial de um concurso histórico como simulação, ou uma nota neutra para o próximo concurso — usando apenas o dataset já carregado.
+- **`CarteirasPage`**: a conferência de resultado deixou de resumir em uma frase única; agora mostra resultado oficial, acertos por jogo e melhor(es) jogo(s) juntos. Também corrigido um bug lateral: o painel de detalhe (`selected`) não se atualizava automaticamente após conferir — agora é sincronizado explicitamente.
+- **Versão do app**: `package.json` (`1.1.1`) é a única fonte de verdade, injetada via `__APP_VERSION__` (Vite `define`) e consumida por `shared/lib/appVersion.ts`; rodapé atualizado.
+- **Compatibilidade retroativa**: `CheckedResult` e `SavedPortfolioDatasetRef` não perderam nem ganharam campos obrigatórios; testes dedicados provam que carteiras/backups no formato anterior continuam legíveis.
+
+### Totais finais de validação (branch v1.1.1, antes do merge)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (152/152)
+npm run test:mega:oracle  → PASS (24/24)
+npm run test:lotofacil:oracle → PASS (45/45 — 38 originais + 7 de sem-espiada-ao-futuro)
+npm run build             → PASS
+npm run test:e2e          → PASS (47/47 — 41 anteriores + 6 novos)
+npm run data:validate     → PASS
+```
+
+Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Branch aberta como draft PR contra `main`; não mesclada nesta entrega.

@@ -200,8 +200,20 @@ Não espalhar chamadas IndexedDB em componentes.
 
 Criar adapters de dados de concurso e configuração. Domínio RMS recebe draws já validados; não lê JSON diretamente.
 
+### 12.1 Fronteira de "sem espiada ao futuro" (v1.1.1)
+
+O recorte de janela histórica (`referenceWindow`/`drawsBeforeContest`, em `shared/lib/dataLoaders.ts`) é a única fronteira que decide quais concursos um algoritmo de domínio pode enxergar para um concurso-alvo `T`. Ela sempre calcula os contests esperados como `T - windowSize .. T - 1` e falha (retorna `null`) se qualquer um estiver ausente — nunca aceita um concurso `>= T`, independentemente de quantos concursos futuros existam no dataset carregado. Os adapters de estratégia (`generateRmsV2Adapter`, etc.) chamam essa função e nunca recebem o dataset bruto diretamente no domínio. Isso é o que torna a simulação histórica segura: truncar fisicamente o dataset em `T - 1` ou alterar concursos posteriores a `T` nunca muda o resultado gerado (ver `tests/lotofacil/noLookAhead.test.ts`).
+
+### 12.2 Validação de concurso-alvo
+
+`shared/lib/targetContest.ts` (`validateTargetContest`) é a única fonte de verdade para decidir se um número de concurso é aceitável para geração, a partir do dataset já carregado — nunca por uma nova requisição de rede. Ver `PRODUCT_SPEC_V1.md` §7.2.
+
 ## 13. Deploy
 
 GitHub → Cloudflare Pages.
 
 Atualização de resultados por GitHub Action/script, preservando último snapshot válido em falhas.
+
+## 14. Versão do aplicativo (v1.1.1)
+
+`package.json` (`version`) é a única fonte de verdade para a versão visível do app. O Vite injeta esse valor em tempo de build como a constante `__APP_VERSION__` (ver `vite.config.ts` e `src/vite-env.d.ts`); componentes React importam `APP_VERSION` de `shared/lib/appVersion.ts` — nunca escrevem a versão como literal (`"v1.1.1"`) diretamente no JSX. Identificadores técnicos de versão que já existiam (versão de estratégia, de motor/algoritmo, de dataset) continuam sendo conceitos separados e não são substituídos por isso.

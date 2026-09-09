@@ -10,8 +10,10 @@ export function SobrePage() {
         lucro.
       </p>
       <p className="max-w-2xl text-slate-600">
-        Todos os dados pessoais (carteiras salvas, observações, conferências) permanecem no navegador do usuário. Não há login, sincronização em nuvem ou
-        pagamentos nesta versão.
+        Seus jogos salvos, observações e conferências ficam guardados apenas neste navegador, neste dispositivo — não há login nem sincronização em nuvem.
+        Isso significa que: outro dispositivo ou outro perfil de navegador não enxerga automaticamente os mesmos jogos salvos; qualquer pessoa que use o
+        mesmo perfil de navegador pode acessar esses mesmos jogos; e limpar os dados do site/navegador pode apagá-los permanentemente. Se preservar seus
+        jogos importa, use "Exportar backup" em "Meus jogos salvos" antes de limpar dados ou trocar de dispositivo. Não há pagamentos nesta versão.
       </p>
       <ResponsibleGamingNotice />
     </div>

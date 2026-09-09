@@ -94,4 +94,35 @@ describe("portfolio persistence (IndexedDB via Dexie)", () => {
     await deleteAllData();
     expect(await listPortfolios()).toHaveLength(0);
   });
+
+  it("backward compatibility: a pre-v1.1 portfolio shape (no dataset, no checkedResult fields) remains readable", async () => {
+    // Deliberately omit `dataset` and `checkedResult` — fields added after
+    // the original schema — to prove older saved records still parse and
+    // round-trip cleanly rather than requiring a migration.
+    const legacyShaped = makePortfolio("legacy-1");
+    expect("dataset" in legacyShaped).toBe(false);
+    expect("checkedResult" in legacyShaped).toBe(false);
+
+    await savePortfolio(legacyShaped);
+    const [loaded] = await listPortfolios();
+    expect(loaded!.id).toBe("legacy-1");
+    expect(loaded!.dataset).toBeUndefined();
+    expect(loaded!.checkedResult).toBeUndefined();
+  });
+
+  it("backward compatibility: a v1.0-shaped backup file (no dataset field on its portfolios) previews and imports successfully", async () => {
+    const legacyBackup = {
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      portfolios: [makePortfolio("legacy-backup-1")],
+    };
+    const preview = previewBackup(legacyBackup);
+    expect(preview.valid).toBe(true);
+    if (preview.valid) expect(preview.count).toBe(1);
+
+    const result = await importBackup(legacyBackup);
+    expect(result.imported).toBe(1);
+    const all = await listPortfolios();
+    expect(all.find((p) => p.id === "legacy-backup-1")).toBeTruthy();
+  });
 });

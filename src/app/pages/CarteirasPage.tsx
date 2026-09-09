@@ -10,8 +10,10 @@ import {
   saveCheckedResult,
 } from "../../shared/lib/portfolioStore";
 import { loadDataset } from "../../shared/lib/dataLoaders";
-import { checkTicketsAgainstDraw, highestScore } from "../../shared/lib/checkResult";
-import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink } from "../../shared/components";
+import { checkTicketsAgainstDraw } from "../../shared/lib/checkResult";
+import { getResultLabel, summarizeCheckedResult } from "../../shared/lib/resultLabels";
+import { formatDrawNumbers } from "../../shared/utils/numberFormat";
+import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink, InfoHelp } from "../../shared/components";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import type { Modality, SavedPortfolio } from "../../shared/types";
 
@@ -79,6 +81,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
 
   async function handleCheck(portfolio: SavedPortfolio) {
     if (!portfolio.contest) return;
+    setMessage(null);
     const dataset = await loadDataset(portfolio.modality);
     const draw = dataset.draws.find((d) => d.contest === portfolio.contest);
     if (!draw) {
@@ -88,7 +91,9 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     const checkedResult = checkTicketsAgainstDraw(portfolio.tickets, draw);
     await saveCheckedResult(portfolio.id, checkedResult);
     refresh();
-    setMessage(`Conferido: maior pontuação ${highestScore(checkedResult)} acertos.`);
+    // Keep the open detail view in sync immediately, instead of waiting for
+    // a later re-open — `selected` is a snapshot, not a live reference into `portfolios`.
+    setSelected((prev) => (prev && prev.id === portfolio.id ? { ...prev, checkedResult } : prev));
   }
 
   return (
@@ -135,6 +140,14 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
         </div>
       </div>
 
+      <p className="flex items-center gap-1 text-xs text-slate-500">
+        Seus jogos ficam salvos somente neste navegador.
+        <InfoHelp
+          title="Onde seus jogos ficam salvos"
+          body="Não há conta nem sincronização em nuvem: os jogos salvos existem apenas neste navegador, neste dispositivo. Outro dispositivo ou perfil de navegador não os enxerga automaticamente, e limpar os dados do site pode apagá-los. Use “Exportar backup” antes de limpar dados ou trocar de dispositivo se quiser preservá-los."
+        />
+      </p>
+
       {importError && <ErrorState title="Backup inválido" message={importError} />}
       {importPreview && (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
@@ -177,19 +190,44 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               Fechar
             </button>
           </div>
-          <PortfolioTicketList
-            tickets={selected.tickets}
-            highlightNumbers={selected.checkedResult?.numbers}
-          />
-          {selected.checkedResult ? (
-            <p className="mt-2 text-sm text-slate-600">
-              Conferido para o concurso {selected.checkedResult.contest}: maior pontuação {highestScore(selected.checkedResult)} acertos.
-            </p>
-          ) : (
-            <button type="button" onClick={() => handleCheck(selected)} className="mt-2 rounded border border-slate-300 px-3 py-1.5 text-sm">
-              Conferir resultado
-            </button>
-          )}
+          {(() => {
+            const checkedResult = selected.checkedResult;
+            if (!checkedResult) {
+              return (
+                <>
+                  <PortfolioTicketList tickets={selected.tickets} />
+                  <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-slate-300 px-3 py-1.5 text-sm">
+                    Conferir resultado
+                  </button>
+                </>
+              );
+            }
+            const summary = summarizeCheckedResult(selected.modality, checkedResult);
+            return (
+              <>
+                <div className="mb-3 space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Resultado oficial — Concurso {checkedResult.contest}</p>
+                    <p className="mt-0.5 font-mono text-base text-slate-900">{formatDrawNumbers(checkedResult.numbers)}</p>
+                  </div>
+                  {summary.sentence && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Melhor resultado</p>
+                      <p className="mt-0.5 text-slate-800">{summary.sentence}</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-400">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
+                </div>
+                <PortfolioTicketList
+                  tickets={selected.tickets}
+                  highlightNumbers={checkedResult.numbers}
+                  hitsPerTicket={checkedResult.hitsPerTicket}
+                  resultLabelFor={(hits) => getResultLabel(selected.modality, hits)}
+                  bestTicketNumbers={summary.bestTicketNumbers}
+                />
+              </>
+            );
+          })()}
         </div>
       )}
     </div>
