@@ -4,16 +4,20 @@ Registro de mudanças voltadas ao usuário e à operação do produto. Não é u
 
 ## [Unreleased]
 
-### v1.1.1 — manutenção, simulação histórica e conferência de resultados
+Nada pendente no momento.
 
-Foco em quatro pontos: validar corretamente o concurso-alvo, permitir simulação histórica segura, melhorar a conferência de jogos salvos, e pequenos detalhes de transparência (versão visível, explicação sobre armazenamento local). **Não adiciona valores de premiação, cálculo de prêmios nem tabelas de rateio** — apenas número de acertos e o nome convencional do resultado (ex.: "Quadra").
+## [1.1.1] — 2026-09-09
 
-- **Validação do concurso-alvo**: "Concurso em que você pretende jogar" agora é validado contra a base local — aceita o próximo concurso disponível ou um concurso histórico existente; bloqueia, com explicação clara, um concurso muito à frente do disponível, um concurso ausente da base (lacuna) ou um valor inválido (zero, negativo, decimal).
+Release de manutenção/usabilidade/integridade sobre a v1.1.0, cobrindo Lotofácil e Mega-Sena. Foco em validar corretamente o concurso-alvo, permitir simulação histórica segura, melhorar a conferência de jogos salvos, e pequenos detalhes de transparência (versão visível, explicação sobre armazenamento local). O comportamento matemático de probabilidade/oráculo permanece inalterado. **Não adiciona valores de premiação, cálculo de prêmios, rateio, ROI, cobrança automática de prêmios nem integração com apostas** — apenas número de acertos e o nome convencional do resultado (ex.: "Quadra"). Este aplicativo não prevê resultados de sorteio.
+
+- **Validação do concurso-alvo**: "Concurso em que você pretende jogar" agora é validado contra a base local — aceita o próximo concurso disponível ou um concurso histórico existente; bloqueia, com explicação clara, um concurso muito à frente do disponível (acima do próximo), um concurso ausente da base (lacuna) ou um valor inválido (zero, negativo, decimal).
 - **Simulação histórica**: ao escolher um concurso já realizado, a tela mostra o resultado oficial daquele sorteio e deixa claro que é uma simulação histórica — o resultado não é usado para montar os jogos.
-- **Garantia de "sem espiada ao futuro"**: para estratégias que usam histórico (como a RMS), a simulação histórica nunca tem acesso ao resultado do concurso-alvo nem a qualquer concurso posterior — comprovado por testes automatizados dedicados, incluindo geração com dataset truncado e com dados futuros alterados.
-- **Conferência de jogos salvos muito mais completa**: agora mostra o resultado oficial do concurso, o número de acertos de cada jogo, e identifica claramente o(s) melhor(es) jogo(s) — inclusive quando há empate entre dois ou mais jogos.
-- **Rótulos de resultado**: "Quadra"/"Quina"/"Sena" (Mega-Sena) e "11 acertos" a "15 acertos" (Lotofácil), sempre como descrição factual do número de acertos — nunca como premiação.
-- **Versão do aplicativo visível no rodapé**, vinda de uma única fonte de verdade (a versão do pacote), nunca escrita à mão em um componente.
+- **Garantia de "sem espiada ao futuro"**: para estratégias que usam histórico (como a RMS), a simulação histórica nunca tem acesso ao resultado do concurso-alvo nem a qualquer concurso posterior — comprovado por uma suíte de testes automatizados dedicada (fatiamento do histórico, equivalência com dataset truncado, invariância a dados futuros alterados).
+- **Validação de prontidão do dataset**: gerar jogos com um concurso já digitado nunca mais pode "correr na frente" da validação enquanto a base de concursos ainda está carregando — mostra uma mensagem neutra até a base ficar pronta, sem falso erro de concurso inválido.
+- **Conferência de jogos salvos muito mais completa**: agora mostra, juntos, o resultado oficial do concurso, o número de acertos de cada jogo, e identifica claramente o(s) melhor(es) jogo(s) — inclusive quando há empate entre dois, três ou mais jogos.
+- **Rótulos de resultado**: "Quadra"/"Quina"/"Sena" (Mega-Sena) e "11 acertos" a "15 acertos" (Lotofácil), sempre como descrição factual do número de acertos — nunca duplicados ("12 acertos · 12 acertos" corrigido) e nunca como premiação.
+- **Correção de singular/plural**: "1 acerto" em vez de "1 acertos", tanto por jogo quanto no resumo do melhor resultado.
+- **Versão do aplicativo visível no rodapé**, vinda de uma única fonte de verdade (a versão do `package.json`), nunca escrita à mão em um componente.
 - **Explicação mais clara sobre onde os jogos salvos ficam guardados**: apenas neste navegador/dispositivo, sem conta nem sincronização em nuvem — com um lembrete para usar "Exportar backup" antes de limpar dados ou trocar de dispositivo.
 
 ## [1.1.0] — 2026-09-08
