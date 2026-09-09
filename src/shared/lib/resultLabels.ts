@@ -25,6 +25,27 @@ export function getResultLabel(modality: Modality, hits: number): string | null 
   return table[hits] ?? null;
 }
 
+/** "1 acerto" for exactly one hit, "N acertos" otherwise — correct pt-BR singular/plural. */
+export function formatHitsCount(hits: number): string {
+  return hits === 1 ? "1 acerto" : `${hits} acertos`;
+}
+
+/**
+ * The complete, non-duplicating user-facing descriptor for a hit count:
+ * "3 acertos", "4 acertos · Quadra", "1 acerto". For Lotofácil, the
+ * conventional label ("12 acertos") is textually identical to the hit-count
+ * phrase itself, so it is never appended — appending it would render
+ * "12 acertos · 12 acertos". Mega-Sena's labels (Quadra/Quina/Sena) are
+ * genuinely distinct text, so they are appended. Always prefer this helper
+ * over composing `getResultLabel` with a hit-count string by hand.
+ */
+export function formatHitResult(modality: Modality, hits: number): string {
+  const hitsText = formatHitsCount(hits);
+  if (modality === "lotofacil") return hitsText;
+  const label = getResultLabel(modality, hits);
+  return label ? `${hitsText} · ${label}` : hitsText;
+}
+
 export interface BestTicketsSummary {
   /** The highest hit count across all tickets (0 if there are no tickets). */
   bestHits: number;
@@ -54,16 +75,19 @@ export function summarizeBestTickets(modality: Modality, hitsPerTicket: number[]
     return acc;
   }, []);
   const label = getResultLabel(modality, bestHits);
-  const labelSuffix = label ? ` · ${label}` : "";
+  // Lotofácil's label duplicates the hit-count phrase itself (see
+  // formatHitResult) — never append it as a "· label" suffix here either.
+  const labelSuffix = label && modality !== "lotofacil" ? ` · ${label}` : "";
+  const hitsText = formatHitsCount(bestHits);
   const list = formatTicketList(bestTicketNumbers);
 
   let sentence: string;
   if (bestTicketNumbers.length === 1) {
-    sentence = `${list} foi o melhor jogo, com ${bestHits} acertos${labelSuffix}.`;
+    sentence = `${list} foi o melhor jogo, com ${hitsText}${labelSuffix}.`;
   } else if (bestTicketNumbers.length === 2) {
-    sentence = `${list} foram os melhores jogos, com ${bestHits} acertos cada${labelSuffix}.`;
+    sentence = `${list} foram os melhores jogos, com ${hitsText} cada${labelSuffix}.`;
   } else {
-    sentence = `${list} tiveram a maior pontuação, com ${bestHits} acertos cada${labelSuffix}.`;
+    sentence = `${list} tiveram a maior pontuação, com ${hitsText} cada${labelSuffix}.`;
   }
   return { bestHits, bestTicketNumbers, label, sentence };
 }

@@ -11,7 +11,7 @@ import {
 } from "../../shared/lib/portfolioStore";
 import { loadDataset } from "../../shared/lib/dataLoaders";
 import { checkTicketsAgainstDraw } from "../../shared/lib/checkResult";
-import { getResultLabel, summarizeCheckedResult } from "../../shared/lib/resultLabels";
+import { formatHitResult, summarizeCheckedResult } from "../../shared/lib/resultLabels";
 import { formatDrawNumbers } from "../../shared/utils/numberFormat";
 import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink, InfoHelp } from "../../shared/components";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
@@ -222,7 +222,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   tickets={selected.tickets}
                   highlightNumbers={checkedResult.numbers}
                   hitsPerTicket={checkedResult.hitsPerTicket}
-                  resultLabelFor={(hits) => getResultLabel(selected.modality, hits)}
+                  formatHits={(hits) => formatHitResult(selected.modality, hits)}
                   bestTicketNumbers={summary.bestTicketNumbers}
                 />
               </>

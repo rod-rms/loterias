@@ -103,6 +103,10 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const strategies = useMemo(() => strategyRegistry.listByModality(modality), [modality]);
   const [config, setConfig] = useState<GameConfig | null>(null);
   const [dataset, setDataset] = useState<LotteryDataset | null>(null);
+  // Tracks whether the modality dataset fetch is still in flight, so target-
+  // contest validation can never be silently bypassed by generating before
+  // the dataset (and therefore latestContest) is actually known.
+  const [datasetLoading, setDatasetLoading] = useState(true);
   const [suggestedContest, setSuggestedContest] = useState<number | null>(null);
 
   // No strategy is selected by default: pre-selecting the first card (RMS for
@@ -134,13 +138,15 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const { stage, result, error, isRunning, generate, reset } = useGenerationWorker<PortfolioEnvelope>(modality);
 
   useEffect(() => {
+    setDatasetLoading(true);
     loadGameConfig().then(setConfig).catch(() => undefined);
     loadDataset(modality)
       .then((d) => {
         setDataset(d);
         setSuggestedContest(suggestNextContest(d));
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => setDatasetLoading(false));
   }, [modality]);
 
   // Defensive reset: if this component instance is ever reused across a
@@ -211,6 +217,13 @@ export function GerarPage({ modality }: { modality: Modality }) {
    * "Limpar configuração", with no strategy selected, it must not be). */
   function validateBeforeGenerate(): string | null {
     if (!strategy) return null;
+    // A contest number was entered but the dataset (and therefore
+    // latestContest) isn't known yet: never let generation race ahead of
+    // target-contest validation. This is a temporary, neutral state, not a
+    // validation failure — it clears itself once the dataset finishes loading.
+    if (contest !== "" && datasetLoading) {
+      return "Carregando a base de concursos...";
+    }
     if (strategy.requiresTargetContest && contest === "") {
       return "Esta opção exige o concurso em que você pretende jogar.";
     }
@@ -443,6 +456,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                   Esta opção usa os {strategy.historyWindowSize} concursos imediatamente anteriores como referência para montar o conjunto.
                 </p>
               )}
+              {contest !== "" && datasetLoading && <p className="mt-1 text-sm text-slate-500">Carregando a base de concursos...</p>}
               {contestValidation?.status === "ok_historical" && (
                 <div className="mt-2">
                   <HistoricalContestNotice draw={contestValidation.draw} />

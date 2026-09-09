@@ -591,6 +591,10 @@ test.describe("Loterias — critical flows", () => {
     await expect(page.getByText(`Resultado oficial — Concurso ${ds.lastDraw.contest}`)).toBeVisible();
     // A best-ticket sentence must always render; the exact hit count depends on the random draw.
     await expect(page.getByText(/foi o melhor jogo|foram os melhores jogos|tiveram a maior pontuação/)).toBeVisible();
+    // Lotofácil's labeled hit counts (11-15) must never render as "X acertos · X acertos".
+    for (const hits of [11, 12, 13, 14, 15]) {
+      await expect(page.getByText(`${hits} acertos · ${hits} acertos`)).toHaveCount(0);
+    }
   });
 
   test("42. rodapé mostra a versão do aplicativo a partir do build (não um literal fixo no componente)", async ({ page }) => {
