@@ -169,3 +169,44 @@ npm run data:validate     → PASS
 ```
 
 Estado pronto para release: todos os gates de qualidade verdes na branch `feat/user-friendly-ux-v1-1` antes da fusão com `main`.
+
+## 15. v1.1.1 — validação de concurso, simulação histórica e conferência de resultados
+
+Release de manutenção focada, construída a partir do `main` pós-v1.1.0. Quatro objetivos: validar corretamente o concurso-alvo; suportar simulação histórica segura ("sem espiada ao futuro"); melhorar a conferência de jogos salvos; e pequenos detalhes de transparência (versão visível, explicação de armazenamento local). **Não adiciona premiação/rateio nem cálculo de valores monetários.**
+
+Pontos técnicos que valem registro:
+
+- **`shared/lib/targetContest.ts`** (`validateTargetContest`): validação determinística do concurso-alvo a partir do dataset já carregado — próximo concurso, concurso histórico existente, futuro bloqueado, lacuna bloqueada, valor inválido bloqueado. Ver `PRODUCT_SPEC_V1.md` §7.2.
+- **Garantia de "sem espiada ao futuro"**: já era estruturalmente garantida desde a v1 pela função `referenceWindow` (`shared/lib/dataLoaders.ts`), usada pelos adapters de estratégia — o trabalho desta release foi principalmente **provar isso com testes de regressão dedicados** (`tests/lotofacil/noLookAhead.test.ts`, release-blocking): fatiamento do dataset histórico, equivalência entre dataset completo e dataset truncado em `T-1`, e invariância a mutações em concursos posteriores a `T`. Nenhuma mudança de comportamento foi necessária no domínio RMS para satisfazer essa garantia.
+- **`shared/lib/resultLabels.ts`**: rótulos de resultado ("Quadra"/"Quina"/"Sena", "11 a 15 acertos") e resumo de melhor(es) jogo(s) com tratamento de empate — puramente derivados de `hitsPerTicket` já existente em `CheckedResult`, sem novos campos persistidos.
+- **`shared/components/HistoricalContestNotice.tsx`** e integração em `GerarPage`: mostra o resultado oficial de um concurso histórico como simulação, ou uma nota neutra para o próximo concurso — usando apenas o dataset já carregado.
+- **`CarteirasPage`**: a conferência de resultado deixou de resumir em uma frase única; agora mostra resultado oficial, acertos por jogo e melhor(es) jogo(s) juntos. Também corrigido um bug lateral: o painel de detalhe (`selected`) não se atualizava automaticamente após conferir — agora é sincronizado explicitamente.
+- **Versão do app**: `package.json` (`1.1.1`) é a única fonte de verdade, injetada via `__APP_VERSION__` (Vite `define`) e consumida por `shared/lib/appVersion.ts`; rodapé atualizado.
+- **Compatibilidade retroativa**: `CheckedResult` e `SavedPortfolioDatasetRef` não perderam nem ganharam campos obrigatórios; testes dedicados provam que carteiras/backups no formato anterior continuam legíveis.
+
+### Correções pós-revisão manual (mesma branch/PR, antes da aceitação final)
+
+Duas rodadas de revisão manual no preview Cloudflare do branch encontraram problemas pontuais, corrigidos sem abrir nova rodada de design:
+
+- **Duplicação de rótulo na Lotofácil**: "12 acertos · 12 acertos" podia aparecer porque o rótulo convencional da Lotofácil é textualmente idêntico à frase de contagem de acertos. Corrigido centralizando a apresentação em `formatHitResult(modality, hits)` — usado tanto na exibição por jogo quanto na frase-resumo do melhor jogo — que nunca duplica o sufixo para a Lotofácil.
+- **Singular incorreto**: "1 acertos" corrigido para "1 acerto" via `formatHitsCount`, usado por `formatHitResult` e pela função de resumo de empates.
+- **Corrida de validação com o carregamento do dataset**: gerar jogos com um concurso já digitado, mas antes do dataset da modalidade terminar de carregar, conseguia pular a validação de concurso-alvo. Corrigido com um estado explícito `datasetLoading`: a geração fica bloqueada com uma mensagem neutra ("Carregando a base de concursos...") até o dataset resolver, e a validação normal assume o controle automaticamente depois disso.
+
+### Aceitação manual (Cloudflare preview)
+
+Aceitação manual completa realizada no preview `https://da55bc53.loterias-bkr.pages.dev` (alias de branch `https://feat-v1-1-1-historical-valid.loterias-bkr.pages.dev`), no commit `fbfa928628cf7cc9922349595138c0a98fa66ec8`. Cobriu: comportamento do próximo concurso; aviso de concurso histórico e exibição do resultado oficial; bloqueio de concursos além de `latestContest + 1`; conferência completa de jogos salvos (números oficiais, acertos por jogo, melhor jogo, empates); rótulos Quadra/Quina/Sena e 11–15 acertos sem duplicação; versão visível no rodapé; e a explicação de armazenamento local.
+
+### Totais finais de validação (release v1.1.1)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (161/161)
+npm run test:mega:oracle  → PASS (24/24)
+npm run test:lotofacil:oracle → PASS (45/45 — 38 originais + 7 de sem-espiada-ao-futuro)
+npm run build             → PASS
+npm run test:e2e          → PASS (47/47)
+npm run data:validate     → PASS
+```
+
+Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Nenhuma funcionalidade de valor de prêmio/rateio/pagamento foi adicionada nesta release.

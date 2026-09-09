@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { GameSwitcher, DataFreshnessBadge } from "../../shared/components";
 import { loadDataset } from "../../shared/lib/dataLoaders";
+import { APP_VERSION } from "../../shared/lib/appVersion";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [latestContest, setLatestContest] = useState<{ lotofacil: number | null; megasena: number | null }>({ lotofacil: null, megasena: null });
@@ -52,8 +53,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main id="main-content" className="mx-auto max-w-6xl px-4 py-6">
         {children}
       </main>
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-        Loterias não é afiliado à CAIXA. Uso destinado a maiores de 18 anos. Não é uma plataforma de apostas.
+      <footer className="border-t border-slate-200 bg-white px-4 py-6 text-center text-xs text-slate-500">
+        Loterias v{APP_VERSION} · Não afiliado à CAIXA · Uso destinado a maiores de 18 anos · Não é uma plataforma de apostas.
       </footer>
     </div>
   );

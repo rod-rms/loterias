@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 
 async function selectStrategy(page: Page, name: string) {
@@ -7,6 +9,31 @@ async function selectStrategy(page: Page, name: string) {
 async function generateAndWait(page: Page) {
   await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+}
+
+interface DatasetSnapshot {
+  latestContest: number;
+  nextContest: number;
+  farFuture: number;
+  lastDraw: { contest: number; drawDate: string; numbers: number[] };
+}
+
+/** Reads the real bundled dataset directly (Node-side, not through the browser) so tests always
+ * validate against whatever contest is actually latest, instead of a hard-coded runtime value. */
+function readDatasetSnapshot(modality: "lotofacil" | "megasena"): DatasetSnapshot {
+  const raw = JSON.parse(readFileSync(path.join(process.cwd(), `public/data/${modality}/results.json`), "utf8"));
+  const draws = raw.draws as { contest: number; drawDate: string; numbers: number[] }[];
+  const lastDraw = draws.at(-1)!;
+  return { latestContest: raw.latestContest, nextContest: raw.latestContest + 1, farFuture: raw.latestContest + 1000, lastDraw };
+}
+
+function formatDrawNumbersForTest(numbers: number[]): string {
+  return [...numbers].sort((a, b) => a - b).map((n) => String(n).padStart(2, "0")).join(" · ");
+}
+
+function formatDateBR(isoDate: string): string {
+  const [, y, m, d] = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate) ?? [];
+  return `${d}/${m}/${y}`;
 }
 
 test.describe("Loterias — critical flows", () => {
@@ -138,7 +165,7 @@ test.describe("Loterias — critical flows", () => {
     await expect(page.getByRole("spinbutton", { name: /Quantidade de jogos/ })).toHaveCount(0);
   });
 
-  test("13. conferir jogos contra concurso disponível", async ({ page }) => {
+  test("13. conferir jogos contra concurso disponível mostra resultado completo", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
     await selectStrategy(page, "Gerar jogos aleatórios");
     await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill("100");
@@ -149,7 +176,13 @@ test.describe("Loterias — critical flows", () => {
     await page.goto("/carteiras");
     await page.getByRole("button", { name: "Abrir" }).first().click();
     await page.getByRole("button", { name: "Conferir resultado" }).click();
-    await expect(page.getByText(/maior pontuação \d+ acertos/)).toBeVisible();
+    // Full result, not a single summarized sentence: official numbers, per-ticket hits, best ticket.
+    await expect(page.getByText("Resultado oficial — Concurso 100")).toBeVisible();
+    await expect(page.getByText(/foi o melhor jogo|foram os melhores jogos|tiveram a maior pontuação/)).toBeVisible();
+    const ticketList = page.getByRole("list", { name: /Lista de \d+ jogos/ });
+    await expect(ticketList).toContainText("acertos");
+    // Never uses prize/payout wording anywhere in the checked result view.
+    await expect(page.getByText(/premi|ganhou|vencedora/i)).toHaveCount(0);
   });
 
   test("14. abrir explicação de uma opção (InfoHelp por clique)", async ({ page }) => {
@@ -505,5 +538,77 @@ test.describe("Loterias — critical flows", () => {
     await expect(page.getByText("Loterias CAIXA")).toBeVisible();
     await expect(page.getByText("Última atualização com novo concurso")).toBeVisible();
     await expect(page.getByText("Última verificação da fonte oficial")).toBeVisible();
+  });
+
+  test("38. Mega-Sena: próximo concurso gera normalmente", async ({ page }) => {
+    const ds = readDatasetSnapshot("megasena");
+    await page.goto("/megasena/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill(String(ds.nextContest));
+    await expect(page.getByText("Próximo concurso disponível")).toBeVisible();
+    await generateAndWait(page);
+  });
+
+  test("39. Mega-Sena: concurso histórico mostra o resultado oficial como simulação histórica", async ({ page }) => {
+    const ds = readDatasetSnapshot("megasena");
+    await page.goto("/megasena/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill(String(ds.lastDraw.contest));
+    await expect(page.getByText(`Concurso ${ds.lastDraw.contest} já realizado em ${formatDateBR(ds.lastDraw.drawDate)}`)).toBeVisible();
+    await expect(page.getByText("Resultado oficial")).toBeVisible();
+    await expect(page.getByText(formatDrawNumbersForTest(ds.lastDraw.numbers))).toBeVisible();
+    await expect(page.getByText(/simulação histórica/)).toBeVisible();
+    await generateAndWait(page);
+  });
+
+  test("40. Mega-Sena: concurso muito à frente do disponível é bloqueado com explicação clara", async ({ page }) => {
+    const ds = readDatasetSnapshot("megasena");
+    await page.goto("/megasena/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill(String(ds.farFuture));
+    await expect(page.getByText(/ainda não está disponível para geração/)).toBeVisible();
+    await expect(page.getByText(new RegExp(`atualizada até o concurso ${ds.latestContest}`))).toBeVisible();
+    await expect(page.getByText(new RegExp(`próximo concurso disponível é o ${ds.nextContest}`))).toBeVisible();
+    await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
+    await expect(page.getByRole("alert").first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+  });
+
+  test("41. Lotofácil: fluxo histórico equivalente com rótulos de 11 a 15 acertos", async ({ page }) => {
+    const ds = readDatasetSnapshot("lotofacil");
+    await page.goto("/lotofacil/gerar");
+    await selectStrategy(page, "Gerar jogos aleatórios");
+    await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill(String(ds.lastDraw.contest));
+    await expect(page.getByText(formatDrawNumbersForTest(ds.lastDraw.numbers))).toBeVisible();
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
+    await generateAndWait(page);
+    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
+    await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
+
+    await page.goto("/carteiras");
+    await page.getByRole("button", { name: "Abrir" }).first().click();
+    await page.getByRole("button", { name: "Conferir resultado" }).click();
+    await expect(page.getByText(`Resultado oficial — Concurso ${ds.lastDraw.contest}`)).toBeVisible();
+    // A best-ticket sentence must always render; the exact hit count depends on the random draw.
+    await expect(page.getByText(/foi o melhor jogo|foram os melhores jogos|tiveram a maior pontuação/)).toBeVisible();
+    // Lotofácil's labeled hit counts (11-15) must never render as "X acertos · X acertos".
+    for (const hits of [11, 12, 13, 14, 15]) {
+      await expect(page.getByText(`${hits} acertos · ${hits} acertos`)).toHaveCount(0);
+    }
+  });
+
+  test("42. rodapé mostra a versão do aplicativo a partir do build (não um literal fixo no componente)", async ({ page }) => {
+    await page.goto("/");
+    const pkg = JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
+    await expect(page.getByText(new RegExp(`Loterias v${pkg.version.replace(/\./g, "\\.")}`))).toBeVisible();
+  });
+
+  test("43. transparência de armazenamento local aparece em Sobre e em Meus jogos salvos", async ({ page }) => {
+    await page.goto("/sobre");
+    await expect(page.getByText(/apenas neste navegador, neste dispositivo/)).toBeVisible();
+    await expect(page.getByText(/Exportar backup/)).toBeVisible();
+
+    await page.goto("/carteiras");
+    await expect(page.getByText("Seus jogos ficam salvos somente neste navegador.")).toBeVisible();
   });
 });

@@ -23,7 +23,10 @@ import {
   Disclosure,
   ExportMenu,
   BackLink,
+  HistoricalContestNotice,
+  NextContestNotice,
 } from "../../shared/components";
+import { validateTargetContest } from "../../shared/lib/targetContest";
 import { formatBRL, ticketsForBudget } from "../../shared/utils/currency";
 import { ComparePanel } from "./ComparePanel";
 import type {
@@ -100,6 +103,10 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const strategies = useMemo(() => strategyRegistry.listByModality(modality), [modality]);
   const [config, setConfig] = useState<GameConfig | null>(null);
   const [dataset, setDataset] = useState<LotteryDataset | null>(null);
+  // Tracks whether the modality dataset fetch is still in flight, so target-
+  // contest validation can never be silently bypassed by generating before
+  // the dataset (and therefore latestContest) is actually known.
+  const [datasetLoading, setDatasetLoading] = useState(true);
   const [suggestedContest, setSuggestedContest] = useState<number | null>(null);
 
   // No strategy is selected by default: pre-selecting the first card (RMS for
@@ -131,13 +138,15 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const { stage, result, error, isRunning, generate, reset } = useGenerationWorker<PortfolioEnvelope>(modality);
 
   useEffect(() => {
+    setDatasetLoading(true);
     loadGameConfig().then(setConfig).catch(() => undefined);
     loadDataset(modality)
       .then((d) => {
         setDataset(d);
         setSuggestedContest(suggestNextContest(d));
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => setDatasetLoading(false));
   }, [modality]);
 
   // Defensive reset: if this component instance is ever reused across a
@@ -162,6 +171,12 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const maxNumber = modality === "lotofacil" ? 25 : 60;
   const gameConfig = config?.[modality];
   const supportsNumberCustomization = Boolean(strategy?.supportsFixedNumbers || strategy?.supportsExcludedNumbers);
+
+  // Deterministic target-contest validation against the already-loaded
+  // dataset — no new network request. Only evaluated once a contest number
+  // and the dataset are both available; an empty contest field is left to
+  // each strategy's own requiresTargetContest rule.
+  const contestValidation = dataset && contest !== "" ? validateTargetContest(contest, dataset) : null;
 
   function buildRequest(newSeed?: string): GeneratePortfolioRequest {
     return {
@@ -202,8 +217,18 @@ export function GerarPage({ modality }: { modality: Modality }) {
    * "Limpar configuração", with no strategy selected, it must not be). */
   function validateBeforeGenerate(): string | null {
     if (!strategy) return null;
+    // A contest number was entered but the dataset (and therefore
+    // latestContest) isn't known yet: never let generation race ahead of
+    // target-contest validation. This is a temporary, neutral state, not a
+    // validation failure — it clears itself once the dataset finishes loading.
+    if (contest !== "" && datasetLoading) {
+      return "Carregando a base de concursos...";
+    }
     if (strategy.requiresTargetContest && contest === "") {
       return "Esta opção exige o concurso em que você pretende jogar.";
+    }
+    if (contestValidation && (contestValidation.status === "blocked_future" || contestValidation.status === "blocked_gap" || contestValidation.status === "blocked_invalid")) {
+      return contestValidation.message;
     }
     const overlap = fixedNumbers.filter((n) => excludedNumbers.includes(n));
     if (overlap.length > 0) {
@@ -430,6 +455,20 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 <p className="mt-1 text-xs text-slate-500">
                   Esta opção usa os {strategy.historyWindowSize} concursos imediatamente anteriores como referência para montar o conjunto.
                 </p>
+              )}
+              {contest !== "" && datasetLoading && <p className="mt-1 text-sm text-slate-500">Carregando a base de concursos...</p>}
+              {contestValidation?.status === "ok_historical" && (
+                <div className="mt-2">
+                  <HistoricalContestNotice draw={contestValidation.draw} />
+                </div>
+              )}
+              {contestValidation?.status === "ok_next" && (
+                <div className="mt-2">
+                  <NextContestNotice />
+                </div>
+              )}
+              {contestValidation && (contestValidation.status === "blocked_future" || contestValidation.status === "blocked_gap" || contestValidation.status === "blocked_invalid") && (
+                <p className="mt-1 text-sm font-medium text-rose-700">{contestValidation.message}</p>
               )}
             </div>
 

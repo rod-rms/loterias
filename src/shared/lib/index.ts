@@ -7,3 +7,5 @@ export * from "./db";
 export * from "./portfolioStore";
 export * from "./dataLoaders";
 export * from "./checkResult";
+export * from "./targetContest";
+export * from "./resultLabels";
