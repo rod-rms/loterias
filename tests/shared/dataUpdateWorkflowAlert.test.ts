@@ -47,6 +47,22 @@ describe("data-update.yml — updater failure alerting (GitHub-native, no paid s
     expect(alertSection.indexOf("listForRepo")).toBeLessThan(alertSection.indexOf("issues.create("));
   });
 
+  it("does not assume the data-update-failure label already exists — it is idempotently ensured before use", () => {
+    const alertSection = workflow.slice(workflow.indexOf("Alert on updater failure"), workflow.indexOf("Close updater incident on recovery"));
+    // Checks for the label first...
+    expect(alertSection).toContain("getLabel");
+    // ...creates it if missing (404)...
+    expect(alertSection).toContain("createLabel");
+    expect(alertSection).toMatch(/getError\.status\s*!==\s*404/);
+    // ...and safely tolerates a concurrent run winning the create race (422 already-exists),
+    // rather than failing the whole alert step.
+    expect(alertSection).toMatch(/createError\.status\s*!==\s*422/);
+    // The label must be ensured before it's relied upon to find/create the incident issue.
+    const ensureCallIndex = alertSection.indexOf("await ensureLabelExists()");
+    expect(ensureCallIndex).toBeGreaterThan(-1);
+    expect(ensureCallIndex).toBeLessThan(alertSection.indexOf("listForRepo"));
+  });
+
   it("does not introduce a live CAIXA dependency via a new secret", () => {
     expect(workflow).not.toMatch(/secrets\.[A-Z0-9_]*(SLACK|DISCORD|WEBHOOK|PAGERDUTY)/i);
   });

@@ -155,6 +155,32 @@ jobs:
               "Enquanto esta falha não for corrigida, novos concursos podem deixar de chegar automaticamente à base local. Esta issue fecha sozinha quando uma execução seguinte tiver sucesso.",
             ].join("\n");
 
+            // The label is our sole deduplication/recovery key, but this
+            // workflow must not assume a repository administrator has
+            // already created it (e.g. right after the repo is created).
+            // Idempotently ensure it exists first: check, then create, and
+            // treat "already exists" (a concurrent run winning the race) as
+            // success rather than an error.
+            async function ensureLabelExists() {
+              try {
+                await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: label });
+              } catch (getError) {
+                if (getError.status !== 404) throw getError;
+                try {
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label,
+                    color: "d73a4a",
+                    description: "Falha automática na atualização dos dados das loterias (criada/gerenciada por data-update.yml)",
+                  });
+                } catch (createError) {
+                  if (createError.status !== 422) throw createError; // 422 = another run already created it concurrently.
+                }
+              }
+            }
+            await ensureLabelExists();
+
             const { data: openIncidents } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
