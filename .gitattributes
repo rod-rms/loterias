@@ -1,0 +1,18 @@
+# Repository-level line-ending policy (v1.1.2): normalize text files to LF
+# in the repository regardless of the checkout platform, so the same file
+# never appears as an entire-file diff purely because someone checked it
+# out on Windows vs. Linux/macOS.
+* text=auto eol=lf
+
+# Common binary assets: never treated as text, never line-ending-converted.
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.webp -text
+*.ico -text
+*.pdf -text
+*.zip -text
+*.docx -text
+*.woff -text
+*.woff2 -text

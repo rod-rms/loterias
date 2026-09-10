@@ -103,6 +103,16 @@ Duas camadas de resiliência distintas, ambas mantidas:
 
 Para evitar ruído no histórico do Git, janelas "intermediárias" de uma mesma sequência de acompanhamento **não** geram commit quando a verificação teve sucesso mas não havia concurso novo (o script registra a tentativa no log, mas não persiste `lastCheckedAt`). Apenas a **janela final** de cada sequência (ou uma execução manual via `workflow_dispatch`) persiste `lastCheckedAt` mesmo sem novidade — assim a aplicação pode mostrar honestamente quando a fonte oficial foi verificada pela última vez. Encontrar um concurso novo sempre gera commit, em qualquer janela.
 
+### 5.2 Alerta de falha e por que a CI normal fica de fora (v1.1.2)
+
+A resiliência do próprio atualizador (timeouts, retries, backoff, tratamento de 429, validação de payload, escrita atômica, detecção de lacunas, preservação do último dataset válido) já existia e não foi reescrita nesta versão. O que faltava era um sinal acionável: se a fonte da CAIXA mudar de formato ou ficar indisponível por muito tempo, o workflow pode falhar silenciosamente enquanto a produção continua servindo o dataset anterior, sem que ninguém saiba.
+
+A partir da v1.1.2, `data-update.yml` cria (ou comenta, para não duplicar) uma issue no GitHub rotulada `data-update-failure` quando a atualização falha, com o link da execução, o evento/agenda que disparou, o commit/ref e o horário — e fecha automaticamente essa issue, com um comentário de recuperação, na primeira execução seguinte bem-sucedida. Isso usa apenas `actions/github-script` com o token do próprio repositório (permissão `issues: write`), sem serviço pago e sem novo segredo. Issues criadas manualmente por uma pessoa nunca são tocadas.
+
+O workflow não assume que o rótulo `data-update-failure` já existe: antes de usá-lo, verifica sua existência via API (`getLabel`) e o cria (`createLabel`) se estiver ausente, tolerando com segurança a corrida de criação concorrente (HTTP 422 tratado como sucesso). Isso torna o alerta funcional mesmo em um repositório novo/limpo, sem exigir configuração manual prévia do rótulo.
+
+Esse alerta é responsabilidade exclusiva do workflow agendado. A CI normal de PR/main (`ci.yml`) nunca chama a fonte oficial da CAIXA — ela roda `npm run data:validate` (validação estrutural do dataset já commitado), nunca `npm run data:update` — porque os gates de qualidade de um PR precisam ser determinísticos e nunca devem falhar por causa de uma instabilidade temporária de um serviço externo. Ver `ARCHITECTURE_V1.md` §16.
+
 ## 6. RMS
 
 Pools são recalculadas em runtime para o concurso-alvo a partir dos 20 anteriores. Não persistir pools como verdade permanente.
