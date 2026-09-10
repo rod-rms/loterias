@@ -244,3 +244,36 @@ npm run data:validate     → PASS
 ```
 
 Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Nenhuma mudança de comportamento de geração, probabilidade, RMS, rótulos de resultado, validação de concurso ou schema de carteira salva.
+
+## 17. Integração visual da marca LotoAtlas (branch `feat/lotoatlas-brand-integration`, draft PR)
+
+Tarefa de **integração visual de marca e UX responsiva**, não de funcionalidade de produto. Ver `ARCHITECTURE_V1.md` §19 para os detalhes técnicos completos (tokens semânticos, política de uma cor de ação, tipografia, renomeação pública, responsividade).
+
+Escopo:
+
+- LotoAtlas Brand Kit v0.3 (`docs/global/LotoAtlas_BrandKit_v0.3/`) versionado no repositório pela primeira vez — antes existia apenas localmente.
+- Aplicativo abre em tema escuro por padrão (`data-theme="dark"`), sem alternância clara/escuro nesta entrega.
+- Tokens de marca semânticos (`brand.*`) adicionados ao Tailwind, mantendo as paletas locais `lotofacil.*`/`megasena.*` como identificadores de modalidade (com tons adicionais `300`/`800`/`900` para contraste em tema escuro).
+- Atlas Violet como única cor de ação funcional; texto de ação/link usa a cor acessível `#A07AFF` (nunca o Violeta bruto) sobre fundo escuro.
+- Inter (UI/marca) + JetBrains Mono (dados: dezenas, concursos, timestamps, valores monetários, métricas) via `@fontsource`.
+- Logo/favicon/app icon copiados byte-a-byte da v0.3 aprovada (verificado por teste automatizado); geometria do trevo corrigida preservada sem redesenho.
+- Renomeação pública de "Loterias" para "LotoAtlas" (cabeçalho, rodapé, título, meta description, Sobre); termos genéricos como "Loterias CAIXA" preservados.
+- Passe de responsividade mobile-first: sem overflow horizontal em 375px em nenhuma página auditada; nova suíte `tests/e2e/mobile-critical-flows.spec.ts`.
+- Error Boundary (v1.1.2) restilizado com os tokens de marca — comportamento e textos preservados exatamente.
+
+Explicitamente fora de escopo desta branch: v1.2, qualquer mudança em matemática/estratégia/RMS/oráculo/geração/validação de concurso/no-look-ahead/atualizador/persistência, bump de versão do aplicativo, rewrite de arquitetura de componentes (nenhum design system amplo foi introduzido).
+
+### Totais de validação (branch de integração de marca, antes do merge)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (193/193 — 180 herdados da v1.1.2 + 13 novos: marca no AppShell, metadados de index.html, integridade dos ativos de logo)
+npm run test:mega:oracle  → PASS (24/24, inalterado)
+npm run test:lotofacil:oracle → PASS (45/45, inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (51/51 — 47 herdados + 4 novos testes móveis)
+npm run data:validate     → PASS
+```
+
+Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Nenhuma mudança de comportamento de geração, probabilidade, RMS, rótulos de resultado, validação de concurso, schema de carteira salva ou semântica do atualizador de dados.
