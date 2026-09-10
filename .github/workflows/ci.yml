@@ -1,5 +1,12 @@
 name: CI
 
+# Deliberately does not call the live CAIXA data source (no `npm run
+# data:update` here). PR/main quality gates must stay deterministic and
+# must never turn red because an external service is temporarily
+# unavailable or slow. Live CAIXA integration is owned exclusively by the
+# scheduled `data-update.yml` workflow, which has its own resilience
+# (retries/backoff) and its own failure-alerting (GitHub Issues) — see
+# docs/global/ARCHITECTURE_V1.md.
 on:
   push:
     branches: [main]
