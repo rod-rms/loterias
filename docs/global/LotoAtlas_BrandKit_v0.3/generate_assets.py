@@ -72,9 +72,27 @@ def symbol_svg(bg=None, mono=None, width=400, height=330, padding=0):
     edges=[(0,1),(0,2),(1,2),(1,3),(1,4),(2,4),(2,5)]
     lines=''.join(f'<line x1="{coords[a][0]}" y1="{coords[a][1]}" x2="{coords[b][0]}" y2="{coords[b][1]}" stroke="{stroke}" stroke-width="15" stroke-linecap="round"/>' for a,b in edges)
     circles=''.join(f'<circle cx="{x}" cy="{y}" r="27" fill="{nodes[i]}" stroke="{C["white"] if bg==C["ink"] else C["white"]}" stroke-opacity="0.10" stroke-width="2"/>' for i,(x,y) in enumerate(coords))
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 400 330">
+    # v0.3 optical-centering correction: the node network's true visible
+    # bounds (including the 27px node radius) are y=19..292, whose center
+    # (155.5) sits 9.5px above the 400x330 canvas's own center (165). The
+    # viewBox is shifted up by 9.5 (instead of moving any node/clover
+    # coordinate) so the unchanged geometry renders with symmetric top/bottom
+    # margins (28.5/28.5) — a framing fix, not a redraw.
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 -9.5 400 330">
     {defs()}{bgrect}
     <g>{lines}{circles}{clover(200,165,0.58,clover_fill)}</g>
+    </svg>'''
+
+def ui_symbol_transparent():
+    """Tightly-cropped, transparent symbol for in-app UI use (header, compact
+    nav). No background rect — meant to sit directly on whatever surface
+    token is behind it, never a baked-in dark rectangle."""
+    body = symbol_svg().split('<g>')[1].split('</g>')[0]
+    # True content bbox including node radius: x=36..364, y=19..292 (already
+    # symmetric in x around 200); pad 15px on all sides for breathing room.
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="358" height="303" viewBox="21 4 358 303">
+    {defs()}
+    <g>{body}</g>
     </svg>'''
 
 def primary_horizontal(reversed=False):
@@ -90,6 +108,22 @@ def primary_horizontal(reversed=False):
     <text x="390" y="170" font-family="Inter, Arial, sans-serif" font-size="108" font-weight="800" letter-spacing="-4" fill="{ink}">Loto</text>
     <text x="617" y="170" font-family="Inter, Arial, sans-serif" font-size="108" font-weight="800" letter-spacing="-4" fill="url(#atlasGrad2)">Atlas</text>
     <text x="396" y="232" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="600" letter-spacing="8" fill="{tag}">ORGANIZE. ANALISE. CONFIRA.</text>
+    </svg>'''
+
+def ui_horizontal_transparent():
+    """Transparent, tagline-free horizontal lockup for in-app navigation
+    headers. Same symbol+wordmark geometry/position as primary_horizontal
+    (reversed), just without the baked-in dark rect or the tagline line, and
+    cropped tightly to the actual rendered content (measured via headless
+    browser getBBox: symbol x=48.93..312.51 y=27.27..246.65; "Loto"+"Atlas"
+    text x=390..903.94 y=51..203) with a 20px margin."""
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="895" height="260" viewBox="29 7 895 260">
+    {defs()}
+    <g transform="translate(20,12) scale(0.98)">
+      <g transform="scale(0.82)">{symbol_svg().split('<g>')[1].split('</g>')[0]}</g>
+    </g>
+    <text x="390" y="170" font-family="Inter, Arial, sans-serif" font-size="108" font-weight="800" letter-spacing="-4" fill="{C['white']}">Loto</text>
+    <text x="617" y="170" font-family="Inter, Arial, sans-serif" font-size="108" font-weight="800" letter-spacing="-4" fill="url(#atlasGrad2)">Atlas</text>
     </svg>'''
 
 def stacked(reversed=False):
@@ -113,11 +147,16 @@ def wordmark(reversed=False):
     </svg>'''
 
 def app_icon():
+    # v0.3 optical-centering correction: with scale(2.0), the symbol's true
+    # content (post-transform y=203..749, center 476) sat 34px above the
+    # backdrop circle's center (510) — a visibly larger empty margin below
+    # the mark than above. translateY 165 -> 199 (+34) recenters the
+    # unchanged symbol geometry inside the circle (92px margin top/bottom).
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
     {defs()}
     <rect x="32" y="32" width="960" height="960" rx="220" fill="{C['ink']}"/>
     <circle cx="512" cy="510" r="365" fill="#14203B"/>
-    <g transform="translate(112,165) scale(2.0)">
+    <g transform="translate(112,199) scale(2.0)">
       {symbol_svg().split('<g>')[1].split('</g>')[0]}
     </g>
     </svg>'''
