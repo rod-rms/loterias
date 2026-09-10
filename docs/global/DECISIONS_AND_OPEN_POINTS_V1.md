@@ -35,6 +35,10 @@
 31. (v1.1.1) Histórico insuficiente para uma janela exigida (ex.: RMS v2) bloqueia a geração; nunca reduz a janela, usa concursos futuros, ou cai para o histórico mais recente disponível como substituto.
 32. (v1.1.1) Rótulos de resultado ("Quadra"/"Quina"/"Sena", "11 a 15 acertos") são puramente descritivos do número de acertos — nunca semântica de premiação/dinheiro. Tabelas de rateio/premiação ficam fora de escopo até nova decisão explícita.
 33. (v1.1.1) `package.json` é a única fonte de verdade da versão visível do app, injetada em build-time como `__APP_VERSION__`; nenhum componente escreve a versão como literal.
+34. (v1.1.2) Uma falha fatal do Web Worker de geração (fora do try/catch interno) sempre encerra o worker, limpa o estado e mostra uma mensagem amigável — nunca deixa a geração travada indefinidamente nem expõe stack trace ao usuário leigo.
+35. (v1.1.2) Uma Error Boundary global envolve toda a árvore do roteador; uma falha de renderização nunca deixa o usuário com uma tela em branco sem explicação, e "Voltar ao início" nesse fallback é navegação simples (não depende do React Router estar funcional).
+36. (v1.1.2) A CI normal de PR/main nunca chama a fonte oficial da CAIXA — isso é responsabilidade exclusiva do workflow agendado, que agora também alerta operacionalmente (via GitHub Issues) quando falha, sem serviço pago e sem novo segredo.
+37. (v1.1.2) Terminação de linha do repositório padronizada em LF via `.gitattributes`/`.editorconfig`; v1.1.2 é uma release de robustez/confiabilidade, não uma release de funcionalidade de produto.
 
 ## Valores atuais de configuração (07/09/2026)
 

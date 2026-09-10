@@ -210,3 +210,32 @@ npm run data:validate     → PASS
 ```
 
 Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Nenhuma funcionalidade de valor de prêmio/rateio/pagamento foi adicionada nesta release.
+
+## 16. v1.1.2 — confiabilidade e robustez operacional (branch `fix/v1.1.2-reliability-hardening`, draft PR)
+
+Release pequena e deliberadamente restrita a robustez/confiabilidade — sem funcionalidade nova de produto, sem mudança matemática, sem mudança de UX além de recuperação de falhas. Construída a partir do `main` pós-v1.1.1.
+
+Escopo:
+
+- **Recuperação de falhas fatais do Web Worker** (`shared/lib/useGenerationWorker.ts`): `onerror`, `onmessageerror`, falha síncrona ao criar o worker, falha síncrona de `postMessage` — todas tratadas de forma que a geração nunca fica travada e o usuário sempre recebe uma mensagem clara. Proteção contra corrida de worker obsoleto via checagem de identidade (`workerRef.current === worker`). Ver `ARCHITECTURE_V1.md` §7.1.
+- **Error Boundary global** (`src/app/ErrorBoundary.tsx`), envolvendo `RouterProvider` em `src/app/App.tsx`. Ver `ARCHITECTURE_V1.md` §15.
+- **Alerta operacional do atualizador de dados** via GitHub Issues (rótulo `data-update-failure`, criação/comentário sem duplicar, fechamento automático na recuperação) em `data-update.yml`; documentação explícita em `ci.yml` de que a CI normal nunca depende da CAIXA ao vivo. Ver `ARCHITECTURE_V1.md` §16–17 e `DATA_AND_PERSISTENCE_V1.md` §5.2.
+- **Política de terminação de linha**: `.gitattributes` + `.editorconfig`. Renormalização (`git add --renormalize .`) verificada como não gerando diff além dos arquivos intencionalmente alterados nesta branch.
+- Versão do pacote e do lockfile atualizadas para `1.1.2`.
+
+Explicitamente fora de escopo (adiado, não implementado nesta release): migração React 19, React Router 7, upgrades maiores de Vite/Tailwind/Zod/TypeScript, modernização ampla de dependências, RMS v3, novas modalidades, funcionalidades de premiação/rateio, login, sincronização em nuvem, conferência automática de resultados históricos, reorganização de pastas, limpeza de branches remotos.
+
+### Totais de validação (branch v1.1.2, antes do merge)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (179/179 — 161 herdados da v1.1.1 + 18 novos: worker fatal-failure, error boundary, contrato do alerta do workflow)
+npm run test:mega:oracle  → PASS (24/24, inalterado)
+npm run test:lotofacil:oracle → PASS (45/45, inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (47/47, inalterado)
+npm run data:validate     → PASS
+```
+
+Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Nenhuma mudança de comportamento de geração, probabilidade, RMS, rótulos de resultado, validação de concurso ou schema de carteira salva.
