@@ -34,13 +34,13 @@ export function ExportMenu({ onExportCsv, onExportJson }: ExportMenuProps) {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1 rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50"
+        className="inline-flex items-center gap-1 rounded border border-brand-border px-3 py-1.5 text-sm hover:bg-white/5"
       >
         Exportar
         <ChevronDown aria-hidden className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div role="menu" aria-label="Exportar jogos" className="absolute left-0 top-full z-20 mt-1 min-w-[9rem] rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+        <div role="menu" aria-label="Exportar jogos" className="absolute left-0 top-full z-20 mt-1 min-w-[9rem] rounded-md border border-brand-border bg-brand-surface py-1 shadow-lg">
           <button
             role="menuitem"
             type="button"
@@ -48,7 +48,7 @@ export function ExportMenu({ onExportCsv, onExportJson }: ExportMenuProps) {
               onExportCsv();
               setOpen(false);
             }}
-            className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
+            className="block w-full px-3 py-2 text-left text-sm hover:bg-white/5"
           >
             CSV
           </button>
@@ -59,7 +59,7 @@ export function ExportMenu({ onExportCsv, onExportJson }: ExportMenuProps) {
               onExportJson();
               setOpen(false);
             }}
-            className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
+            className="block w-full px-3 py-2 text-left text-sm hover:bg-white/5"
           >
             JSON
           </button>

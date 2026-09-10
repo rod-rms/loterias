@@ -104,7 +104,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm">
           Modalidade:{" "}
-          <select value={filterModality} onChange={(e) => setFilterModality(e.target.value as Modality | "all")} className="rounded border border-slate-300 px-2 py-1">
+          <select value={filterModality} onChange={(e) => setFilterModality(e.target.value as Modality | "all")} className="rounded border border-brand-border px-2 py-1">
             <option value="all">Todas</option>
             <option value="lotofacil">Lotofácil</option>
             <option value="megasena">Mega-Sena</option>
@@ -112,17 +112,17 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
         </label>
         <label className="text-sm">
           Apostada:{" "}
-          <select value={filterBet} onChange={(e) => setFilterBet(e.target.value as "all" | "yes" | "no")} className="rounded border border-slate-300 px-2 py-1">
+          <select value={filterBet} onChange={(e) => setFilterBet(e.target.value as "all" | "yes" | "no")} className="rounded border border-brand-border px-2 py-1">
             <option value="all">Todas</option>
             <option value="yes">Sim</option>
             <option value="no">Não</option>
           </select>
         </label>
         <div className="ml-auto flex gap-2">
-          <button type="button" onClick={handleExport} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
+          <button type="button" onClick={handleExport} className="rounded border border-brand-border px-3 py-1.5 text-sm">
             Exportar backup
           </button>
-          <label className="cursor-pointer rounded border border-slate-300 px-3 py-1.5 text-sm">
+          <label className="cursor-pointer rounded border border-brand-border px-3 py-1.5 text-sm">
             Importar backup
             <input ref={fileInputRef} type="file" accept="application/json" onChange={handleFileSelected} className="hidden" />
           </label>
@@ -133,14 +133,14 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                 deleteAllData().then(refresh);
               }
             }}
-            className="rounded border border-rose-300 px-3 py-1.5 text-sm text-rose-700"
+            className="rounded border border-rose-700 px-3 py-1.5 text-sm text-rose-300"
           >
             Apagar tudo
           </button>
         </div>
       </div>
 
-      <p className="flex items-center gap-1 text-xs text-slate-500">
+      <p className="flex items-center gap-1 text-xs text-brand-textMuted">
         Seus jogos ficam salvos somente neste navegador.
         <InfoHelp
           title="Onde seus jogos ficam salvos"
@@ -150,19 +150,19 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
 
       {importError && <ErrorState title="Backup inválido" message={importError} />}
       {importPreview && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+        <div className="rounded-lg border border-amber-700 bg-amber-950/40 p-3">
           <p className="text-sm">Este arquivo contém {importPreview.count} conjunto(s) de jogos. Confirmar importação?</p>
           <div className="mt-2 flex gap-2">
-            <button type="button" onClick={confirmImport} className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white">
+            <button type="button" onClick={confirmImport} className="rounded bg-brand-action px-3 py-1.5 text-sm text-brand-actionForeground">
               Confirmar
             </button>
-            <button type="button" onClick={() => setImportPreview(null)} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
+            <button type="button" onClick={() => setImportPreview(null)} className="rounded border border-brand-border px-3 py-1.5 text-sm">
               Cancelar
             </button>
           </div>
         </div>
       )}
-      {message && <p role="status" className="text-sm text-slate-600">{message}</p>}
+      {message && <p role="status" className="text-sm text-brand-textMuted">{message}</p>}
 
       {portfolios.length === 0 ? (
         <EmptyState title="Nenhum jogo salvo ainda" description="Gere um conjunto de jogos e salve para vê-lo aqui." />
@@ -183,10 +183,10 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
       )}
 
       {selected && (
-        <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-slate-300 bg-white p-4">
+        <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-brand-border bg-brand-surface p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold">Detalhes — {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
-            <button type="button" onClick={() => setSelected(null)} className="rounded border border-slate-300 px-2 py-1 text-sm">
+            <button type="button" onClick={() => setSelected(null)} className="rounded border border-brand-border px-2 py-1 text-sm">
               Fechar
             </button>
           </div>
@@ -196,7 +196,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               return (
                 <>
                   <PortfolioTicketList tickets={selected.tickets} />
-                  <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-slate-300 px-3 py-1.5 text-sm">
+                  <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-brand-border px-3 py-1.5 text-sm">
                     Conferir resultado
                   </button>
                 </>
@@ -205,18 +205,18 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
             const summary = summarizeCheckedResult(selected.modality, checkedResult);
             return (
               <>
-                <div className="mb-3 space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                <div className="mb-3 space-y-2 rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-sm">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Resultado oficial — Concurso {checkedResult.contest}</p>
-                    <p className="mt-0.5 font-mono text-base text-slate-900">{formatDrawNumbers(checkedResult.numbers)}</p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Resultado oficial — Concurso {checkedResult.contest}</p>
+                    <p className="mt-0.5 font-mono text-base text-brand-text">{formatDrawNumbers(checkedResult.numbers)}</p>
                   </div>
                   {summary.sentence && (
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Melhor resultado</p>
-                      <p className="mt-0.5 text-slate-800">{summary.sentence}</p>
+                      <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor resultado</p>
+                      <p className="mt-0.5 text-brand-text">{summary.sentence}</p>
                     </div>
                   )}
-                  <p className="text-xs text-slate-400">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
+                  <p className="text-xs text-brand-textMuted">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
                 </div>
                 <PortfolioTicketList
                   tickets={selected.tickets}

@@ -68,8 +68,8 @@ export function InfoHelp({ title, body, label, triggerContent, className }: Info
         }}
         className={
           triggerContent
-            ? "inline-flex items-center gap-1 rounded text-slate-600 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-            : "inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            ? "inline-flex items-center gap-1 rounded text-brand-textMuted hover:text-brand-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
+            : "inline-flex h-5 w-5 items-center justify-center rounded-full text-brand-textMuted hover:text-brand-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
         }
       >
         {triggerContent ?? <CircleHelp aria-hidden className="h-4 w-4" />}
@@ -78,9 +78,9 @@ export function InfoHelp({ title, body, label, triggerContent, className }: Info
         <span
           id={popoverId}
           role="tooltip"
-          className="absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-lg border border-slate-300 bg-white p-3 text-left text-xs text-slate-700 shadow-lg"
+          className="absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-lg border border-brand-border bg-brand-surface p-3 text-left text-xs text-brand-text shadow-lg"
         >
-          <span className="mb-1 block font-semibold text-slate-900">{title}</span>
+          <span className="mb-1 block font-semibold text-brand-text">{title}</span>
           <span className="block leading-relaxed">{body}</span>
         </span>
       )}
