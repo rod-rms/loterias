@@ -14,7 +14,7 @@ vi.mock("../../src/shared/lib/dataLoaders", () => ({
  * the old self-referential brand text silently coming back in the shell.
  */
 describe("AppShell — LotoAtlas public brand", () => {
-  it("shows the LotoAtlas name and tagline, and the version footer under the LotoAtlas name (not 'Loterias')", () => {
+  it("shows the LotoAtlas name and the version footer under the LotoAtlas name (not 'Loterias'), without duplicating the tagline in the nav header", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <AppShell>
@@ -24,9 +24,10 @@ describe("AppShell — LotoAtlas public brand", () => {
     );
 
     expect(screen.getAllByAltText("LotoAtlas").length).toBeGreaterThan(0);
-    expect(screen.getByText("Organize. Analise. Confira.")).toBeInTheDocument();
     expect(screen.getByText(/^LotoAtlas v\d+\.\d+\.\d+/)).toBeInTheDocument();
     expect(screen.queryByText(/^Loterias v/)).not.toBeInTheDocument();
+    // The tagline belongs to Home/institutional/social contexts, not the nav header (avoids duplication).
+    expect(screen.queryByText("Organize. Analise. Confira.")).not.toBeInTheDocument();
   });
 
   it("keeps the skip link and main content landmark intact", () => {

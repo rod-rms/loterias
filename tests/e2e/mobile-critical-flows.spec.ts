@@ -53,4 +53,56 @@ test.describe("LotoAtlas — mobile critical flows (iPhone 13 viewport)", () => 
     await expect(page.getByRole("heading", { name: "Meus jogos salvos" })).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
+
+  test("header: brand, navigation, and modality switcher are all reachable in their own rows, with no overlap", async ({ page }) => {
+    await page.goto("/");
+    const header = page.locator("header");
+    await expect(header.getByRole("link", { name: "LotoAtlas — página inicial" })).toBeVisible();
+    await expect(header.getByRole("link", { name: "Meus jogos salvos" })).toBeVisible();
+    await expect(header.getByRole("link", { name: "Sobre" })).toBeVisible();
+    await expect(header.getByRole("navigation", { name: "Alternar modalidade" })).toBeVisible();
+
+    // The tagline is reserved for Home/institutional/social contexts, never the nav header.
+    await expect(header.getByText("Organize. Analise. Confira.")).toHaveCount(0);
+
+    const logoBox = await header.getByRole("link", { name: "LotoAtlas — página inicial" }).boundingBox();
+    const navBox = await header.getByRole("link", { name: "Sobre" }).boundingBox();
+    const switcherBox = await header.getByRole("navigation", { name: "Alternar modalidade" }).boundingBox();
+    expect(logoBox).not.toBeNull();
+    expect(navBox).not.toBeNull();
+    expect(switcherBox).not.toBeNull();
+    // Logo (row 1) and the modality switcher (row 2) must not vertically overlap.
+    expect(switcherBox!.y).toBeGreaterThanOrEqual(logoBox!.y + logoBox!.height - 1);
+
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test("Mega-Sena strategy technical details: a long mono identifier wraps in a single column without page overflow", async ({ page }) => {
+    await page.goto("/megasena/gerar");
+    const card = page.locator('[data-testid="strategy-card-megasena.max_diversification"]');
+    await card.getByRole("button", { name: "Detalhes técnicos" }).click();
+    await expect(card.getByText("megasena.max_diversification")).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    const cardBox = await card.boundingBox();
+    const identifierBox = await card.getByText("megasena.max_diversification").boundingBox();
+    expect(cardBox).not.toBeNull();
+    expect(identifierBox).not.toBeNull();
+    // The identifier text must stay within the card's own horizontal bounds (no clipping).
+    expect(identifierBox!.x + identifierBox!.width).toBeLessThanOrEqual(cardBox!.x + cardBox!.width + 1);
+  });
+
+  test("Como funciona? popover near the left edge stays within the viewport", async ({ page }) => {
+    await page.goto("/megasena/gerar");
+    const trigger = page.getByRole("button", { name: /Como funciona\?/ }).first();
+    await trigger.click();
+    const popover = page.getByRole("tooltip");
+    await expect(popover).toBeVisible();
+    const box = await popover.boundingBox();
+    const viewportWidth = page.viewportSize()?.width ?? 390;
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(viewportWidth);
+    await expectNoHorizontalOverflow(page);
+  });
 });
