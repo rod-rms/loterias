@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><defs>
+      <linearGradient id="atlasGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6D3CFF"/>
+        <stop offset="52%" stop-color="#1677FF"/>
+        <stop offset="100%" stop-color="#12C7B0"/>
+      </linearGradient>
+      <linearGradient id="atlasGrad2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#8B5CFF"/>
+        <stop offset="100%" stop-color="#6D3CFF"/>
+      </linearGradient>
+      <linearGradient id="cloverGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#66D889"/>
+        <stop offset="100%" stop-color="#22B96B"/>
+      </linearGradient>
+      <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#101729" flood-opacity="0.14"/>
+      </filter>
+    </defs><rect width="1920" height="1080" fill="#F7F9FC"/><rect x="0" y="0" width="720" height="1080" fill="#101729"/><circle cx="330" cy="390" r="250" fill="#6D3CFF" opacity="0.16"/><text x="820" y="330" font-family="Inter" font-size="96" font-weight="800" fill="#101729">Título da apresentação</text><text x="825" y="420" font-family="Inter" font-size="38" fill="#6B7280">Subtítulo / contexto</text><text x="825" y="900" font-family="Inter" font-size="28" font-weight="600" fill="#6D3CFF">LOTOATLAS</text><text x="825" y="950" font-family="Inter" font-size="24" fill="#6B7280">Organize. Analise. Confira.</text></svg>

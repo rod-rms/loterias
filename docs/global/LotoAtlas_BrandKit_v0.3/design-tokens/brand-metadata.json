@@ -1,0 +1,31 @@
+{
+  "brand": "LotoAtlas",
+  "version": "0.3",
+  "status": "candidate approved for identity development — v0.3 adds dark-first UI application rules, semantic design tokens, and data typography; identity/logo unchanged from v0.2",
+  "tagline": "Organize. Analise. Confira.",
+  "descriptor": "Estratégia com mais clareza para os seus jogos.",
+  "archetypes": {
+    "primary": "Sábio",
+    "secondary": "Explorador"
+  },
+  "pillars": [
+    "Clareza",
+    "Método",
+    "Controle",
+    "Responsabilidade"
+  ],
+  "based_on": "LotoAtlas_BrandKit_v0.2 (corrected clover geometry preserved exactly)",
+  "v0_3_scope": [
+    "dark-first application theme (Atlas Ink primary, Atlas Ink 2 surface)",
+    "one functional action color (Atlas Violet)",
+    "semantic design tokens (--la-bg-*, --la-text-*, --la-action*, --la-focus, --la-success)",
+    "measured WCAG contrast documentation and a new accessible action/link text token",
+    "JetBrains Mono as the data/numeric typography family",
+    "dark-first UI application guidelines"
+  ],
+  "not_in_scope_for_v0_3": [
+    "identity/logo redesign",
+    "brand strategy, tone of voice, personas, messaging, naming/legal, or monetization guardrails changes",
+    "application source code implementation"
+  ]
+}

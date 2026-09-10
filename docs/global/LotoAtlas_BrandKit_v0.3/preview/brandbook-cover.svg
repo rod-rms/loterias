@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1754" viewBox="0 0 1240 1754">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#101729"/><stop offset="100%" stop-color="#182849"/></linearGradient><linearGradient id="word" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B5CFF"/><stop offset="100%" stop-color="#6D3CFF"/></linearGradient></defs>
+<rect width="1240" height="1754" fill="url(#bg)"/>
+<circle cx="1040" cy="220" r="360" fill="#6D3CFF" opacity="0.12"/><circle cx="180" cy="1530" r="430" fill="#12C7B0" opacity="0.08"/>
+<text x="100" y="130" font-family="Inter" font-size="30" font-weight="600" letter-spacing="5" fill="#B8C1D1">BRAND BOOK / v0.2</text>
+<g transform="translate(360,300) scale(1.3)"><defs>
+      <linearGradient id="atlasGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6D3CFF"/>
+        <stop offset="52%" stop-color="#1677FF"/>
+        <stop offset="100%" stop-color="#12C7B0"/>
+      </linearGradient>
+      <linearGradient id="atlasGrad2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#8B5CFF"/>
+        <stop offset="100%" stop-color="#6D3CFF"/>
+      </linearGradient>
+      <linearGradient id="cloverGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#66D889"/>
+        <stop offset="100%" stop-color="#22B96B"/>
+      </linearGradient>
+      <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#101729" flood-opacity="0.14"/>
+      </filter>
+    </defs><g><line x1="200" y1="46" x2="114" y2="132" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="200" y1="46" x2="286" y2="132" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="114" y1="132" x2="286" y2="132" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="114" y1="132" x2="63" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="114" y1="132" x2="200" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="286" y1="132" x2="200" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="286" y1="132" x2="337" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><circle cx="200" cy="46" r="27" fill="#8B5CFF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="114" cy="132" r="27" fill="#1677FF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="286" cy="132" r="27" fill="#12C7B0" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="63" cy="265" r="27" fill="#6D3CFF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="200" cy="265" r="27" fill="#12C7B0" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="337" cy="265" r="27" fill="#1677FF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(0) scale(0.58)" fill="url(#cloverGrad)"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(90) scale(0.58)" fill="url(#cloverGrad)"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(180) scale(0.58)" fill="url(#cloverGrad)"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(270) scale(0.58)" fill="url(#cloverGrad)"/><circle cx="200" cy="165" r="4.06" fill="url(#cloverGrad)"/></g></g>
+<text x="620" y="910" text-anchor="middle" font-family="Inter" font-size="124" font-weight="800" letter-spacing="-5" fill="white">Loto<tspan fill="url(#word)">Atlas</tspan></text>
+<text x="620" y="1000" text-anchor="middle" font-family="Inter" font-size="28" font-weight="600" letter-spacing="9" fill="#C9D1DE">ORGANIZE. ANALISE. CONFIRA.</text>
+<text x="620" y="1215" text-anchor="middle" font-family="Inter" font-size="34" fill="#C9D1DE">Estratégia + sorte, com clareza e controle.</text>
+<rect x="100" y="1570" width="1040" height="2" fill="#FFFFFF" opacity="0.12"/>
+<text x="100" y="1640" font-family="Inter" font-size="24" fill="#9EA9BA">Identidade de marca • setembro de 2026</text>
+<text x="1140" y="1640" text-anchor="end" font-family="Inter" font-size="24" fill="#9EA9BA">Direção aprovada para desenvolvimento</text>
+</svg>
