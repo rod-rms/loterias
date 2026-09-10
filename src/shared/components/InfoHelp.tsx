@@ -1,5 +1,16 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { CircleHelp } from "lucide-react";
+
+const POPOVER_WIDTH_PX = 256; // matches the w-64 utility below
+const VIEWPORT_SAFE_MARGIN_PX = 16;
+
+type PopoverAlign = "center" | "left" | "right";
+
+const ALIGN_CLASS: Record<PopoverAlign, string> = {
+  center: "left-1/2 -translate-x-1/2",
+  left: "left-0",
+  right: "right-0",
+};
 
 export interface InfoHelpProps {
   /** Short heading for the explanation (e.g. the metric or option name). */
@@ -27,9 +38,29 @@ export interface InfoHelpProps {
  */
 export function InfoHelp({ title, body, label, triggerContent, className }: InfoHelpProps) {
   const [open, setOpen] = useState(false);
+  const [align, setAlign] = useState<PopoverAlign>("center");
   const popoverId = useId();
   const containerRef = useRef<HTMLSpanElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Collision-safe positioning: a popover centered under a trigger near a
+  // screen edge would otherwise overflow the viewport (clipped/unreadable
+  // content on narrow phones). Measured on open, not on every render.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const button = buttonRef.current;
+    if (!button) return;
+    const rect = button.getBoundingClientRect();
+    const triggerCenter = rect.left + rect.width / 2;
+    const half = POPOVER_WIDTH_PX / 2;
+    if (triggerCenter - half < VIEWPORT_SAFE_MARGIN_PX) {
+      setAlign("left");
+    } else if (triggerCenter + half > window.innerWidth - VIEWPORT_SAFE_MARGIN_PX) {
+      setAlign("right");
+    } else {
+      setAlign("center");
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -78,7 +109,7 @@ export function InfoHelp({ title, body, label, triggerContent, className }: Info
         <span
           id={popoverId}
           role="tooltip"
-          className="absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-lg border border-brand-border bg-brand-surface p-3 text-left text-xs text-brand-text shadow-lg"
+          className={`absolute top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border border-brand-border bg-brand-surface p-3 text-left text-xs text-brand-text shadow-lg ${ALIGN_CLASS[align]}`}
         >
           <span className="mb-1 block font-semibold text-brand-text">{title}</span>
           <span className="block leading-relaxed">{body}</span>

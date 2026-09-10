@@ -67,7 +67,7 @@ export function StrategyCard({ strategy, selected, onSelect }: StrategyCardProps
       </div>
 
       {showTechnical && (
-        <dl className="mt-3 grid grid-cols-2 gap-x-2 gap-y-1 border-t border-brand-border pt-2 text-xs text-brand-textMuted">
+        <dl className="mt-3 grid grid-cols-1 gap-x-2 gap-y-1 border-t border-brand-border pt-2 text-xs text-brand-textMuted [overflow-wrap:anywhere] sm:grid-cols-2">
           <div>
             <dt className="inline font-medium text-brand-textMuted">Nome técnico: </dt>
             <dd className="inline">{strategy.ux.technicalName}</dd>
@@ -89,7 +89,7 @@ export function StrategyCard({ strategy, selected, onSelect }: StrategyCardProps
             <dd className="inline">{strategy.requiresHistoricalDraws ? `sim (${strategy.historyWindowSize ?? "?"} concursos)` : "não"}</dd>
           </div>
           {strategy.optimizedMetrics.length > 0 && (
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <dt className="inline font-medium text-brand-textMuted">Otimiza: </dt>
               <dd className="inline">{strategy.optimizedMetrics.join(", ")}</dd>
             </div>
