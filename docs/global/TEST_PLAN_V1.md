@@ -152,7 +152,7 @@ Testar:
 
 ### 12.1 Marca pública no AppShell
 
-`tests/app/appShellBrand.test.tsx` verifica que o `AppShell` mostra o nome/tagline LotoAtlas e o rodapé "LotoAtlas v{versão}" (nunca "Loterias v..."), e que o skip link/landmark de conteúdo principal permanecem intactos após a restilização.
+`tests/app/appShellBrand.test.tsx` verifica que o `AppShell` mostra o nome LotoAtlas e o rodapé "LotoAtlas v{versão}" (nunca "Loterias v..."), que a tagline NÃO aparece duplicada no cabeçalho de navegação (reservada a Home/institucional/social), e que o skip link/landmark de conteúdo principal permanecem intactos após a restilização.
 
 ### 12.2 Metadados de `index.html`
 
@@ -164,4 +164,22 @@ Testar:
 
 ### 12.4 Responsividade móvel (Playwright)
 
-`tests/e2e/mobile-critical-flows.spec.ts` (4 testes) roda os fluxos críticos — home, troca de modalidade, navegação para Meus jogos salvos, geração de jogos, carteira salva vazia — em um viewport de telefone (390×844, touch habilitado) sobre o mesmo navegador Chromium do projeto Playwright existente, e verifica programaticamente a ausência de overflow horizontal em nível de página em cada etapa.
+`tests/e2e/mobile-critical-flows.spec.ts` (7 testes) roda os fluxos críticos — home, troca de modalidade, navegação para Meus jogos salvos, geração de jogos, carteira salva vazia — em um viewport de telefone (390×844, touch habilitado) sobre o mesmo navegador Chromium do projeto Playwright existente, e verifica programaticamente a ausência de overflow horizontal em nível de página em cada etapa.
+
+## 13. Correções de qualidade visual e responsividade (mesma branch, após rejeição da primeira revisão)
+
+### 13.1 Grade responsiva de "Detalhes técnicos" (StrategyCard)
+
+`tests/shared/strategyCardResponsive.test.tsx` renderiza `StrategyCard` com a estratégia `megasena.max_diversification` (identificador mono longo), abre "Detalhes técnicos" e verifica: a `dl` usa `grid-cols-1`/`sm:grid-cols-2` (nunca `grid-cols-2` incondicional) com `[overflow-wrap:anywhere]`; e a linha "Otimiza" usa `sm:col-span-2` (nunca `col-span-2` incondicional — que forçaria uma coluna implícita mesmo em `grid-cols-1`, a causa raiz real do defeito). `tests/e2e/mobile-critical-flows.spec.ts` cobre o mesmo cenário fim a fim em viewport de telefone, confirmando que o texto do identificador não ultrapassa os limites do card.
+
+### 13.2 Contenção de viewport do popover InfoHelp
+
+`tests/shared/infoHelpViewportContainment.test.tsx` mocka `getBoundingClientRect()` do gatilho em três posições (perto da borda esquerda, perto da borda direita, centralizado) e verifica que o popover escolhe `left-0`, `right-0` ou `left-1/2 -translate-x-1/2` respectivamente, sempre com `max-w-[calc(100vw-2rem)]`. `tests/e2e/mobile-critical-flows.spec.ts` verifica em navegador real que o popover "Como funciona?" permanece dentro dos limites horizontais do viewport.
+
+### 13.3 Arquitetura de cabeçalho responsivo
+
+`tests/e2e/mobile-critical-flows.spec.ts` ("header: brand, navigation, and modality switcher...") verifica que marca, navegação e seletor de modalidade estão todos visíveis e alcançáveis em linhas próprias sem sobreposição vertical, e que a tagline não aparece no cabeçalho de navegação em viewport de telefone.
+
+### 13.4 Integridade dos ativos de UI (expandida)
+
+`tests/shared/logoAssetIntegrity.test.ts` foi expandido para: comparar os novos `lotoatlas-logo-ui-reversed.svg`/`lotoatlas-symbol-ui-on-dark.svg` byte a byte com a fonte corrigida do Brand Kit v0.3; confirmar que esses ativos de UI não têm retângulo de fundo de tela cheia nem a tagline embutida; e confirmar que o `AppShell` usa exclusivamente os novos ativos de UI (não mais os ativos institucionais com fundo/tagline) no cabeçalho.

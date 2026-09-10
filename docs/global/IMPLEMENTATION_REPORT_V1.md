@@ -263,7 +263,7 @@ Escopo:
 
 Explicitamente fora de escopo desta branch: v1.2, qualquer mudança em matemática/estratégia/RMS/oráculo/geração/validação de concurso/no-look-ahead/atualizador/persistência, bump de versão do aplicativo, rewrite de arquitetura de componentes (nenhum design system amplo foi introduzido).
 
-### Totais de validação (branch de integração de marca, antes do merge)
+### Totais de validação (primeira rodada, antes da revisão visual)
 
 ```text
 npm run lint              → PASS
@@ -273,6 +273,34 @@ npm run test:mega:oracle  → PASS (24/24, inalterado)
 npm run test:lotofacil:oracle → PASS (45/45, inalterado)
 npm run build             → PASS
 npm run test:e2e          → PASS (51/51 — 47 herdados + 4 novos testes móveis)
+npm run data:validate     → PASS
+```
+
+## 18. Correções de qualidade visual e responsividade (mesma branch, após rejeição da primeira revisão)
+
+A primeira revisão manual encontrou defeitos concretos e aprovou a direção geral de tema escuro. Ver `ARCHITECTURE_V1.md` §20 para os detalhes técnicos completos (centralização óptica do símbolo, ativos de UI transparentes, arquitetura de cabeçalho responsivo, correção de overflow em detalhes técnicos, contenção de viewport do InfoHelp, imagem Open Graph).
+
+Escopo desta segunda rodada:
+
+- Correção de centralização óptica do símbolo/ícone do app (ajuste de enquadramento apenas — viewBox/translateY —, nenhuma coordenada de nó ou trevo redesenhada).
+- Novos ativos de UI transparentes e sem tagline (`lotoatlas-logo-ui-reversed.svg`, `lotoatlas-symbol-ui-on-dark.svg`), substituindo os ativos institucionais (com fundo/tagline embutidos) no cabeçalho da aplicação.
+- Reconstrução do `AppShell` com hierarquia de cabeçalho deliberada por breakpoint (mobile: 3 linhas; desktop/tablet: 1 linha primária + indicadores secundários), removendo a tagline do cabeçalho de navegação.
+- Correção do overflow em "Detalhes técnicos" do `StrategyCard`: causa raiz era um `col-span-2` incondicional que forçava uma coluna implícita mesmo com `grid-cols-1`; corrigido para `sm:col-span-2` + `overflow-wrap:anywhere`.
+- Correção de contenção de viewport do popover `InfoHelp` ("Como funciona?"): alinhamento colision-safe medido em tempo de abertura (`getBoundingClientRect`), sem biblioteca de popover nova.
+- Imagem de Open Graph dedicada (1200×630) para preview social/WhatsApp, com o símbolo corrigido — o ícone quadrado do app deixa de ser o único candidato a imagem de preview.
+
+Explicitamente fora de escopo (mantido da primeira rodada): v1.2, qualquer mudança em matemática/estratégia/RMS/oráculo/geração/validação de concurso/no-look-ahead/atualizador/persistência, bump de versão do aplicativo, rewrite de arquitetura de componentes, alternância clara/escuro, mudança do papel da CTA âmbar de resultado desatualizado.
+
+### Totais de validação (após as correções de qualidade visual, antes do merge)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (201/201 — 193 anteriores + 1 novo teste de asset (integridade expandida) + 1 StrategyCard responsivo + 4 InfoHelp + ajuste de 1 teste de marca existente, sem perda de cobertura)
+npm run test:mega:oracle  → PASS (24/24, inalterado)
+npm run test:lotofacil:oracle → PASS (45/45, inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (54/54 — 51 anteriores + 3 novos testes móveis: cabeçalho, detalhes técnicos longos, popover na borda)
 npm run data:validate     → PASS
 ```
 
