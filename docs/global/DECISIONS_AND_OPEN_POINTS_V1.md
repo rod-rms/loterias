@@ -39,6 +39,7 @@
 35. (v1.1.2) Uma Error Boundary global envolve toda a árvore do roteador; uma falha de renderização nunca deixa o usuário com uma tela em branco sem explicação, e "Voltar ao início" nesse fallback é navegação simples (não depende do React Router estar funcional).
 36. (v1.1.2) A CI normal de PR/main nunca chama a fonte oficial da CAIXA — isso é responsabilidade exclusiva do workflow agendado, que agora também alerta operacionalmente (via GitHub Issues) quando falha, sem serviço pago e sem novo segredo.
 37. (v1.1.2) Terminação de linha do repositório padronizada em LF via `.gitattributes`/`.editorconfig`; v1.1.2 é uma release de robustez/confiabilidade, não uma release de funcionalidade de produto.
+38. (v1.1.2) O workflow do atualizador de dados não assume mais que o rótulo `data-update-failure` já existe no repositório: ele verifica sua existência via API e cria o rótulo automaticamente se ausente, tolerando com segurança a corrida de criação concorrente — sem exigir configuração manual prévia em um repositório novo/limpo.
 
 ## Valores atuais de configuração (07/09/2026)
 

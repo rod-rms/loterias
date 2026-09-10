@@ -109,6 +109,8 @@ A resiliência do próprio atualizador (timeouts, retries, backoff, tratamento d
 
 A partir da v1.1.2, `data-update.yml` cria (ou comenta, para não duplicar) uma issue no GitHub rotulada `data-update-failure` quando a atualização falha, com o link da execução, o evento/agenda que disparou, o commit/ref e o horário — e fecha automaticamente essa issue, com um comentário de recuperação, na primeira execução seguinte bem-sucedida. Isso usa apenas `actions/github-script` com o token do próprio repositório (permissão `issues: write`), sem serviço pago e sem novo segredo. Issues criadas manualmente por uma pessoa nunca são tocadas.
 
+O workflow não assume que o rótulo `data-update-failure` já existe: antes de usá-lo, verifica sua existência via API (`getLabel`) e o cria (`createLabel`) se estiver ausente, tolerando com segurança a corrida de criação concorrente (HTTP 422 tratado como sucesso). Isso torna o alerta funcional mesmo em um repositório novo/limpo, sem exigir configuração manual prévia do rótulo.
+
 Esse alerta é responsabilidade exclusiva do workflow agendado. A CI normal de PR/main (`ci.yml`) nunca chama a fonte oficial da CAIXA — ela roda `npm run data:validate` (validação estrutural do dataset já commitado), nunca `npm run data:update` — porque os gates de qualidade de um PR precisam ser determinísticos e nunca devem falhar por causa de uma instabilidade temporária de um serviço externo. Ver `ARCHITECTURE_V1.md` §16.
 
 ## 6. RMS
