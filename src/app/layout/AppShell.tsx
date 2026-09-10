@@ -3,8 +3,8 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { GameSwitcher, DataFreshnessBadge } from "../../shared/components";
 import { loadDataset } from "../../shared/lib/dataLoaders";
 import { APP_VERSION } from "../../shared/lib/appVersion";
-import lotoatlasLogo from "../../assets/brand/lotoatlas-logo-horizontal-reversed.svg";
-import lotoatlasSymbol from "../../assets/brand/lotoatlas-symbol-on-dark.svg";
+import lotoatlasLogoUi from "../../assets/brand/lotoatlas-logo-ui-reversed.svg";
+import lotoatlasSymbolUi from "../../assets/brand/lotoatlas-symbol-ui-on-dark.svg";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [latestContest, setLatestContest] = useState<{ lotofacil: number | null; megasena: number | null }>({ lotofacil: null, megasena: null });
@@ -22,10 +22,20 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-medium ${isActive ? "text-brand-text" : "text-brand-textMuted hover:text-brand-text"}`;
 
+  const compactNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `text-xs font-medium ${isActive ? "text-brand-text" : "text-brand-textMuted hover:text-brand-text"}`;
+
   // Scope the freshness badges to the modality currently being viewed;
   // elsewhere (home, Meus jogos salvos, Sobre) show both, clearly labeled.
   const showLotofacil = !location.pathname.startsWith("/megasena");
   const showMegasena = !location.pathname.startsWith("/lotofacil");
+
+  const freshnessBadges = (
+    <>
+      {showLotofacil && <DataFreshnessBadge label="Lotofácil" latestContest={latestContest.lotofacil} />}
+      {showMegasena && <DataFreshnessBadge label="Mega-Sena" latestContest={latestContest.megasena} />}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-text">
@@ -36,16 +46,34 @@ export function AppShell({ children }: { children: ReactNode }) {
         Pular para o conteúdo
       </a>
       <header className="border-b border-brand-border bg-brand-surface">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
-          <Link to="/" className="flex items-center gap-2 leading-tight" aria-label="LotoAtlas — página inicial">
-            <img src={lotoatlasSymbol} alt="LotoAtlas" className="h-8 w-auto shrink-0 sm:hidden" width={39} height={32} />
-            <span className="hidden flex-col sm:flex">
-              <img src={lotoatlasLogo} alt="LotoAtlas" className="h-7 w-auto" width={101} height={28} />
-              <span className="mt-0.5 hidden text-xs text-brand-textMuted md:block">Organize. Analise. Confira.</span>
-            </span>
+        {/* Mobile header (below sm): three deliberate rows — brand+nav, modality switcher, freshness. */}
+        <div className="mx-auto max-w-6xl px-4 sm:hidden">
+          <div className="flex items-center justify-between gap-3 py-3">
+            <Link to="/" className="flex shrink-0 items-center" aria-label="LotoAtlas — página inicial">
+              <img src={lotoatlasSymbolUi} alt="LotoAtlas" className="h-7 w-auto" width={33} height={28} />
+            </Link>
+            <nav aria-label="Navegação principal" className="flex items-center gap-3">
+              <NavLink to="/carteiras" className={compactNavLinkClass}>
+                Meus jogos salvos
+              </NavLink>
+              <NavLink to="/sobre" className={compactNavLinkClass}>
+                Sobre
+              </NavLink>
+            </nav>
+          </div>
+          <div className="pb-3">
+            <GameSwitcher />
+          </div>
+          <div className="flex flex-wrap gap-2 pb-3">{freshnessBadges}</div>
+        </div>
+
+        {/* Desktop/tablet header (sm and up): one primary row (logo, switcher, nav), freshness as a secondary row. */}
+        <div className="mx-auto hidden max-w-6xl items-center gap-4 px-4 py-3 sm:flex">
+          <Link to="/" className="flex shrink-0 items-center" aria-label="LotoAtlas — página inicial">
+            <img src={lotoatlasLogoUi} alt="LotoAtlas" className="h-7 w-auto" width={96} height={28} />
           </Link>
           <GameSwitcher />
-          <nav aria-label="Navegação principal" className="ml-auto flex items-center gap-4">
+          <nav aria-label="Navegação principal" className="ml-auto flex items-center gap-5">
             <NavLink to="/carteiras" className={navLinkClass}>
               Meus jogos salvos
             </NavLink>
@@ -54,10 +82,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </NavLink>
           </nav>
         </div>
-        <div className="mx-auto flex max-w-6xl flex-wrap gap-2 px-4 pb-2">
-          {showLotofacil && <DataFreshnessBadge label="Lotofácil" latestContest={latestContest.lotofacil} />}
-          {showMegasena && <DataFreshnessBadge label="Mega-Sena" latestContest={latestContest.megasena} />}
-        </div>
+        <div className="mx-auto hidden max-w-6xl flex-wrap gap-2 px-4 pb-2 sm:flex">{freshnessBadges}</div>
       </header>
       <main id="main-content" className="mx-auto max-w-6xl px-4 py-6">
         {children}
