@@ -11,10 +11,10 @@
   },
   "megasena": {
     "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena",
-    "latestContest": 3055,
-    "latestDrawDate": "2026-09-08",
-    "lastUpdatedAt": "2026-09-09T06:42:00.972Z",
-    "lastCheckedAt": "2026-09-10T14:02:17.280Z",
+    "latestContest": 3056,
+    "latestDrawDate": "2026-09-10",
+    "lastUpdatedAt": "2026-09-11T06:38:24.617Z",
+    "lastCheckedAt": "2026-09-11T06:38:24.617Z",
     "status": "ok",
     "gapCount": 0
   }
