@@ -10,7 +10,7 @@ export function BackLink({ to, label }: BackLinkProps) {
   return (
     <Link
       to={to}
-      className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 underline-offset-2 hover:text-slate-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+      className="inline-flex items-center gap-1 text-sm font-medium text-brand-textMuted underline-offset-2 hover:text-brand-text hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
     >
       ← {label}
     </Link>

@@ -1,0 +1,57 @@
+{
+  "brand": {
+    "atlas-ink": "#101729",
+    "atlas-ink-2": "#1D2740",
+    "atlas-violet": "#6D3CFF",
+    "atlas-violet-light": "#8B5CFF",
+    "atlas-blue": "#1677FF",
+    "atlas-teal": "#12C7B0",
+    "luck-green": "#22B96B",
+    "luck-green-light": "#66D889",
+    "atlas-offwhite": "#F7F9FC",
+    "atlas-white": "#FFFFFF",
+    "atlas-muted": "#6B7280",
+    "atlas-line": "#DDE3EC"
+  },
+  "gradients": {
+    "atlas-spectrum": "linear-gradient(135deg, #6D3CFF 0%, #1677FF 52%, #12C7B0 100%)",
+    "atlas-violet": "linear-gradient(90deg, #8B5CFF 0%, #6D3CFF 100%)",
+    "luck": "linear-gradient(135deg, #66D889 0%, #22B96B 100%)"
+  },
+  "semantic": {
+    "_comment": "Added in v0.3. All raw brand colors above are preserved unchanged. These semantic roles are the only values UI application code should reference directly — never a raw hex. Dark theme is the default/primary application surface; light theme values are documented as a secondary/institutional alternative for a future theme toggle.",
+    "dark": {
+      "bg-primary": "#101729",
+      "bg-surface": "#1D2740",
+      "bg-surface-elevated": "#232F4D",
+      "text-primary": "#FFFFFF",
+      "text-secondary": "#B7C0D6",
+      "border": "#2C3856",
+      "border-strong": "#6D3CFF",
+      "action": "#6D3CFF",
+      "action-foreground": "#FFFFFF",
+      "action-text": "#A07AFF",
+      "link": "#A07AFF",
+      "focus": "#6D3CFF",
+      "success": "#22B96B",
+      "success-text": "#22B96B"
+    },
+    "light": {
+      "_comment": "Secondary/institutional theme; documented for completeness and for a future theme toggle. Not the primary application surface as of v0.3.",
+      "bg-primary": "#F7F9FC",
+      "bg-surface": "#FFFFFF",
+      "bg-surface-elevated": "#FFFFFF",
+      "text-primary": "#101729",
+      "text-secondary": "#6B7280",
+      "border": "#DDE3EC",
+      "border-strong": "#6D3CFF",
+      "action": "#6D3CFF",
+      "action-foreground": "#FFFFFF",
+      "action-text": "#6D3CFF",
+      "link": "#6D3CFF",
+      "focus": "#6D3CFF",
+      "success": "#22B96B",
+      "success-text": "#178350"
+    }
+  }
+}

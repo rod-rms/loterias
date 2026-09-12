@@ -147,3 +147,39 @@ Testar:
 ### 11.3 Alerta de falha do atualizador (contrato do workflow)
 
 `tests/shared/dataUpdateWorkflowAlert.test.ts` (9 testes) faz checagens determinísticas de texto/configuração sobre `.github/workflows/data-update.yml` e `.github/workflows/ci.yml` (sem parser de YAML): permissão `issues: write` presente; existe um passo de alerta com `if: failure()` e um passo de recuperação com `if: success()` que fecha a issue; o rótulo usado para evitar duplicidade aparece nos dois passos; a criação de issue nova está condicionada a uma checagem prévia de issue já aberta; a CI normal nunca invoca o atualizador de dados ao vivo; e — adicionado após a criação idempotente do rótulo — o passo de alerta verifica a existência do rótulo via `getLabel`, cria via `createLabel` quando ausente (tratando 404 como "não existe" e 422 como "já criado por uma corrida concorrente"), e essa verificação ocorre antes de listar/buscar issues existentes.
+
+## 12. Integração visual da marca LotoAtlas
+
+### 12.1 Marca pública no AppShell
+
+`tests/app/appShellBrand.test.tsx` verifica que o `AppShell` mostra o nome LotoAtlas e o rodapé "LotoAtlas v{versão}" (nunca "Loterias v..."), que a tagline NÃO aparece duplicada no cabeçalho de navegação (reservada a Home/institucional/social), e que o skip link/landmark de conteúdo principal permanecem intactos após a restilização.
+
+### 12.2 Metadados de `index.html`
+
+`tests/shared/brandMetadata.test.ts` verifica o `<title>`, a meta description (prefixo "LotoAtlas", presença do disclaimer "não é previsão de sorteios", ausência de linguagem de garantia/melhoria de chance/números previstos), `data-theme="dark"` + `color-scheme`/`theme-color` correspondentes, e que todo `href` de favicon referenciado em `public/brand/` realmente existe no disco.
+
+### 12.3 Integridade dos ativos de logo
+
+`tests/shared/logoAssetIntegrity.test.ts` compara byte a byte cada SVG de logo usado pela aplicação (`src/assets/brand/`, `public/brand/`) com o arquivo correspondente aprovado em `docs/global/LotoAtlas_BrandKit_v0.3/logos/svg/`, confirma que nenhum deles referencia uma pasta de Brand Kit v0.1/v0.2, e confirma que as proporções largura/altura usadas no `AppShell` para os `<img>` do logo correspondem ao `viewBox` real dos SVGs (evitando distorção de aspecto) — guarda de regressão para o defeito de alinhamento do trevo já corrigido em versões anteriores do Brand Kit.
+
+### 12.4 Responsividade móvel (Playwright)
+
+`tests/e2e/mobile-critical-flows.spec.ts` (7 testes) roda os fluxos críticos — home, troca de modalidade, navegação para Meus jogos salvos, geração de jogos, carteira salva vazia — em um viewport de telefone (390×844, touch habilitado) sobre o mesmo navegador Chromium do projeto Playwright existente, e verifica programaticamente a ausência de overflow horizontal em nível de página em cada etapa.
+
+## 13. Correções de qualidade visual e responsividade (mesma branch, após rejeição da primeira revisão)
+
+### 13.1 Grade responsiva de "Detalhes técnicos" (StrategyCard)
+
+`tests/shared/strategyCardResponsive.test.tsx` renderiza `StrategyCard` com a estratégia `megasena.max_diversification` (identificador mono longo), abre "Detalhes técnicos" e verifica: a `dl` usa `grid-cols-1`/`sm:grid-cols-2` (nunca `grid-cols-2` incondicional) com `[overflow-wrap:anywhere]`; e a linha "Otimiza" usa `sm:col-span-2` (nunca `col-span-2` incondicional — que forçaria uma coluna implícita mesmo em `grid-cols-1`, a causa raiz real do defeito). `tests/e2e/mobile-critical-flows.spec.ts` cobre o mesmo cenário fim a fim em viewport de telefone, confirmando que o texto do identificador não ultrapassa os limites do card.
+
+### 13.2 Contenção de viewport do popover InfoHelp
+
+`tests/shared/infoHelpViewportContainment.test.tsx` mocka `getBoundingClientRect()` do gatilho em três posições (perto da borda esquerda, perto da borda direita, centralizado) e verifica que o popover escolhe `left-0`, `right-0` ou `left-1/2 -translate-x-1/2` respectivamente, sempre com `max-w-[calc(100vw-2rem)]`. `tests/e2e/mobile-critical-flows.spec.ts` verifica em navegador real que o popover "Como funciona?" permanece dentro dos limites horizontais do viewport.
+
+### 13.3 Arquitetura de cabeçalho responsivo
+
+`tests/e2e/mobile-critical-flows.spec.ts` ("header: brand, navigation, and modality switcher...") verifica que marca, navegação e seletor de modalidade estão todos visíveis e alcançáveis em linhas próprias sem sobreposição vertical, e que a tagline não aparece no cabeçalho de navegação em viewport de telefone.
+
+### 13.4 Integridade dos ativos de UI (expandida)
+
+`tests/shared/logoAssetIntegrity.test.ts` foi expandido para: comparar os novos `lotoatlas-logo-ui-reversed.svg`/`lotoatlas-symbol-ui-on-dark.svg` byte a byte com a fonte corrigida do Brand Kit v0.3; confirmar que esses ativos de UI não têm retângulo de fundo de tela cheia nem a tagline embutida; e confirmar que o `AppShell` usa exclusivamente os novos ativos de UI (não mais os ativos institucionais com fundo/tagline) no cabeçalho.
