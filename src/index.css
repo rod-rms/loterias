@@ -1,9 +1,29 @@
+@import "./styles/brandTokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: var(--la-bg-primary);
+}
+
+body {
+  font-family: var(--la-font-sans);
+}
+
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
 :focus-visible {
-  outline: 2px solid #0f172a;
+  outline: 2px solid #6d3cff;
   outline-offset: 2px;
 }
 

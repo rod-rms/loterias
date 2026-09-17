@@ -7,11 +7,19 @@ export function GameSwitcher() {
   const isMegasena = location.pathname.startsWith("/megasena");
 
   return (
-    <nav aria-label="Alternar modalidade" className="flex gap-1 rounded-lg bg-slate-100 p-1">
-      <Link to="/lotofacil/gerar" aria-current={isLotofacil ? "page" : undefined} className={`${base} ${isLotofacil ? "bg-white text-lotofacil-600 shadow-sm" : "text-slate-600"}`}>
+    <nav aria-label="Alternar modalidade" className="flex gap-1 rounded-lg bg-brand-surfaceElevated p-1">
+      <Link
+        to="/lotofacil/gerar"
+        aria-current={isLotofacil ? "page" : undefined}
+        className={`${base} ${isLotofacil ? "bg-lotofacil-500 text-white shadow-sm" : "text-brand-textMuted hover:text-brand-text"}`}
+      >
         Lotofácil
       </Link>
-      <Link to="/megasena/gerar" aria-current={isMegasena ? "page" : undefined} className={`${base} ${isMegasena ? "bg-white text-megasena-600 shadow-sm" : "text-slate-600"}`}>
+      <Link
+        to="/megasena/gerar"
+        aria-current={isMegasena ? "page" : undefined}
+        className={`${base} ${isMegasena ? "bg-megasena-600 text-white shadow-sm" : "text-brand-textMuted hover:text-brand-text"}`}
+      >
         Mega-Sena
       </Link>
     </nav>

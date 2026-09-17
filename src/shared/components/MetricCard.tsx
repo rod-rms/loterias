@@ -15,17 +15,17 @@ interface MetricCardProps {
 export function MetricCard({ label, probability, status, helpTitle, helpBody, testId }: MetricCardProps) {
   const oneIn = formatOneIn(probability);
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3" data-testid={testId}>
+    <div className="rounded-lg border border-brand-border bg-brand-surface p-3" data-testid={testId}>
       <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-brand-textMuted">
           {label}
           {helpTitle && helpBody && <InfoHelp title={helpTitle} body={helpBody} />}
         </span>
       </div>
-      <p className="mt-1 text-lg font-semibold text-slate-900" data-testid={testId ? `${testId}-value` : undefined}>
+      <p className="mt-1 font-mono text-lg font-semibold tabular-nums text-brand-text" data-testid={testId ? `${testId}-value` : undefined}>
         {formatProbabilityPercent(probability)}
       </p>
-      {oneIn && <p className="text-xs text-slate-500">{oneIn}</p>}
+      {oneIn && <p className="font-mono text-xs tabular-nums text-brand-textMuted">{oneIn}</p>}
       <div className="mt-1">
         <MetricStatusBadge status={status} />
       </div>

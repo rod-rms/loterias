@@ -38,16 +38,16 @@ export function NumberCustomizer({
 
   return (
     <div className="space-y-3">
-      <label className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+      <label className="flex items-center gap-2 text-sm font-semibold text-brand-text">
         <input
           type="checkbox"
           checked={enabled}
           disabled={disabled}
           onChange={(e) => setEnabled(e.target.checked)}
-          className="h-4 w-4 rounded border-slate-300"
+          className="h-4 w-4 rounded border-brand-border"
         />
         Quer personalizar suas dezenas?
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-normal text-slate-500">Opcional</span>
+        <span className="rounded-full bg-brand-surfaceElevated px-2 py-0.5 text-[11px] font-normal text-brand-textMuted">Opcional</span>
       </label>
 
       {enabled && (
@@ -110,14 +110,14 @@ function NumberSection({
   help: { title: string; body: string };
 }) {
   const activeStyle =
-    variant === "fixed" ? "border-amber-500 bg-amber-100 text-amber-900" : "border-rose-300 bg-rose-50 text-rose-600 line-through";
+    variant === "fixed" ? "border-amber-500 bg-amber-900/50 text-amber-200" : "border-rose-700 bg-rose-950/40 text-rose-300 line-through";
   const chipVariant = variant;
   const statusWord = variant === "fixed" ? "obrigatória" : "não usar";
 
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-1.5">
-        <h4 className="text-sm font-medium text-slate-800">{title}</h4>
+        <h4 className="text-sm font-medium text-brand-text">{title}</h4>
         <InfoHelp title={help.title} body={help.body} />
       </div>
       <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-10" role="group" aria-label={title}>
@@ -132,8 +132,8 @@ function NumberSection({
               aria-pressed={isSelected}
               aria-label={`Dezena ${pad(n)}${isSelected ? `, ${statusWord}` : ""}`}
               onClick={() => onToggle(n)}
-              className={`h-9 rounded-md border font-mono text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:opacity-30 ${
-                isSelected ? activeStyle : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
+              className={`h-9 rounded-md border font-mono text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus disabled:opacity-30 ${
+                isSelected ? activeStyle : "border-brand-border bg-brand-surface text-brand-text hover:border-brand-borderStrong"
               }`}
             >
               {pad(n)}
@@ -143,7 +143,7 @@ function NumberSection({
       </div>
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {selected.length === 0 ? (
-          <span className="text-slate-400">{emptyLabel}</span>
+          <span className="text-brand-textMuted">{emptyLabel}</span>
         ) : (
           <div className="flex flex-wrap gap-1">
             {[...selected].sort((a, b) => a - b).map((n) => (
@@ -152,7 +152,7 @@ function NumberSection({
           </div>
         )}
         {selected.length > 0 && (
-          <button type="button" onClick={onClear} className="text-xs font-medium text-slate-500 underline-offset-2 hover:underline">
+          <button type="button" onClick={onClear} className="text-xs font-medium text-brand-textMuted underline-offset-2 hover:underline">
             Limpar
           </button>
         )}

@@ -3,7 +3,7 @@ import { InfoHelp } from "./InfoHelp";
 export function SeedInput({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1 flex items-center gap-1.5 font-medium text-slate-700">
+      <span className="mb-1 flex items-center gap-1.5 font-medium text-brand-text">
         Código de reprodução
         <InfoHelp
           title="Código de reprodução"
@@ -17,7 +17,7 @@ export function SeedInput({ value, onChange, disabled }: { value: string; onChan
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Deixe em branco para gerar automaticamente"
-        className="w-64 rounded-md border border-slate-300 px-2 py-1.5 disabled:bg-slate-100"
+        className="w-64 rounded-md border border-brand-border px-2 py-1.5 disabled:bg-brand-surfaceElevated"
       />
     </label>
   );

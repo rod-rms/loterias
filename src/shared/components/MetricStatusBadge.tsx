@@ -3,11 +3,11 @@ import { getStatusPresentation } from "../lib/statusPresentation";
 import { InfoHelp } from "./InfoHelp";
 
 const CLASS: Record<ProbabilityStatus, string> = {
-  exact: "bg-emerald-50 text-emerald-700 border-emerald-300",
-  estimated: "bg-amber-50 text-amber-700 border-amber-300",
-  upper_bound: "bg-slate-50 text-slate-600 border-slate-300",
-  lower_bound: "bg-slate-50 text-slate-600 border-slate-300",
-  not_computed: "bg-slate-50 text-slate-400 border-slate-200",
+  exact: "bg-emerald-950/40 text-emerald-300 border-emerald-700",
+  estimated: "bg-amber-950/40 text-amber-300 border-amber-700",
+  upper_bound: "bg-brand-surfaceElevated text-brand-textMuted border-brand-border",
+  lower_bound: "bg-brand-surfaceElevated text-brand-textMuted border-brand-border",
+  not_computed: "bg-brand-surfaceElevated text-brand-textMuted border-brand-border",
 };
 
 export function MetricStatusBadge({ status }: { status: ProbabilityStatus }) {

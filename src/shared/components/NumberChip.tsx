@@ -5,11 +5,11 @@ interface NumberChipProps {
 }
 
 const VARIANT_CLASSES: Record<NonNullable<NumberChipProps["variant"]>, string> = {
-  default: "bg-slate-100 text-slate-800 border-slate-300",
-  hit: "bg-emerald-100 text-emerald-900 border-emerald-500 font-semibold",
-  miss: "bg-slate-50 text-slate-400 border-slate-200",
-  fixed: "bg-amber-100 text-amber-900 border-amber-500",
-  excluded: "bg-rose-50 text-rose-700 border-rose-300 line-through",
+  default: "bg-brand-surfaceElevated text-brand-text border-brand-border",
+  hit: "bg-emerald-900/50 text-emerald-200 border-emerald-500 font-semibold",
+  miss: "bg-brand-surfaceElevated text-brand-textMuted border-brand-border",
+  fixed: "bg-amber-900/50 text-amber-200 border-amber-500",
+  excluded: "bg-rose-950/40 text-rose-300 border-rose-700 line-through",
 };
 
 export function NumberChip({ value, variant = "default", size = "md" }: NumberChipProps) {

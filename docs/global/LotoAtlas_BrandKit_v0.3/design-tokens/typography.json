@@ -1,0 +1,45 @@
+{
+  "primary_family": "Inter",
+  "fallback": "system-ui, -apple-system, \"Segoe UI\", Arial, sans-serif",
+  "weights": {
+    "regular": 400,
+    "medium": 500,
+    "semibold": 600,
+    "bold": 700,
+    "extra_bold": 800
+  },
+  "usage": {
+    "display": "700-800",
+    "headings": "600-700",
+    "body": "400",
+    "labels": "500-600"
+  },
+  "data_family": {
+    "_comment": "Added in v0.3. JetBrains Mono is the preferred data/numeric family, used ONLY for data-centric values — never for headings, paragraphs, navigation, or button labels.",
+    "name": "JetBrains Mono",
+    "fallback": "\"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace",
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "applies_to": [
+      "lottery numbers",
+      "selected numbers",
+      "contest IDs",
+      "timestamps",
+      "counters",
+      "monetary values",
+      "key metric values where tabular alignment improves scanning"
+    ],
+    "does_not_apply_to": [
+      "headings",
+      "paragraphs",
+      "navigation labels",
+      "button labels",
+      "explanatory content"
+    ],
+    "css_variable": "--la-font-mono"
+  }
+}

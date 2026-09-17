@@ -244,3 +244,64 @@ npm run data:validate     → PASS
 ```
 
 Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Nenhuma mudança de comportamento de geração, probabilidade, RMS, rótulos de resultado, validação de concurso ou schema de carteira salva.
+
+## 17. Integração visual da marca LotoAtlas (branch `feat/lotoatlas-brand-integration`, draft PR)
+
+Tarefa de **integração visual de marca e UX responsiva**, não de funcionalidade de produto. Ver `ARCHITECTURE_V1.md` §19 para os detalhes técnicos completos (tokens semânticos, política de uma cor de ação, tipografia, renomeação pública, responsividade).
+
+Escopo:
+
+- LotoAtlas Brand Kit v0.3 (`docs/global/LotoAtlas_BrandKit_v0.3/`) versionado no repositório pela primeira vez — antes existia apenas localmente.
+- Aplicativo abre em tema escuro por padrão (`data-theme="dark"`), sem alternância clara/escuro nesta entrega.
+- Tokens de marca semânticos (`brand.*`) adicionados ao Tailwind, mantendo as paletas locais `lotofacil.*`/`megasena.*` como identificadores de modalidade (com tons adicionais `300`/`800`/`900` para contraste em tema escuro).
+- Atlas Violet como única cor de ação funcional; texto de ação/link usa a cor acessível `#A07AFF` (nunca o Violeta bruto) sobre fundo escuro.
+- Inter (UI/marca) + JetBrains Mono (dados: dezenas, concursos, timestamps, valores monetários, métricas) via `@fontsource`.
+- Logo/favicon/app icon copiados byte-a-byte da v0.3 aprovada (verificado por teste automatizado); geometria do trevo corrigida preservada sem redesenho.
+- Renomeação pública de "Loterias" para "LotoAtlas" (cabeçalho, rodapé, título, meta description, Sobre); termos genéricos como "Loterias CAIXA" preservados.
+- Passe de responsividade mobile-first: sem overflow horizontal em 375px em nenhuma página auditada; nova suíte `tests/e2e/mobile-critical-flows.spec.ts`.
+- Error Boundary (v1.1.2) restilizado com os tokens de marca — comportamento e textos preservados exatamente.
+
+Explicitamente fora de escopo desta branch: v1.2, qualquer mudança em matemática/estratégia/RMS/oráculo/geração/validação de concurso/no-look-ahead/atualizador/persistência, bump de versão do aplicativo, rewrite de arquitetura de componentes (nenhum design system amplo foi introduzido).
+
+### Totais de validação (primeira rodada, antes da revisão visual)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (193/193 — 180 herdados da v1.1.2 + 13 novos: marca no AppShell, metadados de index.html, integridade dos ativos de logo)
+npm run test:mega:oracle  → PASS (24/24, inalterado)
+npm run test:lotofacil:oracle → PASS (45/45, inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (51/51 — 47 herdados + 4 novos testes móveis)
+npm run data:validate     → PASS
+```
+
+## 18. Correções de qualidade visual e responsividade (mesma branch, após rejeição da primeira revisão)
+
+A primeira revisão manual encontrou defeitos concretos e aprovou a direção geral de tema escuro. Ver `ARCHITECTURE_V1.md` §20 para os detalhes técnicos completos (centralização óptica do símbolo, ativos de UI transparentes, arquitetura de cabeçalho responsivo, correção de overflow em detalhes técnicos, contenção de viewport do InfoHelp, imagem Open Graph).
+
+Escopo desta segunda rodada:
+
+- Correção de centralização óptica do símbolo/ícone do app (ajuste de enquadramento apenas — viewBox/translateY —, nenhuma coordenada de nó ou trevo redesenhada).
+- Novos ativos de UI transparentes e sem tagline (`lotoatlas-logo-ui-reversed.svg`, `lotoatlas-symbol-ui-on-dark.svg`), substituindo os ativos institucionais (com fundo/tagline embutidos) no cabeçalho da aplicação.
+- Reconstrução do `AppShell` com hierarquia de cabeçalho deliberada por breakpoint (mobile: 3 linhas; desktop/tablet: 1 linha primária + indicadores secundários), removendo a tagline do cabeçalho de navegação.
+- Correção do overflow em "Detalhes técnicos" do `StrategyCard`: causa raiz era um `col-span-2` incondicional que forçava uma coluna implícita mesmo com `grid-cols-1`; corrigido para `sm:col-span-2` + `overflow-wrap:anywhere`.
+- Correção de contenção de viewport do popover `InfoHelp` ("Como funciona?"): alinhamento colision-safe medido em tempo de abertura (`getBoundingClientRect`), sem biblioteca de popover nova.
+- Imagem de Open Graph dedicada (1200×630) para preview social/WhatsApp, com o símbolo corrigido — o ícone quadrado do app deixa de ser o único candidato a imagem de preview.
+
+Explicitamente fora de escopo (mantido da primeira rodada): v1.2, qualquer mudança em matemática/estratégia/RMS/oráculo/geração/validação de concurso/no-look-ahead/atualizador/persistência, bump de versão do aplicativo, rewrite de arquitetura de componentes, alternância clara/escuro, mudança do papel da CTA âmbar de resultado desatualizado.
+
+### Totais de validação (após as correções de qualidade visual, antes do merge)
+
+```text
+npm run lint              → PASS
+npm run typecheck         → PASS
+npm run test:unit         → PASS (201/201 — 193 anteriores + 1 novo teste de asset (integridade expandida) + 1 StrategyCard responsivo + 4 InfoHelp + ajuste de 1 teste de marca existente, sem perda de cobertura)
+npm run test:mega:oracle  → PASS (24/24, inalterado)
+npm run test:lotofacil:oracle → PASS (45/45, inalterado)
+npm run build             → PASS
+npm run test:e2e          → PASS (54/54 — 51 anteriores + 3 novos testes móveis: cabeçalho, detalhes técnicos longos, popover na borda)
+npm run data:validate     → PASS
+```
+
+Nenhum teste matemático/oráculo pré-existente foi alterado, enfraquecido ou removido. Nenhuma mudança de comportamento de geração, probabilidade, RMS, rótulos de resultado, validação de concurso, schema de carteira salva ou semântica do atualizador de dados.

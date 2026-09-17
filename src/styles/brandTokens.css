@@ -1,0 +1,72 @@
+/* LotoAtlas brand tokens v0.3 */
+
+/* Raw brand tokens — unchanged from v0.2. Application code should prefer the
+   semantic tokens below; these raw values remain for brand/marketing use
+   (logo, gradients, marketing collateral) and as the source values the
+   semantic tokens are derived from. */
+:root {
+  --la-ink:#101729; --la-ink-2:#1D2740; --la-violet:#6D3CFF; --la-violet-light:#8B5CFF;
+  --la-blue:#1677FF; --la-teal:#12C7B0; --la-luck:#22B96B; --la-luck-light:#66D889;
+  --la-offwhite:#F7F9FC; --la-white:#FFFFFF; --la-muted:#6B7280; --la-line:#DDE3EC;
+  --la-gradient:linear-gradient(135deg,#6D3CFF 0%,#1677FF 52%,#12C7B0 100%);
+  --la-gradient-luck:linear-gradient(135deg,#66D889 0%,#22B96B 100%);
+  --la-font-display:"Inter",system-ui,sans-serif; --la-font-body:"Inter",system-ui,sans-serif;
+
+  /* v0.3: semantic font roles. Inter remains the only brand/UI family;
+     JetBrains Mono is added exclusively for data-centric values (numbers,
+     contest IDs, timestamps, monetary values) — never for headings, body
+     copy, navigation, or button labels. */
+  --la-font-sans:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --la-font-mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+}
+
+/* v0.3: semantic design tokens — dark theme (PRIMARY / default application surface).
+   All raw tokens above are preserved unchanged; these are the tokens
+   application UI code should actually reference. Contrast ratios below are
+   computed against the WCAG 2.x relative-luminance formula; see
+   guidelines/03_COLOR_SYSTEM.md for the full table and derivation notes. */
+:root,
+[data-theme="dark"] {
+  --la-bg-primary: var(--la-ink);              /* Atlas Ink — primary application background */
+  --la-bg-surface: var(--la-ink-2);            /* Atlas Ink 2 — primary card/panel surface */
+  --la-bg-surface-elevated: #232F4D;           /* new: modal/popover/elevated surface, subtly lighter than bg-surface */
+
+  --la-text-primary: var(--la-white);          /* White on Atlas Ink: 17.85:1 */
+  --la-text-secondary: #B7C0D6;                /* new "Atlas Mist": 9.79:1 on Ink, 8.14:1 on Ink 2 */
+
+  --la-border: #2C3856;                        /* new: decorative/divider only — ~1.5:1, never used alone to convey state */
+  --la-border-strong: var(--la-violet);        /* Atlas Violet: 3.18:1 — meets WCAG non-text 3:1 for interactive/selected boundaries */
+
+  --la-action: var(--la-violet);               /* Atlas Violet — the ONE functional action color: primary buttons, selected/active states */
+  --la-action-foreground: var(--la-white);     /* White text on an Atlas Violet button: 5.61:1 */
+  --la-action-text: #A07AFF;                   /* new "Atlas Violet Accessible": 5.71:1 on Ink, 4.75:1 on Ink 2 — for action/link TEXT, not button surfaces */
+  --la-link: var(--la-action-text);
+
+  --la-focus: var(--la-violet);                /* Atlas Violet focus ring: 3.18:1, meets non-text UI boundary threshold */
+  --la-success: var(--la-luck);                /* Luck Green — factual success/confirmation only, never implies winnings */
+  --la-success-text: var(--la-luck);           /* 6.99:1 on Ink, 5.80:1 on Ink 2 */
+}
+
+/* v0.3: semantic design tokens — light theme (secondary/institutional
+   alternative; documented for completeness and a future theme toggle, not
+   the default application surface). */
+[data-theme="light"] {
+  --la-bg-primary: var(--la-offwhite);
+  --la-bg-surface: var(--la-white);
+  --la-bg-surface-elevated: var(--la-white);
+
+  --la-text-primary: var(--la-ink);
+  --la-text-secondary: var(--la-muted);
+
+  --la-border: var(--la-line);
+  --la-border-strong: var(--la-violet);
+
+  --la-action: var(--la-violet);
+  --la-action-foreground: var(--la-white);
+  --la-action-text: var(--la-violet);
+  --la-link: var(--la-action-text);
+
+  --la-focus: var(--la-violet);
+  --la-success: var(--la-luck);
+  --la-success-text: #178350; /* darker green for AA text contrast on a white/off-white surface: 4.77:1 */
+}

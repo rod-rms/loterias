@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920"><defs>
+      <linearGradient id="atlasGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6D3CFF"/>
+        <stop offset="52%" stop-color="#1677FF"/>
+        <stop offset="100%" stop-color="#12C7B0"/>
+      </linearGradient>
+      <linearGradient id="atlasGrad2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#8B5CFF"/>
+        <stop offset="100%" stop-color="#6D3CFF"/>
+      </linearGradient>
+      <linearGradient id="cloverGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#66D889"/>
+        <stop offset="100%" stop-color="#22B96B"/>
+      </linearGradient>
+      <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#101729" flood-opacity="0.14"/>
+      </filter>
+    </defs><rect width="1080" height="1920" fill="#101729"/><circle cx="860" cy="280" r="360" fill="#6D3CFF" opacity="0.20"/><circle cx="220" cy="1570" r="420" fill="#12C7B0" opacity="0.16"/><text x="90" y="220" font-family="Inter" font-size="30" font-weight="600" fill="#CBD5E1">LOTOATLAS / STORY 9:16</text><text x="90" y="760" font-family="Inter" font-size="100" font-weight="800" fill="white">Título
+principal</text><text x="90" y="1040" font-family="Inter" font-size="42" fill="#CBD5E1">Mensagem de apoio.</text><rect x="90" y="1520" width="900" height="160" rx="40" fill="white"/><text x="145" y="1618" font-family="Inter" font-size="40" font-weight="700" fill="#101729">Organize. Analise. Confira.</text></svg>

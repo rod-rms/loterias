@@ -41,16 +41,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return this.props.children;
     }
     return (
-      <div role="alert" className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
-        <h1 className="text-xl font-bold text-slate-900">Algo deu errado</h1>
-        <p className="text-sm text-slate-600">Não foi possível carregar esta tela. Seus jogos salvos continuam armazenados neste navegador.</p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <button type="button" onClick={this.handleRetry} className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
-            Tentar novamente
-          </button>
-          <a href="/" className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800">
-            Voltar ao início
-          </a>
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg text-brand-text">
+        <div role="alert" className="mx-auto flex max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
+          <h1 className="text-xl font-bold text-brand-text">Algo deu errado</h1>
+          <p className="text-sm text-brand-textMuted">Não foi possível carregar esta tela. Seus jogos salvos continuam armazenados neste navegador.</p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button type="button" onClick={this.handleRetry} className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground">
+              Tentar novamente
+            </button>
+            <a href="/" className="rounded-md border border-brand-border px-4 py-2 text-sm font-semibold text-brand-text">
+              Voltar ao início
+            </a>
+          </div>
         </div>
       </div>
     );

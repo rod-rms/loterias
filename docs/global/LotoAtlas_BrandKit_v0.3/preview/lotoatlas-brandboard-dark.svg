@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs>
+    <linearGradient id="atlasGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6D3CFF"/>
+      <stop offset="52%" stop-color="#1677FF"/>
+      <stop offset="100%" stop-color="#12C7B0"/>
+    </linearGradient>
+    <linearGradient id="atlasGrad2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8B5CFF"/>
+      <stop offset="100%" stop-color="#6D3CFF"/>
+    </linearGradient>
+    <linearGradient id="cloverGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66D889"/>
+      <stop offset="100%" stop-color="#22B96B"/>
+    </linearGradient>
+  </defs>
+<rect width="1920" height="1080" fill="#101729"/>
+<text x="100" y="90" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" letter-spacing="4" fill="#B7C0D6">LOTOATLAS / BRAND BOARD v0.3 — DARK FIRST</text>
+
+<!-- Stacked logo, unchanged geometry, reversed (white wordmark) for dark bg.
+     Bounding box before transform: symbol ~(160,28)-(560,358); wordmark text
+     baseline at y=545/610. Scaled 0.42 and translated so the whole block
+     stays within y:150-420, clear of the palette/typography sections below. -->
+<g transform="translate(120,150) scale(0.42)">
+  <g transform="translate(160,28)"><line x1="200" y1="46" x2="114" y2="132" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="200" y1="46" x2="286" y2="132" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="114" y1="132" x2="286" y2="132" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="114" y1="132" x2="63" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="114" y1="132" x2="200" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="286" y1="132" x2="200" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><line x1="286" y1="132" x2="337" y2="265" stroke="url(#atlasGrad)" stroke-width="15" stroke-linecap="round"/><circle cx="200" cy="46" r="27" fill="#8B5CFF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="114" cy="132" r="27" fill="#1677FF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="286" cy="132" r="27" fill="#12C7B0" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="63" cy="265" r="27" fill="#6D3CFF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="200" cy="265" r="27" fill="#12C7B0" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><circle cx="337" cy="265" r="27" fill="#1677FF" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(0) scale(0.58)" fill="url(#cloverGrad)"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(90) scale(0.58)" fill="url(#cloverGrad)"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(180) scale(0.58)" fill="url(#cloverGrad)"/><path d="M 0 0 C -10 -12 -38 -32 -38 -56 C -38 -82 -8 -92 0 -68 C 8 -92 38 -82 38 -56 C 38 -32 10 -12 0 0 Z" transform="translate(200,165) rotate(270) scale(0.58)" fill="url(#cloverGrad)"/><circle cx="200" cy="165" r="4.06" fill="url(#cloverGrad)"/></g>
+  <text x="360" y="545" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="95" font-weight="800" letter-spacing="-4" fill="#FFFFFF">Loto<tspan fill="url(#atlasGrad2)">Atlas</tspan></text>
+  <text x="360" y="610" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="600" letter-spacing="7" fill="#B7C0D6">ORGANIZE. ANALISE. CONFIRA.</text>
+</g>
+<text x="80" y="450" font-family="Inter, Arial, sans-serif" font-size="18" fill="#B7C0D6">Estratégia + sorte, com clareza e controle.</text>
+
+<!-- Surface hierarchy demo: bg-primary (this whole board) -> bg-surface -> bg-surface-elevated -->
+<rect x="560" y="120" width="620" height="230" rx="24" fill="#1D2740" stroke="#2C3856"/>
+<text x="590" y="165" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#B7C0D6">--la-bg-surface (Atlas Ink 2)</text>
+<rect x="590" y="185" width="560" height="130" rx="16" fill="#232F4D"/>
+<text x="615" y="220" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#B7C0D6">--la-bg-surface-elevated</text>
+<text x="615" y="255" font-family="Inter, Arial, sans-serif" font-size="18" fill="#FFFFFF">Modal / pop-over / menu</text>
+
+<!-- One functional action color -->
+<rect x="1220" y="120" width="620" height="230" rx="24" fill="#1D2740" stroke="#2C3856"/>
+<text x="1250" y="165" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#B7C0D6">Uma cor de ação: Atlas Violet</text>
+<rect x="1250" y="190" width="230" height="60" rx="12" fill="#6D3CFF"/>
+<text x="1365" y="228" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#FFFFFF">Gerar jogos</text>
+<text x="1250" y="300" font-family="Inter, Arial, sans-serif" font-size="20" fill="#A07AFF" text-decoration="underline">Ver detalhes (--la-action-text · 5.71:1)</text>
+
+<!-- Palette strip -->
+<text x="80" y="530" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">PALETA</text>
+<g transform="translate(80,560)">
+  <circle cx="35" cy="35" r="35" fill="#101729" stroke="#2C3856"/>
+  <circle cx="135" cy="35" r="35" fill="#6D3CFF"/>
+  <circle cx="235" cy="35" r="35" fill="#1677FF"/>
+  <circle cx="335" cy="35" r="35" fill="#12C7B0"/>
+  <circle cx="435" cy="35" r="35" fill="#22B96B"/>
+</g>
+<text x="80" y="680" font-family="Inter, Arial, sans-serif" font-size="16" fill="#B7C0D6">Ink · Violet (ação) · Blue (dado) · Teal (dado) · Luck Green (sucesso factual)</text>
+
+<!-- Typography sample -->
+<text x="80" y="730" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">TIPOGRAFIA</text>
+<text x="80" y="780" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#FFFFFF">Inter — títulos, botões, navegação</text>
+<text x="80" y="818" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="#B7C0D6">Texto de corpo em Inter Regular, com texto secundário em Atlas Mist.</text>
+<text x="80" y="878" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="30" font-weight="600" fill="#FFFFFF">01 · 11 · 36 · 43 · 48 · 49</text>
+<text x="80" y="912" font-family="Inter, Arial, sans-serif" font-size="16" fill="#B7C0D6">JetBrains Mono — dezenas, concursos, timestamps, valores (nunca títulos/botões)</text>
+
+<!-- Success state -->
+<rect x="80" y="950" width="480" height="90" rx="16" fill="#1D2740" stroke="#2C3856"/>
+<circle cx="125" cy="995" r="12" fill="#22B96B"/>
+<text x="155" y="1002" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF">Jogos salvos com sucesso</text>
+<text x="620" y="990" font-family="Inter, Arial, sans-serif" font-size="15" fill="#B7C0D6">Luck Green = confirmação factual — nunca sugere prêmio ou vitória.</text>
+</svg>

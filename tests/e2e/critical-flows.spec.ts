@@ -36,7 +36,7 @@ function formatDateBR(isoDate: string): string {
   return `${d}/${m}/${y}`;
 }
 
-test.describe("Loterias — critical flows", () => {
+test.describe("LotoAtlas — critical flows", () => {
   test("1. abrir home", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /Monte seus jogos com estratégia e transparência/ })).toBeVisible();
@@ -600,7 +600,7 @@ test.describe("Loterias — critical flows", () => {
   test("42. rodapé mostra a versão do aplicativo a partir do build (não um literal fixo no componente)", async ({ page }) => {
     await page.goto("/");
     const pkg = JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
-    await expect(page.getByText(new RegExp(`Loterias v${pkg.version.replace(/\./g, "\\.")}`))).toBeVisible();
+    await expect(page.getByText(new RegExp(`LotoAtlas v${pkg.version.replace(/\./g, "\\.")}`))).toBeVisible();
   });
 
   test("43. transparência de armazenamento local aparece em Sobre e em Meus jogos salvos", async ({ page }) => {

@@ -30,14 +30,14 @@ export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, 
           const hits = hitsPerTicket?.[start + idx];
           const isBest = bestSet.has(ticketNumber);
           return (
-            <li key={start + idx} className={`flex flex-wrap items-center gap-2 rounded-lg border p-2.5 ${isBest ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white"}`}>
-              <span className="w-12 shrink-0 text-xs font-medium text-slate-500">J{ticketNumber}</span>
+            <li key={start + idx} className={`flex flex-wrap items-center gap-2 rounded-lg border p-2.5 ${isBest ? "border-emerald-700 bg-emerald-950/40" : "border-brand-border bg-brand-surface"}`}>
+              <span className="w-12 shrink-0 text-xs font-medium text-brand-textMuted">J{ticketNumber}</span>
               <div className="flex flex-wrap gap-1">
                 {ticket.map((n) => (
                   <NumberChip key={n} value={n} variant={highlightSet.has(n) ? "hit" : "default"} size="sm" />
                 ))}
               </div>
-              {hits !== undefined && <span className="text-xs font-medium text-slate-600">{formatHits ? formatHits(hits) : `${hits} ${hits === 1 ? "acerto" : "acertos"}`}</span>}
+              {hits !== undefined && <span className="text-xs font-medium text-brand-textMuted">{formatHits ? formatHits(hits) : `${hits} ${hits === 1 ? "acerto" : "acertos"}`}</span>}
               {isBest && (
                 <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white" data-testid={`best-ticket-badge-J${ticketNumber}`}>
                   Melhor
@@ -47,7 +47,7 @@ export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, 
                 <button
                   type="button"
                   onClick={() => onCopyTicket(ticket)}
-                  className="ml-auto rounded border border-slate-300 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
+                  className="ml-auto rounded border border-brand-border px-2 py-1 text-xs text-brand-textMuted hover:bg-white/5"
                 >
                   Copiar
                 </button>
@@ -62,7 +62,7 @@ export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, 
             type="button"
             disabled={page === 0}
             onClick={() => setPage((p) => Math.max(0, p - 1))}
-            className="rounded border border-slate-300 px-2 py-1 disabled:opacity-40"
+            className="rounded border border-brand-border px-2 py-1 disabled:opacity-40"
           >
             Anterior
           </button>
@@ -73,7 +73,7 @@ export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, 
             type="button"
             disabled={page >= totalPages - 1}
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-            className="rounded border border-slate-300 px-2 py-1 disabled:opacity-40"
+            className="rounded border border-brand-border px-2 py-1 disabled:opacity-40"
           >
             Próxima
           </button>
