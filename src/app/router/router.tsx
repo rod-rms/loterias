@@ -20,10 +20,17 @@ export const router = createBrowserRouter([
   // through the old URL.
   { path: "/lotofacil", element: <Navigate to="/lotofacil/gerar" replace /> },
   { path: "/megasena", element: <Navigate to="/megasena/gerar" replace /> },
-  { path: "/lotofacil/gerar", element: withShell(<GerarPage modality="lotofacil" />) },
+  // `key` forces React to fully unmount/remount GerarPage on a modality
+  // route change instead of reconciling it as the same component instance
+  // (it otherwise would be, since both routes render the same component
+  // type at the same position in the tree — not nested via a shared
+  // <Outlet>). This is defense-in-depth only: GerarPage and
+  // useGenerationWorker are independently safe if ever reused across a
+  // modality prop change (see their own modality-transition resets).
+  { path: "/lotofacil/gerar", element: withShell(<GerarPage key="lotofacil" modality="lotofacil" />) },
   { path: "/lotofacil/carteiras", element: withShell(<CarteirasPage modality="lotofacil" />) },
   { path: "/lotofacil/metodologia", element: withShell(<MetodologiaPage modality="lotofacil" />) },
-  { path: "/megasena/gerar", element: withShell(<GerarPage modality="megasena" />) },
+  { path: "/megasena/gerar", element: withShell(<GerarPage key="megasena" modality="megasena" />) },
   { path: "/megasena/carteiras", element: withShell(<CarteirasPage modality="megasena" />) },
   { path: "/megasena/metodologia", element: withShell(<MetodologiaPage modality="megasena" />) },
   { path: "/carteiras", element: withShell(<CarteirasPage />) },

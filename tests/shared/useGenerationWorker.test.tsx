@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useGenerationWorker } from "../../src/shared/lib/useGenerationWorker";
+import type { Modality } from "../../src/shared/types";
 
 /**
  * Deterministic fake Worker: lets tests trigger onmessage/onerror/
@@ -125,5 +126,72 @@ describe("useGenerationWorker — fatal failure handling", () => {
     expect(result.current.result).toEqual({ ok: true });
     expect(result.current.error).toBeNull();
     expect(result.current.stage).not.toBe("idle");
+  });
+});
+
+describe("useGenerationWorker — modality change clears prior modality's state", () => {
+  /**
+   * Regression coverage for a production cross-modality bug: a GerarPage
+   * instance is reused (not remounted) across a Lotofácil <-> Mega-Sena
+   * route transition, because both routes render the same component type
+   * at the same position in the tree. Terminating the worker on a modality
+   * change was not enough — the completed result/stage/error from the
+   * PREVIOUS modality survived in React state and could be displayed,
+   * saved, or acted upon under the NEW modality.
+   */
+  it("F) a completed result from the previous modality is cleared when modality changes", () => {
+    const { result, rerender } = renderHook(({ modality }) => useGenerationWorker<{ ok: boolean }>(modality), {
+      initialProps: { modality: "megasena" as Modality },
+    });
+
+    act(() => result.current.generate({ modality: "megasena", strategyId: "x", inputMode: "quantity", numberOfTickets: 1 }));
+    const worker = FakeWorker.instances[0]!;
+    act(() => worker.onmessage?.({ data: { type: "success", result: { ok: true } } } as MessageEvent));
+    expect(result.current.result).toEqual({ ok: true });
+
+    rerender({ modality: "lotofacil" as const });
+
+    expect(result.current.result).toBeNull();
+    expect(result.current.error).toBeNull();
+    expect(result.current.stage).toBe("idle");
+  });
+
+  it("G) an in-progress generation is terminated on modality change, and its late result/error is ignored", () => {
+    const { result, rerender } = renderHook(({ modality }) => useGenerationWorker<{ ok: boolean }>(modality), {
+      initialProps: { modality: "megasena" as Modality },
+    });
+
+    act(() => result.current.generate({ modality: "megasena", strategyId: "x", inputMode: "quantity", numberOfTickets: 1 }));
+    const worker = FakeWorker.instances[0]!;
+    expect(result.current.isRunning).toBe(true);
+
+    rerender({ modality: "lotofacil" as const });
+
+    expect(worker.terminate).toHaveBeenCalledTimes(1);
+    expect(result.current.stage).toBe("idle");
+    expect(result.current.result).toBeNull();
+    expect(result.current.isRunning).toBe(false);
+
+    // A late success/error from the abandoned worker must never resurrect state.
+    act(() => worker.onmessage?.({ data: { type: "success", result: { ok: true } } } as MessageEvent));
+    expect(result.current.result).toBeNull();
+    act(() => worker.onerror?.(new Event("error")));
+    expect(result.current.error).toBeNull();
+  });
+
+  it("H) a fatal error from the previous modality does not leak into the new modality", () => {
+    const { result, rerender } = renderHook(({ modality }) => useGenerationWorker<{ ok: boolean }>(modality), {
+      initialProps: { modality: "megasena" as Modality },
+    });
+
+    act(() => result.current.generate({ modality: "megasena", strategyId: "x", inputMode: "quantity", numberOfTickets: 1 }));
+    const worker = FakeWorker.instances[0]!;
+    act(() => worker.onerror?.(new Event("error")));
+    expect(result.current.error).not.toBeNull();
+
+    rerender({ modality: "lotofacil" as const });
+
+    expect(result.current.error).toBeNull();
+    expect(result.current.stage).toBe("idle");
   });
 });
