@@ -137,23 +137,75 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const strategy: StrategyDefinition | undefined = strategyRegistry.get(selectedStrategyId);
   const { stage, result, error, isRunning, generate, reset } = useGenerationWorker<PortfolioEnvelope>(modality);
 
+  // Defense-in-depth data-integrity invariant: a result may only ever be
+  // displayed, saved, copied, exported, or compared when it actually
+  // belongs to the CURRENT modality. `useGenerationWorker` already clears
+  // `result` on a modality change, but this guard fails closed even if that
+  // ever regresses or a stale value slips through a render in between —
+  // every downstream usage goes through this single normalized value
+  // instead of duplicating the check everywhere.
+  const activeResult = result && result.modality === modality ? result : null;
+
   useEffect(() => {
+    // Guards against a race where a slow-resolving fetch for the PREVIOUS
+    // modality lands after `modality` has already changed again — without
+    // this, its `.then()` could overwrite the new modality's dataset with
+    // stale data. `cancelled` is captured per-effect-run, so only the most
+    // recent run's callbacks are allowed to commit state.
+    let cancelled = false;
     setDatasetLoading(true);
-    loadGameConfig().then(setConfig).catch(() => undefined);
+    // Clear the previous modality's dataset/suggested-contest immediately —
+    // never let stale-modality dataset info remain "authoritative" while
+    // the new modality's fetch is still in flight.
+    setDataset(null);
+    setSuggestedContest(null);
+    loadGameConfig()
+      .then((c) => {
+        if (!cancelled) setConfig(c);
+      })
+      .catch(() => undefined);
     loadDataset(modality)
       .then((d) => {
+        if (cancelled) return;
         setDataset(d);
         setSuggestedContest(suggestNextContest(d));
       })
       .catch(() => undefined)
-      .finally(() => setDatasetLoading(false));
+      .finally(() => {
+        if (!cancelled) setDatasetLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [modality]);
 
-  // Defensive reset: if this component instance is ever reused across a
-  // modality change (rather than remounted by the router), never carry a
-  // strategy selection from one modality over to the other.
+  // A GerarPage instance can be reused (not remounted) across a modality
+  // route change — e.g. navigating Lotofácil -> Mega-Sena via <Link> or
+  // browser Back/Forward — because both routes render the same component
+  // type at the same position in the tree. Every modality-scoped editable
+  // and generated field must be reset here: otherwise a stale result,
+  // snapshot, or configuration from the PREVIOUS modality could remain
+  // visible, actionable (save/export/compare), or even get persisted mixed
+  // with the NEW modality's price/config. This must fire only on an actual
+  // modality transition, never merely because a field inside the SAME
+  // modality changed.
   useEffect(() => {
     setSelectedStrategyId("");
+    setInputMode("quantity");
+    setNumberOfTickets(6);
+    setBudgetBRL(50);
+    setContest("");
+    setContestTouched(false);
+    setFixedNumbers([]);
+    setExcludedNumbers([]);
+    setSeed("");
+    setQualityPreset("balanced");
+    setValidationError(null);
+    setSavedMessage(null);
+    setLastGeneratedInput(null);
+    setResolvedSnapshot(null);
+    setShowTechnicalDetails(false);
+    setShowDetailedAnalysis(false);
   }, [modality]);
 
   useEffect(() => {
@@ -207,7 +259,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
     };
   }
 
-  const isStale = Boolean(result) && !snapshotsEqual(captureUserInputSnapshot(), lastGeneratedInput);
+  const isStale = Boolean(activeResult) && !snapshotsEqual(captureUserInputSnapshot(), lastGeneratedInput);
 
   /** Validates the current form against the selected strategy's rules.
    * Returns an error message, or null when generation can proceed. Shared
@@ -310,59 +362,63 @@ export function GerarPage({ modality }: { modality: Modality }) {
   }
 
   async function handleSave() {
-    if (!result || !gameConfig || !resolvedSnapshot) return;
+    // Fails closed: even though `activeResult` already guarantees
+    // result.modality === modality, a save must never proceed if the frozen
+    // snapshot backing it (built at generation time) somehow disagrees —
+    // that snapshot carries the request/price context that gets persisted.
+    if (!activeResult || !gameConfig || !resolvedSnapshot || resolvedSnapshot.request.modality !== modality) return;
     await savePortfolio({
       schemaVersion: 1,
-      id: result.id,
+      id: activeResult.id,
       modality,
-      contest: result.contest,
-      strategyId: result.strategyId,
-      strategyVersion: result.strategyVersion,
-      engineVersion: result.strategyVersion,
-      createdAt: result.createdAt,
+      contest: activeResult.contest,
+      strategyId: activeResult.strategyId,
+      strategyVersion: activeResult.strategyVersion,
+      engineVersion: activeResult.strategyVersion,
+      createdAt: activeResult.createdAt,
       dataset: resolvedSnapshot.datasetRef,
       price: { ticketCostBRL: gameConfig.ticketCostBRL, referenceDate: gameConfig.referenceDate, source: gameConfig.source },
-      seed: result.seed,
+      seed: activeResult.seed,
       parameters: resolvedSnapshot.request,
-      tickets: result.tickets,
-      metrics: result.metrics,
-      audit: result.audit,
+      tickets: activeResult.tickets,
+      metrics: activeResult.metrics,
+      audit: activeResult.audit,
       markedAsBet: false,
     });
     setSavedMessage("Estes jogos foram salvos em Meus jogos salvos.");
   }
 
   function copyAll() {
-    if (!result) return;
-    const text = result.tickets.map((t) => t.map((n) => String(n).padStart(2, "0")).join(", ")).join("\n");
+    if (!activeResult) return;
+    const text = activeResult.tickets.map((t) => t.map((n) => String(n).padStart(2, "0")).join(", ")).join("\n");
     navigator.clipboard?.writeText(text).catch(() => undefined);
   }
 
   function downloadCsv() {
-    if (!result) return;
-    const csv = result.tickets.map((t) => t.join(";")).join("\n");
+    if (!activeResult) return;
+    const csv = activeResult.tickets.map((t) => t.join(";")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${modality}-${result.strategyId}-${result.seed}.csv`;
+    a.download = `${modality}-${activeResult.strategyId}-${activeResult.seed}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
   function downloadJson() {
-    if (!result) return;
-    const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+    if (!activeResult) return;
+    const blob = new Blob([JSON.stringify(activeResult, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${modality}-${result.strategyId}-${result.seed}.json`;
+    a.download = `${modality}-${activeResult.strategyId}-${activeResult.seed}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
-  const rows = result ? metricRows(result.metrics, modality) : [];
-  const metrics = result?.metrics as Record<string, unknown> | undefined;
+  const rows = activeResult ? metricRows(activeResult.metrics, modality) : [];
+  const metrics = activeResult?.metrics as Record<string, unknown> | undefined;
   const probability = metrics?.probability as Record<string, { probability: number | null; status: ProbabilityStatus }> | undefined;
   const overlap = metrics?.overlap as { min: number; max: number; mean: number; histogram: Record<string, number> } | undefined;
   const exposure = metrics?.exposure as { exposure: Record<number, number> } | undefined;
@@ -529,7 +585,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
         </>
       )}
 
-      {result && isStale && (
+      {activeResult && isStale && (
         <div role="alert" className="space-y-3 rounded-lg border border-amber-700 bg-amber-950/40 p-4 text-sm text-amber-200">
           <p>Você alterou a configuração depois de gerar estes jogos. Os jogos abaixo ainda correspondem à configuração anterior.</p>
           <div className="flex flex-wrap items-center gap-3">
@@ -555,7 +611,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
         </div>
       )}
 
-      {result && (
+      {activeResult && (
         <section aria-labelledby="step-result" className="space-y-4 rounded-xl border border-brand-border bg-brand-surface p-4">
           <h2 id="step-result" className="text-xl font-bold text-brand-text">
             Seus jogos estão prontos
@@ -563,20 +619,20 @@ export function GerarPage({ modality }: { modality: Modality }) {
           <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
             <div>
               <dt className="text-xs text-brand-textMuted">Quantidade de jogos</dt>
-              <dd className="font-mono text-lg font-semibold tabular-nums">{result.tickets.length}</dd>
+              <dd className="font-mono text-lg font-semibold tabular-nums">{activeResult.tickets.length}</dd>
             </div>
             <div>
               <dt className="text-xs text-brand-textMuted">Custo total</dt>
-              <dd className="font-mono text-lg font-semibold tabular-nums">{formatBRL(result.costBRL)}</dd>
+              <dd className="font-mono text-lg font-semibold tabular-nums">{formatBRL(activeResult.costBRL)}</dd>
             </div>
             <div>
               <dt className="text-xs text-brand-textMuted">Opção usada</dt>
-              <dd className="font-medium">{strategyRegistry.get(result.strategyId)?.ux.title ?? result.strategyId}</dd>
+              <dd className="font-medium">{strategyRegistry.get(activeResult.strategyId)?.ux.title ?? activeResult.strategyId}</dd>
             </div>
-            {result.contest !== undefined && (
+            {activeResult.contest !== undefined && (
               <div>
                 <dt className="text-xs text-brand-textMuted">Concurso</dt>
-                <dd className="font-mono font-medium tabular-nums">{result.contest}</dd>
+                <dd className="font-mono font-medium tabular-nums">{activeResult.contest}</dd>
               </div>
             )}
           </dl>
@@ -602,7 +658,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
             </div>
           )}
 
-          <PortfolioTicketList tickets={result.tickets} onCopyTicket={(t) => navigator.clipboard?.writeText(t.join(", "))} />
+          <PortfolioTicketList tickets={activeResult.tickets} onCopyTicket={(t) => navigator.clipboard?.writeText(t.join(", "))} />
 
           {rows.length > 0 && <BaselineComparison kind={(metrics?.randomBaseline as { kind: string })?.kind ?? ""} rows={rows} />}
 
@@ -630,12 +686,12 @@ export function GerarPage({ modality }: { modality: Modality }) {
             </div>
             <ComparePanel
               modality={modality}
-              currentStrategyId={result.strategyId}
-              numberOfTickets={result.tickets.length}
+              currentStrategyId={activeResult.strategyId}
+              numberOfTickets={activeResult.tickets.length}
               fixedNumbers={fixedNumbers.length ? fixedNumbers : undefined}
               excludedNumbers={excludedNumbers.length ? excludedNumbers : undefined}
-              contest={result.contest}
-              currentResult={result}
+              contest={activeResult.contest}
+              currentResult={activeResult}
             />
           </div>
           {savedMessage && <p role="status" className="text-sm text-emerald-300">{savedMessage}</p>}
@@ -652,30 +708,30 @@ export function GerarPage({ modality }: { modality: Modality }) {
               <dl className="grid grid-cols-1 gap-2 text-xs text-brand-textMuted sm:grid-cols-2">
                 <div>
                   <dt className="font-medium text-brand-text">Estratégia (nome técnico)</dt>
-                  <dd>{strategyRegistry.get(result.strategyId)?.ux.technicalName ?? result.strategyId}</dd>
+                  <dd>{strategyRegistry.get(activeResult.strategyId)?.ux.technicalName ?? activeResult.strategyId}</dd>
                 </div>
                 <div>
                   <dt className="font-medium text-brand-text">Identificador / versão</dt>
                   <dd className="font-mono">
-                    {result.strategyId} · v{result.strategyVersion}
+                    {activeResult.strategyId} · v{activeResult.strategyVersion}
                   </dd>
                 </div>
                 <div className="break-all">
                   <dt className="font-medium text-brand-text">Seed</dt>
-                  <dd className="font-mono">{String(result.seed)}</dd>
+                  <dd className="font-mono">{String(activeResult.seed)}</dd>
                 </div>
                 <div>
                   <dt className="font-medium text-brand-text">Método de geração</dt>
-                  <dd>{result.generationMethod}</dd>
+                  <dd>{activeResult.generationMethod}</dd>
                 </div>
                 <div>
                   <dt className="font-medium text-brand-text">Método de avaliação</dt>
-                  <dd>{result.evaluationMethod}</dd>
+                  <dd>{activeResult.evaluationMethod}</dd>
                 </div>
                 <div className="sm:col-span-2">
                   <button
                     type="button"
-                    onClick={() => handleGenerate(String(result.seed))}
+                    onClick={() => handleGenerate(String(activeResult.seed))}
                     className="rounded border border-brand-border px-3 py-1.5 text-xs font-medium text-brand-textMuted hover:bg-white/5"
                   >
                     Gerar novamente este mesmo conjunto
@@ -683,7 +739,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 </div>
                 <div className="sm:col-span-2">
                   <dt className="font-medium text-brand-text">Metadados de auditoria</dt>
-                  <dd className="overflow-x-auto whitespace-pre-wrap break-all font-mono">{JSON.stringify(result.audit, null, 2)}</dd>
+                  <dd className="overflow-x-auto whitespace-pre-wrap break-all font-mono">{JSON.stringify(activeResult.audit, null, 2)}</dd>
                 </div>
               </dl>
             </Disclosure>

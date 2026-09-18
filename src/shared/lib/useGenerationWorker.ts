@@ -32,10 +32,20 @@ export function useGenerationWorker<T>(modality: Modality): UseGenerationWorkerS
   const [result, setResult] = useState<T | null>(null);
   const [error, setError] = useState<{ name: string; message: string; code?: string } | null>(null);
 
+  // Runs on unmount AND whenever `modality` changes. This hook can be reused
+  // by the same component instance across a modality prop change (e.g. a
+  // GerarPage reused across a Lotofácil <-> Mega-Sena route transition
+  // instead of being remounted) — without this, a completed result/stage/
+  // error from the PREVIOUS modality would remain in React state and could
+  // be displayed, saved, or acted upon under the NEW modality. Terminating
+  // the worker alone (the previous behavior) left exactly that residue.
   useEffect(() => {
     return () => {
       workerRef.current?.terminate();
       workerRef.current = null;
+      setStage("idle");
+      setResult(null);
+      setError(null);
     };
   }, [modality]);
 
