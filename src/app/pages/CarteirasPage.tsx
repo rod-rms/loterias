@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   listPortfolios,
-  setMarkedAsBet,
+  setBetSelection,
   deletePortfolio,
   exportBackup,
   importBackup,
@@ -12,12 +12,31 @@ import {
 import { loadDataset } from "../../shared/lib/dataLoaders";
 import { checkTicketsAgainstDraw } from "../../shared/lib/checkResult";
 import { formatHitResult, summarizeCheckedResult } from "../../shared/lib/resultLabels";
+import {
+  describeBetComparison,
+  determineResultAvailability,
+  formatTicketGroupBest,
+  getCurrentBetTicketNumbers,
+  summarizeBetSelectionResult,
+} from "../../shared/lib/betSelection";
 import { formatDrawNumbers } from "../../shared/utils/numberFormat";
-import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink, InfoHelp } from "../../shared/components";
+import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink, InfoHelp, BetTicketPicker } from "../../shared/components";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import type { Modality, SavedPortfolio } from "../../shared/types";
 
 const MODALITY_LABEL: Record<Modality, string> = { lotofacil: "Lotofácil", megasena: "Mega-Sena" };
+
+/** "Apostado"/"Não apostado" badges keyed by original J number; none when no bet declaration exists. */
+function buildBetBadges(portfolio: SavedPortfolio): Record<number, { label: string; tone?: "neutral" | "muted" }> | undefined {
+  const bet = getCurrentBetTicketNumbers(portfolio);
+  if (bet.length === 0) return undefined;
+  const set = new Set(bet);
+  const badges: Record<number, { label: string; tone?: "neutral" | "muted" }> = {};
+  portfolio.tickets.forEach((_, i) => {
+    badges[i + 1] = set.has(i + 1) ? { label: "Apostado" } : { label: "Não apostado", tone: "muted" };
+  });
+  return badges;
+}
 
 export function CarteirasPage({ modality }: { modality?: Modality }) {
   const [portfolios, setPortfolios] = useState<SavedPortfolio[]>([]);
@@ -27,6 +46,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   const [message, setMessage] = useState<string | null>(null);
   const [importPreview, setImportPreview] = useState<{ count: number; raw: unknown } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [editingBet, setEditingBet] = useState<{ portfolio: SavedPortfolio; selected: number[] } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function refresh() {
@@ -79,6 +99,23 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     refresh();
   }
 
+  /** Appends a bet-selection revision, stamping whether the result was already in the LotoAtlas dataset (descriptive metadata, not proof of real bet time). */
+  async function recordBet(portfolio: SavedPortfolio, selectedTicketNumbers: number[]) {
+    let availability: ReturnType<typeof determineResultAvailability> = "unknown";
+    let latest: number | undefined;
+    try {
+      const dataset = await loadDataset(portfolio.modality);
+      availability = determineResultAvailability(portfolio.contest, dataset);
+      latest = dataset.latestContest;
+    } catch {
+      // dataset unavailable: recorded as "unknown"
+    }
+    await setBetSelection(portfolio.id, selectedTicketNumbers, { resultAvailability: availability, datasetLatestContestAtRecording: latest });
+    await refresh();
+    const fresh = (await listPortfolios()).find((x) => x.id === portfolio.id);
+    setSelected((prev) => (prev && prev.id === portfolio.id && fresh ? fresh : prev));
+  }
+
   async function handleCheck(portfolio: SavedPortfolio) {
     if (!portfolio.contest) return;
     setMessage(null);
@@ -111,7 +148,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
           </select>
         </label>
         <label className="text-sm">
-          Apostada:{" "}
+          Com aposta registrada:{" "}
           <select value={filterBet} onChange={(e) => setFilterBet(e.target.value as "all" | "yes" | "no")} className="rounded border border-brand-border px-2 py-1">
             <option value="all">Todas</option>
             <option value="yes">Sim</option>
@@ -173,12 +210,47 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               key={p.id}
               portfolio={p}
               onOpen={() => setSelected(p)}
-              onToggleBet={() => setMarkedAsBet(p.id, !p.markedAsBet).then(refresh)}
+              onEditBet={() => {
+                const current = getCurrentBetTicketNumbers(p);
+                setEditingBet({ portfolio: p, selected: current.length > 0 ? current : p.tickets.map((_, i) => i + 1) });
+              }}
+              onRemoveBet={() => {
+                if (confirm("Remover o registro de aposta? O histórico anterior é preservado e todos os jogos continuam salvos.")) recordBet(p, []);
+              }}
               onDelete={() => {
                 if (confirm("Excluir este conjunto de jogos?")) deletePortfolio(p.id).then(refresh);
               }}
             />
           ))}
+        </div>
+      )}
+
+      {editingBet && (
+        <div role="dialog" aria-modal="true" aria-label="Registrar jogos apostados" className="space-y-3 rounded-xl border border-brand-border bg-brand-surface p-4">
+          <h2 className="font-semibold">Jogos apostados</h2>
+          <p className="text-sm text-brand-textMuted">
+            A carteira gerada continua completa ({editingBet.portfolio.tickets.length} jogos). Aqui você só registra quais deles foram realmente apostados.
+          </p>
+          <BetTicketPicker
+            tickets={editingBet.portfolio.tickets}
+            selected={editingBet.selected}
+            onChange={(next) => setEditingBet((prev) => (prev ? { ...prev, selected: next } : prev))}
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const { portfolio, selected: chosen } = editingBet;
+                recordBet(portfolio, chosen).then(() => setEditingBet(null));
+              }}
+              className="rounded bg-brand-action px-3 py-1.5 text-sm text-brand-actionForeground"
+            >
+              Salvar registro
+            </button>
+            <button type="button" onClick={() => setEditingBet(null)} className="rounded border border-brand-border px-3 py-1.5 text-sm">
+              Cancelar
+            </button>
+          </div>
         </div>
       )}
 
@@ -195,7 +267,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
             if (!checkedResult) {
               return (
                 <>
-                  <PortfolioTicketList tickets={selected.tickets} />
+                  <PortfolioTicketList tickets={selected.tickets} ticketBadges={buildBetBadges(selected)} />
                   <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-brand-border px-3 py-1.5 text-sm">
                     Conferir resultado
                   </button>
@@ -203,6 +275,8 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               );
             }
             const summary = summarizeCheckedResult(selected.modality, checkedResult);
+            const betSummary = summarizeBetSelectionResult(selected.modality, checkedResult.hitsPerTicket, getCurrentBetTicketNumbers(selected));
+            const comparison = describeBetComparison(betSummary);
             return (
               <>
                 <div className="mb-3 space-y-2 rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-sm">
@@ -212,8 +286,26 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   </div>
                   {summary.sentence && (
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor resultado</p>
+                      <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">{betSummary.hasSelection ? "Melhor da carteira gerada" : "Melhor resultado"}</p>
                       <p className="mt-0.5 text-brand-text">{summary.sentence}</p>
+                      {betSummary.overallBestWasNotBet && <p className="mt-0.5 text-xs text-brand-textMuted">O melhor jogo da carteira não foi marcado como apostado.</p>}
+                    </div>
+                  )}
+                  {betSummary.hasSelection && (
+                    <div data-testid="bet-comparison" className="space-y-1">
+                      {betSummary.bestBet && (
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os apostados</p>
+                          <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestBet)}</p>
+                        </div>
+                      )}
+                      {betSummary.bestNonBet && (
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os não apostados</p>
+                          <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestNonBet)}</p>
+                        </div>
+                      )}
+                      {comparison && <p className="text-sm text-brand-text">{comparison}</p>}
                     </div>
                   )}
                   <p className="text-xs text-brand-textMuted">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
@@ -224,6 +316,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   hitsPerTicket={checkedResult.hitsPerTicket}
                   formatHits={(hits) => formatHitResult(selected.modality, hits)}
                   bestTicketNumbers={summary.bestTicketNumbers}
+                  ticketBadges={buildBetBadges(selected)}
                 />
               </>
             );

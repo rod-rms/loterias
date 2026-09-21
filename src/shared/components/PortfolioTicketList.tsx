@@ -12,9 +12,11 @@ interface PortfolioTicketListProps {
   formatHits?: (hits: number) => string;
   /** 1-based ticket numbers (J1, J2, ...) tied for the highest hit count, visually marked "Melhor". */
   bestTicketNumbers?: number[];
+  /** Generic per-ticket status badge keyed by ORIGINAL 1-based ticket number (J numbering is preserved across pagination). */
+  ticketBadges?: Record<number, { label: string; tone?: "neutral" | "muted" }>;
 }
 
-export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, onCopyTicket, hitsPerTicket, formatHits, bestTicketNumbers }: PortfolioTicketListProps) {
+export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, onCopyTicket, hitsPerTicket, formatHits, bestTicketNumbers, ticketBadges }: PortfolioTicketListProps) {
   const [page, setPage] = useState(0);
   const totalPages = Math.max(1, Math.ceil(tickets.length / pageSize));
   const start = page * pageSize;
@@ -38,6 +40,14 @@ export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, 
                 ))}
               </div>
               {hits !== undefined && <span className="text-xs font-medium text-brand-textMuted">{formatHits ? formatHits(hits) : `${hits} ${hits === 1 ? "acerto" : "acertos"}`}</span>}
+              {ticketBadges?.[ticketNumber] && (
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${ticketBadges[ticketNumber]!.tone === "muted" ? "border-brand-border text-brand-textMuted" : "border-brand-borderStrong text-brand-text"}`}
+                  data-testid={`ticket-badge-J${ticketNumber}`}
+                >
+                  {ticketBadges[ticketNumber]!.label}
+                </span>
+              )}
               {isBest && (
                 <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white" data-testid={`best-ticket-badge-J${ticketNumber}`}>
                   Melhor
