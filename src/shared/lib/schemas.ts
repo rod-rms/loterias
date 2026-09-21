@@ -68,7 +68,19 @@ export const checkedResultSchema = z.object({
   prizeGrossBRL: z.number().optional(),
 });
 
-export const savedPortfolioSchema = z.object({
+export const betSelectionRevisionSchema = z.object({
+  selectedTicketNumbers: z.array(z.number().int()),
+  recordedAt: z.string().min(1),
+  resultAvailability: z.enum(["before_result_in_dataset", "after_result_in_dataset", "unknown"]),
+  datasetLatestContestAtRecording: z.number().int().nonnegative().optional(),
+});
+
+export const betSelectionSchema = z.object({
+  schemaVersion: z.literal(1),
+  revisions: z.array(betSelectionRevisionSchema),
+});
+
+const savedPortfolioBaseSchema = z.object({
   schemaVersion: z.number().int().positive(),
   id: z.string().min(1),
   modality: modalitySchema,
@@ -97,8 +109,29 @@ export const savedPortfolioSchema = z.object({
   metrics: z.unknown(),
   audit: z.unknown(),
   markedAsBet: z.boolean(),
+  betSelection: betSelectionSchema.optional(),
   notes: z.string().optional(),
   checkedResult: checkedResultSchema.optional(),
+});
+
+/** Every bet-selection revision must reference valid, unique, ascending ticket positions of THIS portfolio — never trusted from the UI alone. */
+export const savedPortfolioSchema = savedPortfolioBaseSchema.superRefine((portfolio, ctx) => {
+  portfolio.betSelection?.revisions.forEach((revision, r) => {
+    const numbers = revision.selectedTicketNumbers;
+    const path = ["betSelection", "revisions", r, "selectedTicketNumbers"];
+    for (let i = 0; i < numbers.length; i += 1) {
+      const n = numbers[i]!;
+      if (n < 1 || n > portfolio.tickets.length) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `ticket number ${n} is outside 1..${portfolio.tickets.length}`, path });
+      }
+      if (i > 0 && n <= numbers[i - 1]!) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "selectedTicketNumbers must be unique and in ascending order", path });
+      }
+    }
+  });
+  if (portfolio.checkedResult && portfolio.checkedResult.hitsPerTicket.length !== portfolio.tickets.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "checkedResult.hitsPerTicket must cover every saved ticket", path: ["checkedResult", "hitsPerTicket"] });
+  }
 });
 
 const modalityDataStatusSchema = z.object({

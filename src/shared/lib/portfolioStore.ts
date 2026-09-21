@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { loteriasBackupSchema, savedPortfolioSchema } from "./schemas";
-import type { LoteriasBackup, Modality, SavedPortfolio } from "../types";
+import type { BetResultAvailability, LoteriasBackup, Modality, SavedPortfolio } from "../types";
+import { appendBetSelectionRevision } from "./betSelection";
 
 /**
  * Only entry point for portfolio persistence. Components must not call
@@ -29,6 +30,26 @@ export async function deletePortfolio(id: string): Promise<void> {
 
 export async function setMarkedAsBet(id: string, markedAsBet: boolean): Promise<void> {
   await db.portfolios.update(id, { markedAsBet });
+}
+
+/**
+ * Records the user's actual-bet declaration as a NEW append-only revision and
+ * keeps the indexed markedAsBet aggregate in sync. Never touches tickets,
+ * strategy, seed, metrics or audit. Throws on invalid ticket references.
+ */
+export async function setBetSelection(
+  id: string,
+  selectedTicketNumbers: number[],
+  context: { resultAvailability: BetResultAvailability; datasetLatestContestAtRecording?: number; recordedAt?: string },
+): Promise<void> {
+  const portfolio = await db.portfolios.get(id);
+  if (!portfolio) throw new Error("Carteira não encontrada.");
+  const update = appendBetSelectionRevision(portfolio, selectedTicketNumbers, {
+    recordedAt: context.recordedAt ?? new Date().toISOString(),
+    resultAvailability: context.resultAvailability,
+    datasetLatestContestAtRecording: context.datasetLatestContestAtRecording,
+  });
+  await db.portfolios.update(id, update);
 }
 
 export async function setNotes(id: string, notes: string): Promise<void> {

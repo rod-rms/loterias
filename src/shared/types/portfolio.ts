@@ -24,6 +24,23 @@ export interface CheckedResult {
   prizeGrossBRL?: number;
 }
 
+/** Whether the official result was already present in LotoAtlas's own dataset when a bet selection was recorded. Describes dataset state, NOT the user's real-world bet-placement time. */
+export type BetResultAvailability = "before_result_in_dataset" | "after_result_in_dataset" | "unknown";
+
+export interface BetSelectionRevision {
+  /** 1-based ticket numbers (J1 = 1), ascending, unique, each within 1..portfolio.tickets.length. Empty = bet registration removed. */
+  selectedTicketNumbers: number[];
+  recordedAt: string;
+  resultAvailability: BetResultAvailability;
+  datasetLatestContestAtRecording?: number;
+}
+
+/** Append-only history of actual-bet declarations; the current selection is the LAST revision. Metadata ABOUT a saved portfolio — never alters portfolio.tickets. */
+export interface BetSelection {
+  schemaVersion: 1;
+  revisions: BetSelectionRevision[];
+}
+
 export interface SavedPortfolio {
   schemaVersion: number;
   id: string;
@@ -45,7 +62,10 @@ export interface SavedPortfolio {
   metrics: unknown;
   audit: unknown;
 
+  /** Indexed aggregate flag: true when at least one ticket is currently declared as bet (or legacy whole-portfolio bet with no betSelection). */
   markedAsBet: boolean;
+  /** Richer per-ticket bet record. When present it is the source of truth over markedAsBet. */
+  betSelection?: BetSelection;
   notes?: string;
 
   checkedResult?: CheckedResult;
