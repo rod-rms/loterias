@@ -116,6 +116,15 @@ const savedPortfolioBaseSchema = z.object({
 
 /** Every bet-selection revision must reference valid, unique, ascending ticket positions of THIS portfolio — never trusted from the UI alone. */
 export const savedPortfolioSchema = savedPortfolioBaseSchema.superRefine((portfolio, ctx) => {
+  if (portfolio.betSelection) {
+    const revisions = portfolio.betSelection.revisions;
+    if (revisions.length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "betSelection must contain at least one revision", path: ["betSelection", "revisions"] });
+    } else if (portfolio.markedAsBet !== revisions[revisions.length - 1]!.selectedTicketNumbers.length > 0) {
+      // markedAsBet is the indexed aggregate of the CURRENT (last) revision.
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "markedAsBet must equal (current betSelection revision has at least one ticket)", path: ["markedAsBet"] });
+    }
+  }
   portfolio.betSelection?.revisions.forEach((revision, r) => {
     const numbers = revision.selectedTicketNumbers;
     const path = ["betSelection", "revisions", r, "selectedTicketNumbers"];

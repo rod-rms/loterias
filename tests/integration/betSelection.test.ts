@@ -54,7 +54,7 @@ describe("bet selection — validation and schema", () => {
 
   it("the persisted-record schema rejects invalid ticket references (never trusts the UI)", () => {
     const bad = (nums: number[]) =>
-      savedPortfolioSchema.safeParse(makePortfolio("x", { betSelection: { schemaVersion: 1, revisions: [{ selectedTicketNumbers: nums, recordedAt: "t", resultAvailability: "unknown" }] } }));
+      savedPortfolioSchema.safeParse(makePortfolio("x", { markedAsBet: nums.length > 0, betSelection: { schemaVersion: 1, revisions: [{ selectedTicketNumbers: nums, recordedAt: "t", resultAvailability: "unknown" }] } }));
     expect(bad([0]).success).toBe(false);
     expect(bad([7]).success).toBe(false);
     expect(bad([1, 1]).success).toBe(false);
@@ -244,5 +244,93 @@ describe("bet selection — result comparison (derived from checkedResult + sele
   it("Mega-Sena labels reuse the existing result-label rules", () => {
     const s = summarizeBetSelectionResult("megasena", [4, 5], [1]);
     expect(s.bestNonBet!.resultText).toBe("5 acertos · Quina");
+  });
+});
+
+describe("bet selection — repeated save of the same generated portfolio", () => {
+  beforeEach(async () => {
+    await db.portfolios.clear();
+  });
+
+  const withRevision = (id: string, nums: number[]) => makePortfolio(id, appendBetSelectionRevision(makePortfolio(id), nums, ctx));
+
+  it("A) first save [1..5], repeated save with registration OFF keeps the existing selection intact", async () => {
+    await savePortfolio(withRevision("dup", [1, 2, 3, 4, 5]));
+    await savePortfolio(makePortfolio("dup"));
+    const [saved] = await listPortfolios();
+    expect(saved!.betSelection!.revisions).toHaveLength(1);
+    expect(getCurrentBetTicketNumbers(saved!)).toEqual([1, 2, 3, 4, 5]);
+    expect(saved!.markedAsBet).toBe(true);
+  });
+
+  it("B) first save [1..5], repeated save with [1..4] appends: both revisions kept, current = [1..4]", async () => {
+    await savePortfolio(withRevision("dup", [1, 2, 3, 4, 5]));
+    await savePortfolio(withRevision("dup", [1, 2, 3, 4]));
+    const [saved] = await listPortfolios();
+    expect(saved!.betSelection!.revisions.map((r) => r.selectedTicketNumbers)).toEqual([[1, 2, 3, 4, 5], [1, 2, 3, 4]]);
+    expect(getCurrentBetTicketNumbers(saved!)).toEqual([1, 2, 3, 4]);
+    expect(saved!.markedAsBet).toBe(true);
+  });
+
+  it("C) a repeated save never changes tickets, strategy, version, seed, metrics or audit", async () => {
+    const original = withRevision("dup", [1, 2, 3]);
+    await savePortfolio(original);
+    await savePortfolio({
+      ...withRevision("dup", [1, 2]),
+      tickets: SIX_TICKETS.slice(0, 2),
+      strategyId: "other.strategy",
+      strategyVersion: "9",
+      seed: "other-seed",
+      metrics: { changed: true },
+      audit: { changed: true },
+    });
+    const [saved] = await listPortfolios();
+    expect(saved!.tickets).toEqual(original.tickets);
+    expect(saved!.strategyId).toBe(original.strategyId);
+    expect(saved!.strategyVersion).toBe(original.strategyVersion);
+    expect(saved!.seed).toBe(original.seed);
+    expect(saved!.metrics).toEqual(original.metrics);
+    expect(saved!.audit).toEqual(original.audit);
+    expect(saved!.betSelection!.revisions).toHaveLength(2);
+  });
+
+  it("an identical repeated save is idempotent (no duplicate revision)", async () => {
+    await savePortfolio(withRevision("dup", [1, 2, 3]));
+    await savePortfolio(withRevision("dup", [1, 2, 3]));
+    expect((await listPortfolios())[0]!.betSelection!.revisions).toHaveLength(1);
+  });
+
+  it("a repeated save does not silently unregister a legacy whole-portfolio bet", async () => {
+    await savePortfolio(makePortfolio("leg", { markedAsBet: true }));
+    await savePortfolio(makePortfolio("leg"));
+    const [saved] = await listPortfolios();
+    expect(saved!.markedAsBet).toBe(true);
+    expect(getCurrentBetTicketNumbers(saved!)).toHaveLength(6);
+  });
+});
+
+describe("bet selection — schema cross-field consistency with markedAsBet", () => {
+  const rev = (nums: number[]) => ({ schemaVersion: 1 as const, revisions: [{ selectedTicketNumbers: nums, recordedAt: "t", resultAvailability: "unknown" as const }] });
+  const ok = (o: Partial<SavedPortfolio>) => savedPortfolioSchema.safeParse(makePortfolio("s", o)).success;
+
+  it("rejects current=[1,2,3] with markedAsBet=false", () => {
+    expect(ok({ betSelection: rev([1, 2, 3]), markedAsBet: false })).toBe(false);
+  });
+  it("rejects current=[] with markedAsBet=true", () => {
+    expect(ok({ betSelection: rev([]), markedAsBet: true })).toBe(false);
+  });
+  it("rejects a betSelection with no revisions", () => {
+    expect(ok({ betSelection: { schemaVersion: 1, revisions: [] }, markedAsBet: false })).toBe(false);
+  });
+  it("accepts consistent combinations, judged by the LAST revision", () => {
+    expect(ok({ betSelection: rev([1, 2, 3]), markedAsBet: true })).toBe(true);
+    expect(ok({ betSelection: rev([]), markedAsBet: false })).toBe(true);
+    const two = { schemaVersion: 1 as const, revisions: [...rev([1]).revisions, ...rev([]).revisions] };
+    expect(ok({ betSelection: two, markedAsBet: false })).toBe(true);
+    expect(ok({ betSelection: two, markedAsBet: true })).toBe(false);
+  });
+  it("legacy records without betSelection stay valid either way", () => {
+    expect(ok({ markedAsBet: true })).toBe(true);
+    expect(ok({ markedAsBet: false })).toBe(true);
   });
 });

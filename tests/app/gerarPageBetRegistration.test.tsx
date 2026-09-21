@@ -169,3 +169,23 @@ describe("GerarPage — save panel and opt-in bet registration", () => {
     expect(savePortfolio).not.toHaveBeenCalled();
   });
 });
+
+describe("GerarPage — zero-ticket bet registration is not allowed", () => {
+  beforeEach(() => {
+    savePortfolio.mockClear();
+    counter = 0;
+  });
+
+  it("disables 'Salvar carteira' with a helper when registration is on and nothing is selected", async () => {
+    await generateSix();
+    fireEvent.click(screen.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }));
+    for (let n = 1; n <= 6; n += 1) fireEvent.click(screen.getByRole("checkbox", { name: `J${n} apostado` }));
+    expect(screen.getByText("Selecione ao menos um jogo apostado ou desative o registro de aposta.")).toBeInTheDocument();
+    const save = screen.getByRole("button", { name: "Salvar carteira" });
+    expect(save).toBeDisabled();
+    fireEvent.click(save);
+    expect(savePortfolio).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }));
+    expect(screen.getByRole("button", { name: "Salvar carteira" })).toBeEnabled();
+  });
+});

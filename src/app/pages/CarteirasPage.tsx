@@ -236,14 +236,21 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
             selected={editingBet.selected}
             onChange={(next) => setEditingBet((prev) => (prev ? { ...prev, selected: next } : prev))}
           />
+          {editingBet.selected.length === 0 && (
+            <p className="text-xs text-amber-300" role="alert">
+              Selecione ao menos um jogo apostado ou use "Remover registro de aposta".
+            </p>
+          )}
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => {
                 const { portfolio, selected: chosen } = editingBet;
+                if (chosen.length === 0) return;
                 recordBet(portfolio, chosen).then(() => setEditingBet(null));
               }}
-              className="rounded bg-brand-action px-3 py-1.5 text-sm text-brand-actionForeground"
+              disabled={editingBet.selected.length === 0}
+              className="rounded bg-brand-action px-3 py-1.5 text-sm text-brand-actionForeground disabled:cursor-not-allowed disabled:opacity-50"
             >
               Salvar registro
             </button>

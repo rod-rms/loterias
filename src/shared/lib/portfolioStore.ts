@@ -16,8 +16,40 @@ export interface PortfolioFilters {
   checked?: boolean;
 }
 
+/**
+ * Saves a generated portfolio. The generated content is IMMUTABLE once stored:
+ * if a record with the same id already exists (the same generated result saved
+ * again), its tickets/strategy/seed/metrics/audit/dataset/price/notes/checkedResult
+ * are kept as-is and only NEW bet-selection revisions supplied by the caller
+ * are appended to the existing history. A repeated save without a bet
+ * selection never erases or replaces an existing one. Importing a backup with
+ * explicit overwrite is a separate path (importBackup).
+ */
 export async function savePortfolio(portfolio: SavedPortfolio): Promise<void> {
-  await db.portfolios.put(portfolio);
+  await db.transaction("rw", db.portfolios, async () => {
+    const existing = await db.portfolios.get(portfolio.id);
+    if (!existing) {
+      await db.portfolios.put(portfolio);
+      return;
+    }
+    const existingRevisions = existing.betSelection?.revisions ?? [];
+    const merged = [...existingRevisions];
+    for (const revision of portfolio.betSelection?.revisions ?? []) {
+      const current = merged[merged.length - 1];
+      const sameAsCurrent =
+        current &&
+        current.resultAvailability === revision.resultAvailability &&
+        current.selectedTicketNumbers.length === revision.selectedTicketNumbers.length &&
+        current.selectedTicketNumbers.every((n, i) => n === revision.selectedTicketNumbers[i]);
+      if (!sameAsCurrent) merged.push(revision);
+    }
+    if (merged.length === existingRevisions.length) return; // idempotent: nothing new to record
+    const last = merged[merged.length - 1]!;
+    await db.portfolios.update(portfolio.id, {
+      betSelection: { schemaVersion: 1, revisions: merged },
+      markedAsBet: last.selectedTicketNumbers.length > 0,
+    });
+  });
 }
 
 export async function getPortfolio(id: string): Promise<SavedPortfolio | undefined> {
@@ -26,10 +58,6 @@ export async function getPortfolio(id: string): Promise<SavedPortfolio | undefin
 
 export async function deletePortfolio(id: string): Promise<void> {
   await db.portfolios.delete(id);
-}
-
-export async function setMarkedAsBet(id: string, markedAsBet: boolean): Promise<void> {
-  await db.portfolios.update(id, { markedAsBet });
 }
 
 /**

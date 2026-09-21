@@ -121,6 +121,19 @@ describe("CarteirasPage — saved portfolio bet status", () => {
     expect(await screen.findByTestId("bet-status")).toHaveTextContent("5/6 apostados");
   });
 
+  it("'Salvar registro' is disabled for an empty selection (removal is the explicit way to clear)", async () => {
+    await savePortfolio(makePortfolio("zero", [12, 11], withBet([1, 2])));
+    renderPage();
+    fireEvent.click(await screen.findByRole("button", { name: "Editar jogos apostados" }));
+    const dialog = await screen.findByRole("dialog", { name: "Registrar jogos apostados" });
+    fireEvent.click(within(dialog).getByRole("checkbox", { name: "J1 apostado" }));
+    fireEvent.click(within(dialog).getByRole("checkbox", { name: "J2 apostado" }));
+    expect(within(dialog).getByRole("button", { name: "Salvar registro" })).toBeDisabled();
+    expect(within(dialog).getByText(/Selecione ao menos um jogo apostado/)).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("checkbox", { name: "J1 apostado" }));
+    expect(within(dialog).getByRole("button", { name: "Salvar registro" })).toBeEnabled();
+  });
+
   it("editing appends a revision and removing the registration preserves history", async () => {
     await savePortfolio(makePortfolio("hist", [12, 11, 11, 11, 11, 10], withBet([1, 2, 3, 4, 5, 6])));
     vi.spyOn(window, "confirm").mockReturnValue(true);

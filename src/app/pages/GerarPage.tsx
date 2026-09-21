@@ -385,6 +385,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
     // that snapshot carries the request/price context that gets persisted.
     if (!activeResult || !gameConfig || !resolvedSnapshot || resolvedSnapshot.request.modality !== modality) return;
     // Optional, explicit opt-in. The generated tickets are never filtered by this.
+    if (registerBet && betSelected.length === 0) return; // opt-in requires at least one ticket
     const betSelection =
       registerBet && betSelected.length > 0
         ? appendBetSelectionRevision({ tickets: activeResult.tickets, betSelection: undefined }, betSelected, {
@@ -742,8 +743,18 @@ export function GerarPage({ modality }: { modality: Modality }) {
                   Registrar também quais jogos foram apostados
                 </label>
                 {registerBet && <BetTicketPicker tickets={activeResult.tickets} selected={betSelected} onChange={setBetSelected} />}
+                {registerBet && betSelected.length === 0 && (
+                  <p className="text-xs text-amber-300" role="alert">
+                    Selecione ao menos um jogo apostado ou desative o registro de aposta.
+                  </p>
+                )}
                 <div className="flex gap-2">
-                  <button type="button" onClick={handleSave} className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground hover:bg-brand-actionHover">
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={registerBet && betSelected.length === 0}
+                    className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground hover:bg-brand-actionHover disabled:cursor-not-allowed disabled:opacity-50"
+                  >
                     Salvar carteira
                   </button>
                   <button type="button" onClick={() => setSaveOpen(false)} className="rounded-md border border-brand-border px-4 py-2 text-sm font-semibold text-brand-text hover:bg-white/5">
