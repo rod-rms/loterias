@@ -15,7 +15,7 @@ Este documento é o contrato de implementação. Ele foi reconciliado com a audi
 | Nome técnico | Rolling 20 Balanceada v2.1 |
 | Modalidade / evidência | Mega-Sena / `structural` |
 | Badge | "Estratégia personalizada" |
-| Título de UI (**de trabalho**) | "Organizar pelo histórico recente" — ver §14 (ponto aberto) |
+| Título de UI (oficial) | "Organizar pelo histórico recente" (decisão do product owner; proveniência: o pacote de auditoria havia proposto "Equilibrar com histórico recente", que **não** é o título oficial) |
 | Jogos (N) | 1..100 |
 | `supportsBudget` | `true` (converter pelo preço versionado; nunca aumentar N automaticamente) |
 | `supportsFixedNumbers` / `supportsExcludedNumbers` | `false` / `false` (sem suporte parcial silencioso) |
@@ -155,7 +155,7 @@ Não faz parte da UI inicial. Se um dia exposto (`classic204`): todos os jogos 2
 
 ## 11. Copy de UI (sem previsão nem promessa de chance)
 
-- Título de trabalho: **"Organizar pelo histórico recente"**; badge "Estratégia personalizada"; nome técnico "Rolling 20 Balanceada v2.1".
+- Título oficial: **"Organizar pelo histórico recente"** ("Organizar" descreve o papel do histórico sem sugerir previsão; o equilíbrio estrutural aparece no resumo/ajuda, não no título); badge "Estratégia personalizada"; nome técnico "Rolling 20 Balanceada v2.1".
 - Resumo sugerido: "Usa os 20 concursos anteriores para formar três grupos e organizar jogos com exposição equilibrada e controle de repetição entre eles."
 - "Como funciona?": os três grupos são recalculados a cada concurso e servem para variar a estrutura da carteira; depois a busca distribui melhor as dezenas e reduz a sobreposição. O histórico organiza a carteira, mas não prevê o próximo sorteio nem torna uma dezena mais provável.
 - Detalhes técnicos: identificador `megasena.rolling_20_v2`, versão `2.1.0`, histórico "20 concursos anteriores", evidência "Estrutural", otimiza "exposição, sobreposição; F4 como desempate".
@@ -181,7 +181,3 @@ Não faz parte da UI inicial. Se um dia exposto (`classic204`): todos os jogos 2
 - Sem dezenas fixas/excluídas na versão inicial (conflitam com as cotas de grupo; exigiriam solver de viabilidade específico).
 - Benchmarks de carteira são exploratórios; o algoritmo exato de busca é livre.
 - Poder estatístico baixo para comparar premiação em carteiras pequenas (com 3 jogos por concurso, esperam-se ~3,96 concursos com Quadra+ em 3.035).
-
-## 14. Pontos abertos para confirmação do product owner
-
-- **Título de UI.** O pacote de auditoria propõe "Equilibrar com histórico recente"; a instrução de continuidade do product owner indica "Organizar pelo histórico recente" como título de trabalho. Esta especificação adota o segundo como **título de trabalho** e registra a divergência; confirmar antes de implementar a UI. Nenhuma das duas frases pode sugerir previsão.

@@ -30,5 +30,5 @@ Este arquivo é o registro **estratégico atual**. O log histórico detalhado (d
 - **DEC-015 — A RMS v2 mantém 20 concursos como janela histórica primária.**
 - **DEC-016 — Substituir a RMS de 20 concursos por 50 NÃO está aprovado.**
 - **DEC-017 — O desempate RMS 20+50 é apenas candidato de pesquisa** (RMS-201); nenhuma implementação sem experimento reprodutível documentado.
-- **DEC-018 — A Rolling 20 Balanceada v2.1 (MEGA-ROLL-001) está aprovada para implementação futura**, mas **não** faz parte da produção até ser desenvolvida, mergeada e implantada explicitamente.
+- **DEC-018 — A Rolling 20 Balanceada v2.1 (MEGA-ROLL-001) está aprovada para implementação futura**, mas **não** faz parte da produção até ser desenvolvida, mergeada e implantada explicitamente. O título oficial de UI de MEGA-ROLL-001 é "Organizar pelo histórico recente"; "Rolling 20 Balanceada v2.1" permanece como nome técnico.
 - **DEC-019 — O Strategy Registry controla as capacidades; toda geração tem seed; a RMS nunca relaxa restrições rígidas silenciosamente.**

@@ -47,7 +47,7 @@ Propósito de alto nível:
 
 **Especificação canônica versionada:** [`../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) — contém tudo o necessário para implementar (grupos, alocação proporcional, filtros, otimização, capacidades, critérios de aceite). O pacote bruto de auditoria (`MEGASENA_ROLLING20_AUDIT_PACKAGE_v2_1/`, local e não versionado) é apenas evidência de apoio e **não** é necessário.
 
-Pré-requisito de qualquer trabalho: ler a especificação acima e confirmar que `main` está atualizada. Ponto aberto: título de UI a confirmar com o product owner (ver §14 da especificação).
+Pré-requisito de qualquer trabalho: ler a especificação acima e confirmar que `main` está atualizada. Título oficial de UI: "Organizar pelo histórico recente"; nome técnico: "Rolling 20 Balanceada v2.1".
 
 ## Pesquisa
 

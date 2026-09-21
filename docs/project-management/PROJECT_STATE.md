@@ -48,7 +48,7 @@ Nenhum. Esta fundação de continuidade (documentação/governança) é o único
 
 ## Próximo item de implementação aprovado
 
-**MEGA-ROLL-001** — Mega-Sena Rolling 20 Balanceada v2.1. Status `APPROVED`; **implementação não iniciada**. Contrato de implementação versionado em [`docs/megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) (o pacote bruto de auditoria local é só evidência de apoio). Ponto aberto: título de UI a confirmar. Ver `ROADMAP.md`.
+**MEGA-ROLL-001** — Mega-Sena Rolling 20 Balanceada v2.1. Status `APPROVED`; **implementação não iniciada**. Contrato de implementação versionado em [`docs/megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) (o pacote bruto de auditoria local é só evidência de apoio). Título oficial de UI: "Organizar pelo histórico recente". Ver `ROADMAP.md`.
 
 ## Itens de pesquisa
 
