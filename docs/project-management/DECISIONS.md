@@ -13,6 +13,7 @@ Este arquivo é o registro **estratégico atual**. O log histórico detalhado (d
 - **DEC-005 — O atualizador automático de datasets pode avançar `main` a qualquer momento.** Toda tarefa de desenvolvimento/merge deve começar com `git fetch origin --prune` e considerar o `origin/main` mais recente; nunca assumir que um SHA ou "último concurso" documentado continua atual.
 - **DEC-006 — Versão com tag e estado atual de produção podem diferir, e ambos são documentados separadamente.** Hoje: tag `v1.1.2`; produção contém trabalho posterior (marca, FIX-001, BET-001) ainda em `[Unreleased]`.
 - **DEC-007 — Disciplina de status:** implementado em branch ≠ mergeado; mergeado ≠ em produção; em produção ≠ `DONE` até a verificação exigida terminar.
+- **DEC-020 — Precedência de documentos.** Gestão atual = os quatro arquivos de `docs/project-management/` (autoritativos); especificações técnicas = documentos versionados em `docs/global|lotofacil|megasena/`; histórico/local (handoffs antigos, `reference/`, arquivos locais não versionados, pacotes brutos de auditoria) informa mas nunca sobrepõe silenciosamente uma decisão canônica atual. Uma mudança é **alteração de escopo** (exige decisão registrada) quando cria capacidade de produto, altera matemática existente, muda persistência/schema, altera a fonte de dados, cria dependência externa, muda a arquitetura, adiciona modalidade ou adiciona monetização; ajustes de copy/layout que não alteram comportamento são manutenção.
 
 ## Produto e modelo de dados
 

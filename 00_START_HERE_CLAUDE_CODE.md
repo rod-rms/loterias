@@ -85,6 +85,8 @@ Não:
 
 Quando houver dúvida, use esta precedência:
 
+> **Nota (atual):** esta precedência vale apenas para a missão original de implementação da v1. Para o trabalho atual ela está superada por [`CLAUDE.md`](CLAUDE.md) e [`docs/project-management/HANDOFF.md`](docs/project-management/HANDOFF.md).
+
 1. **este arquivo `00_START_HERE_CLAUDE_CODE.md`;**
 2. `docs/global/ACCEPTANCE_CRITERIA_V1.md`;
 3. `docs/global/PRODUCT_SPEC_V1.md`;

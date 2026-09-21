@@ -2,6 +2,14 @@
 
 Objetivo: qualquer sessão nova (Claude Code, ChatGPT ou pessoa) consegue continuar o projeto **sem acesso a conversas anteriores**. O repositório é a fonte da verdade (`DEC-001`, `DEC-002`).
 
+## Hierarquia de documentos
+
+1. **Gestão atual (autoritativa):** `docs/project-management/PROJECT_STATE.md`, `ROADMAP.md`, `DECISIONS.md`, `HANDOFF.md`. Estes **quatro** são a fonte oficial de estado, roadmap, decisões e continuação.
+2. **Especificações técnicas:** documentos versionados em `docs/global/`, `docs/lotofacil/`, `docs/megasena/` (inclui a especificação da Rolling 20 e o memorando de pesquisa RMS 20+50).
+3. **Histórico / local:** handoffs de implementação antigos (`00_START_HERE_CLAUDE_CODE.md`), artefatos em `reference/`, arquivos locais não versionados (pacote antigo de gestão `docs/project-management/00_…14_*.md` e `README.md`, pacotes brutos de auditoria, Brand Kits, DOCX).
+
+Material histórico/local pode informar uma tarefa, mas **não substitui silenciosamente** uma decisão canônica atual. Os arquivos antigos/locais de gestão são apenas referência histórica, a menos que seu conteúdo tenha sido explicitamente migrado para os quatro documentos canônicos (o conhecimento durável relevante já foi migrado em 2026-09-21: regras de release abaixo, critérios de mudança de escopo em `DEC-020` e ideias de produto em `ROADMAP.md`).
+
 ## No início de TODA tarefa substancial
 
 1. Leia, nesta ordem:
@@ -63,9 +71,10 @@ Ver `CLAUDE.md`. Nunca coloque secrets no frontend/repositório.
 ## Fluxo de release e deploy
 
 - CI: `build-and-test` (GitHub Actions) em PR e em `main`.
-- Deploy: Cloudflare Pages. Cada commit tem um deploy imutável em `https://<8 primeiros hex do external_id do check-run>.loterias-bkr.pages.dev`; produção é `https://loterias-bkr.pages.dev/`.
-- Verificar produção = CI de `main` (event `push`, `head_sha` do merge) com sucesso + bundle de produção igual ao do deploy do commit + smoke test.
-- Tag/release só com autorização explícita (`DEC-003`). Hoje a última tag é `v1.1.2`.
+- Deploy: Cloudflare Pages. Obtenha a URL real de preview/deploy nos metadados de check/deployment do GitHub (por exemplo os check-runs do commit ou o status do PR), **verifique que ela responde com sucesso** e registre a URL exata quando necessário. Não assuma nenhum mapeamento não documentado entre `external_id` e hostname. Homologue sempre o ambiente correto: registre a URL imutável do preview e o SHA aceito (um alias incorreto já causou um falso diagnóstico de regressão). Produção: `https://loterias-bkr.pages.dev/`.
+- Verificar produção = CI de `main` (event `push`, `head_sha` do merge) com sucesso + o que está em produção corresponde ao deploy desse commit (por exemplo, mesmo bundle de assets) + smoke test.
+- O CI de PR não substitui o CI de `main`: a tag/release só depois do CI de `main` verde (na v1.1.1 o PR passou e o `main` revelou uma race assíncrona).
+- Versionamento SemVer (MAJOR incompatibilidade relevante; MINOR capacidade compatível; PATCH correção/manutenção). Tag anotada e GitHub Release só com autorização explícita (`DEC-003`). Nunca reescreva/mova uma tag publicada: regressão crítica ⇒ interromper a release e publicar um patch. Hoje a última tag é `v1.1.2`.
 
 ## Problemas conhecidos de ferramenta
 

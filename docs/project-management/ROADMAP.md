@@ -45,12 +45,16 @@ Propósito de alto nível:
 - geração determinística e auditável (seed);
 - especificação/auditoria detalhadas já preparadas antes da implementação.
 
-Pré-requisito de qualquer trabalho: ler o pacote de especificação/auditoria e confirmar que `main` está atualizada.
+**Especificação canônica versionada:** [`../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) — contém tudo o necessário para implementar (grupos, alocação proporcional, filtros, otimização, capacidades, critérios de aceite). O pacote bruto de auditoria (`MEGASENA_ROLLING20_AUDIT_PACKAGE_v2_1/`, local e não versionado) é apenas evidência de apoio e **não** é necessário.
+
+Pré-requisito de qualquer trabalho: ler a especificação acima e confirmar que `main` está atualizada. Ponto aberto: título de UI a confirmar com o product owner (ver §14 da especificação).
 
 ## Pesquisa
 
 ### RMS-201 — RMS v2.x, desempate multi-horizonte 20+50
 Status: **RESEARCH.** Nenhuma implementação aprovada.
+
+Memorando de pesquisa com a análise exploratória reproduzida: [`../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md).
 
 Regra candidata:
 1. ranking primário: frequência em T-20 … T-1;
@@ -84,5 +88,17 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 | TECH-005 | Aviso no upload do relatório do Playwright quando o diretório não existe | DEFERRED |
 | TECH-006 | Investigar o erro intermitente de teardown assíncrono "window is not defined" se reaparecer (visto uma vez em `carteirasResultChecking.test.tsx`; re-run passou) | DEFERRED |
 | REPO-001 | Limpeza opcional/baixa prioridade do repositório e de arquivos locais não versionados | DEFERRED |
+
+### Ideias de produto (IDEA — sem aprovação)
+
+Migradas do antigo pacote local de gestão (v1.1.1); todas exigem definição de escopo e aprovação antes de virar `APPROVED`:
+
+- premiação oficial por concurso e ciclo de conferência (aguardando / disponível / conferido), conferência automática;
+- histórico mais rico, filtros, indicadores e exportação melhorada; eventual impressão/PDF;
+- analytics de adoção (hoje não há métricas de uso estruturadas);
+- monetização: somente após dados de uso, sem prejudicar a transparência (ex.: freemium/recursos analíticos), separando análise de incentivo à aposta;
+- novas modalidades e apostas ampliadas; conta/sync; PWA mais avançado;
+- verificação de nome/marca (INPI, domínio, lojas): status **não verificado** no repositório;
+- RMS v3, Crowd Score, popularidade/rateio, ablação de regras (pesquisa).
 
 Adiados de produto herdados da v1 (`docs/global/DECISIONS_AND_OPEN_POINTS_V1.md`): Crowd Score calibrado, ROI previsto, compra de apostas, pagamentos, login/sync, push, IA explicativa em runtime, RMS v3, apostas ampliadas.

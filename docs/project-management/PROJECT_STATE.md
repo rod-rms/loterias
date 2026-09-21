@@ -48,11 +48,11 @@ Nenhum. Esta fundação de continuidade (documentação/governança) é o único
 
 ## Próximo item de implementação aprovado
 
-**MEGA-ROLL-001** — Mega-Sena Rolling 20 Balanceada v2.1. Status `APPROVED`; **implementação não iniciada**. Especificação/auditoria preparadas fora do repositório versionado (pacote local `MEGASENA_ROLLING20_AUDIT_PACKAGE_v2_1/`, ainda não commitado). Ver `ROADMAP.md`.
+**MEGA-ROLL-001** — Mega-Sena Rolling 20 Balanceada v2.1. Status `APPROVED`; **implementação não iniciada**. Contrato de implementação versionado em [`docs/megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) (o pacote bruto de auditoria local é só evidência de apoio). Ponto aberto: título de UI a confirmar. Ver `ROADMAP.md`.
 
 ## Itens de pesquisa
 
-- **RMS-201** — RMS v2.x, desempate multi-horizonte 20+50: `RESEARCH`. Nada implementado.
+- **RMS-201** — RMS v2.x, desempate multi-horizonte 20+50: `RESEARCH`. Nada implementado. Base: [`docs/lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md).
 - **OBS-001** — Registro de Pesquisa Observacional: `RESEARCH / PLANNED`. Existe apenas a base de dados do BET-001; **não há painel/análise**.
 
 ## Dívida técnica conhecida, não bloqueante
@@ -61,5 +61,5 @@ BRAND-001 (centralização óptica do trevo/logo), TECH-001 … TECH-006 (ver `R
 
 ## Observações
 
-- Arquivos locais não versionados podem existir na máquina do product owner (`Claude outputs/`, pacotes de auditoria, Brand Kits, DOCX). Não os adicione ao git sem pedido explícito.
+- Arquivos locais não versionados podem existir na máquina do product owner (`Claude outputs/`, pacote bruto de auditoria, Brand Kits, DOCX, pacote antigo de gestão `docs/project-management/00_…14_*.md`). São material histórico/de referência; não os adicione ao git sem pedido explícito e não os trate como fonte de estado.
 - `00_START_HERE_CLAUDE_CODE.md` é o handoff histórico da implementação original da v1 e **não** é fonte de estado atual.
