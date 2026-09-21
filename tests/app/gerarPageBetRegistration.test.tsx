@@ -74,8 +74,15 @@ function makeFakeResult(n: number): PortfolioEnvelope {
   };
 }
 
-const savePortfolio = vi.fn().mockResolvedValue(undefined);
-vi.mock("../../src/shared/lib/portfolioStore", () => ({ savePortfolio: (...a: unknown[]) => savePortfolio(...a) }));
+// Spy wrapping the REAL store (fake-indexeddb), so the page sees the authoritative final record.
+const savePortfolio = vi.hoisted(() => vi.fn());
+vi.mock("../../src/shared/lib/portfolioStore", async () => {
+  const actual = await vi.importActual<typeof import("../../src/shared/lib/portfolioStore")>("../../src/shared/lib/portfolioStore");
+  savePortfolio.mockImplementation(actual.savePortfolio);
+  return { ...actual, savePortfolio: (...a: unknown[]) => savePortfolio(...a) };
+});
+import { db } from "../../src/shared/lib/db";
+import { listPortfolios } from "../../src/shared/lib/portfolioStore";
 
 vi.mock("../../src/shared/lib/useGenerationWorker", async () => {
   const { useState } = await import("react");
@@ -111,8 +118,9 @@ async function generateSix() {
 }
 
 describe("GerarPage — save panel and opt-in bet registration", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     savePortfolio.mockClear();
+    await db.portfolios.clear();
     counter = 0;
   });
 
@@ -171,8 +179,9 @@ describe("GerarPage — save panel and opt-in bet registration", () => {
 });
 
 describe("GerarPage — zero-ticket bet registration is not allowed", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     savePortfolio.mockClear();
+    await db.portfolios.clear();
     counter = 0;
   });
 
@@ -187,5 +196,79 @@ describe("GerarPage — zero-ticket bet registration is not allowed", () => {
     expect(savePortfolio).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }));
     expect(screen.getByRole("button", { name: "Salvar carteira" })).toBeEnabled();
+  });
+});
+
+describe("GerarPage — repeated save of the same generated portfolio reports the FINAL persisted state", () => {
+  beforeEach(async () => {
+    savePortfolio.mockClear();
+    await db.portfolios.clear();
+    counter = 0;
+  });
+
+  const toggleRegister = () => fireEvent.click(screen.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }));
+  const saveFirst5of6 = async () => {
+    await generateSix();
+    toggleRegister();
+    fireEvent.click(screen.getByRole("checkbox", { name: "J6 apostado" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    await screen.findByText(/5 de 6 jogos registrados como apostados/);
+  };
+  const reopenSave = async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Salvar estes jogos" }));
+    await screen.findByRole("dialog", { name: "Salvar carteira" });
+  };
+
+  it("registration OFF on repeat: persistence stays 5/6, message never says no bet was registered, generated content untouched", async () => {
+    await saveFirst5of6();
+    const [before] = await listPortfolios();
+    await reopenSave();
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText(/O registro de aposta existente foi preservado: 5 de 6 jogos registrados como apostados/)).toBeInTheDocument();
+    expect(screen.queryByText(/Nenhuma aposta foi registrada/)).not.toBeInTheDocument();
+    const all = await listPortfolios();
+    expect(all).toHaveLength(1);
+    expect(all[0]!.betSelection!.revisions).toHaveLength(1);
+    expect(all[0]!.betSelection!.revisions[0]!.selectedTicketNumbers).toEqual([1, 2, 3, 4, 5]);
+    expect(all[0]!.markedAsBet).toBe(true);
+    expect(all[0]!.tickets).toEqual(before!.tickets);
+    expect(all[0]!.seed).toBe(before!.seed);
+    expect(all[0]!.strategyId).toBe(before!.strategyId);
+    expect(all[0]!.metrics).toEqual(before!.metrics);
+    expect(all[0]!.audit).toEqual(before!.audit);
+  });
+
+  it("repeat with a changed selection 5/6 -> 4/6 reports 4 de 6", async () => {
+    await saveFirst5of6();
+    await reopenSave();
+    toggleRegister();
+    fireEvent.click(screen.getByRole("checkbox", { name: "J5 apostado" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "J6 apostado" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    expect(await screen.findByText(/Estes jogos foram salvos em Meus jogos salvos. 4 de 6 jogos registrados como apostados/)).toBeInTheDocument();
+    const [p] = await listPortfolios();
+    expect(p!.betSelection!.revisions).toHaveLength(2);
+  });
+
+  it("repeat with an identical selection is idempotent and reports the actual state", async () => {
+    await saveFirst5of6();
+    await reopenSave();
+    toggleRegister();
+    fireEvent.click(screen.getByRole("checkbox", { name: "J6 apostado" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText(/5 de 6 jogos registrados como apostados/)).toBeInTheDocument();
+    expect((await listPortfolios())[0]!.betSelection!.revisions).toHaveLength(1);
+  });
+
+  it("first save with no registration, repeated with none: still 'Nenhuma aposta foi registrada'", async () => {
+    await generateSix();
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    await screen.findByText(/Nenhuma aposta foi registrada/);
+    await reopenSave();
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText(/Nenhuma aposta foi registrada/)).toBeInTheDocument();
   });
 });

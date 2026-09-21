@@ -4,7 +4,7 @@ import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import { loadDataset, loadGameConfig, suggestNextContest } from "../../shared/lib/dataLoaders";
 import { useGenerationWorker } from "../../shared/lib/useGenerationWorker";
 import { savePortfolio } from "../../shared/lib/portfolioStore";
-import { appendBetSelectionRevision, determineResultAvailability } from "../../shared/lib/betSelection";
+import { appendBetSelectionRevision, determineResultAvailability, getCurrentBetTicketNumbers } from "../../shared/lib/betSelection";
 import { getMetricPresentation, PRIMARY_METRIC_ORDER } from "../../shared/lib/metricPresentation";
 import {
   StrategyCard,
@@ -394,7 +394,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
             datasetLatestContestAtRecording: dataset?.latestContest,
           })
         : null;
-    await savePortfolio({
+    const finalRecord = await savePortfolio({
       schemaVersion: 1,
       id: activeResult.id,
       modality,
@@ -414,10 +414,18 @@ export function GerarPage({ modality }: { modality: Modality }) {
       ...(betSelection ? { betSelection: betSelection.betSelection } : {}),
     });
     setSaveOpen(false);
+    setRegisterBet(false); // reopening the dialog always starts with registration OFF (opt-in)
+    setBetSelected([]);
+    // Describe the FINAL persisted state (a repeated save may have preserved or
+    // appended to an earlier registration), not only the dialog's incoming state.
+    const betCount = getCurrentBetTicketNumbers(finalRecord).length;
+    const base = "Estes jogos foram salvos em Meus jogos salvos.";
     setSavedMessage(
-      betSelection
-        ? `Estes jogos foram salvos em Meus jogos salvos. ${betSelection.betSelection.revisions[0]!.selectedTicketNumbers.length} de ${activeResult.tickets.length} jogos registrados como apostados.`
-        : "Estes jogos foram salvos em Meus jogos salvos. Nenhuma aposta foi registrada.",
+      betCount === 0
+        ? `${base} Nenhuma aposta foi registrada.`
+        : betSelection
+          ? `${base} ${betCount} de ${finalRecord.tickets.length} jogos registrados como apostados.`
+          : `${base} O registro de aposta existente foi preservado: ${betCount} de ${finalRecord.tickets.length} jogos registrados como apostados.`,
     );
   }
 

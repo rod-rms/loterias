@@ -24,13 +24,16 @@ export interface PortfolioFilters {
  * are appended to the existing history. A repeated save without a bet
  * selection never erases or replaces an existing one. Importing a backup with
  * explicit overwrite is a separate path (importBackup).
+ *
+ * Returns the FINAL persisted record (authoritative state after any merge), so
+ * callers describe what is actually stored rather than what they submitted.
  */
-export async function savePortfolio(portfolio: SavedPortfolio): Promise<void> {
-  await db.transaction("rw", db.portfolios, async () => {
+export async function savePortfolio(portfolio: SavedPortfolio): Promise<SavedPortfolio> {
+  return db.transaction("rw", db.portfolios, async () => {
     const existing = await db.portfolios.get(portfolio.id);
     if (!existing) {
       await db.portfolios.put(portfolio);
-      return;
+      return portfolio;
     }
     const existingRevisions = existing.betSelection?.revisions ?? [];
     const merged = [...existingRevisions];
@@ -43,12 +46,15 @@ export async function savePortfolio(portfolio: SavedPortfolio): Promise<void> {
         current.selectedTicketNumbers.every((n, i) => n === revision.selectedTicketNumbers[i]);
       if (!sameAsCurrent) merged.push(revision);
     }
-    if (merged.length === existingRevisions.length) return; // idempotent: nothing new to record
+    if (merged.length === existingRevisions.length) return existing; // idempotent: nothing new to record
     const last = merged[merged.length - 1]!;
-    await db.portfolios.update(portfolio.id, {
+    const updated: SavedPortfolio = {
+      ...existing,
       betSelection: { schemaVersion: 1, revisions: merged },
       markedAsBet: last.selectedTicketNumbers.length > 0,
-    });
+    };
+    await db.portfolios.put(updated);
+    return updated;
   });
 }
 
