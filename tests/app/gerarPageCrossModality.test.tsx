@@ -94,7 +94,7 @@ function makeFakeResult(modality: Modality, numberOfTickets: number): PortfolioE
   };
 }
 
-const savePortfolio = vi.fn().mockResolvedValue(undefined);
+const savePortfolio = vi.fn().mockImplementation(async (p: unknown) => p); // real store returns the persisted record
 vi.mock("../../src/shared/lib/portfolioStore", () => ({
   savePortfolio: (...args: unknown[]) => savePortfolio(...args),
 }));

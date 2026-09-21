@@ -4,6 +4,7 @@ import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import { loadDataset, loadGameConfig, suggestNextContest } from "../../shared/lib/dataLoaders";
 import { useGenerationWorker } from "../../shared/lib/useGenerationWorker";
 import { savePortfolio } from "../../shared/lib/portfolioStore";
+import { appendBetSelectionRevision, determineResultAvailability, getCurrentBetTicketNumbers } from "../../shared/lib/betSelection";
 import { getMetricPresentation, PRIMARY_METRIC_ORDER } from "../../shared/lib/metricPresentation";
 import {
   StrategyCard,
@@ -23,6 +24,7 @@ import {
   Disclosure,
   ExportMenu,
   BackLink,
+  BetTicketPicker,
   HistoricalContestNotice,
   NextContestNotice,
 } from "../../shared/components";
@@ -125,6 +127,11 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  // Save panel: saving always persists the COMPLETE generated portfolio; registering
+  // real bets is a separate, explicit opt-in (saving != betting).
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [registerBet, setRegisterBet] = useState(false);
+  const [betSelected, setBetSelected] = useState<number[]>([]);
 
   // Two-snapshot generation state: `lastGeneratedInput` is the normalized
   // user-visible form used only to detect staleness; `resolvedSnapshot` is
@@ -206,6 +213,9 @@ export function GerarPage({ modality }: { modality: Modality }) {
     setResolvedSnapshot(null);
     setShowTechnicalDetails(false);
     setShowDetailedAnalysis(false);
+    setSaveOpen(false);
+    setRegisterBet(false);
+    setBetSelected([]);
   }, [modality]);
 
   useEffect(() => {
@@ -219,6 +229,13 @@ export function GerarPage({ modality }: { modality: Modality }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestedContest]);
+
+  const activeResultId = activeResult?.id;
+  useEffect(() => {
+    setSaveOpen(false);
+    setRegisterBet(false);
+    setBetSelected([]);
+  }, [activeResultId]);
 
   const maxNumber = modality === "lotofacil" ? 25 : 60;
   const gameConfig = config?.[modality];
@@ -367,7 +384,17 @@ export function GerarPage({ modality }: { modality: Modality }) {
     // snapshot backing it (built at generation time) somehow disagrees —
     // that snapshot carries the request/price context that gets persisted.
     if (!activeResult || !gameConfig || !resolvedSnapshot || resolvedSnapshot.request.modality !== modality) return;
-    await savePortfolio({
+    // Optional, explicit opt-in. The generated tickets are never filtered by this.
+    if (registerBet && betSelected.length === 0) return; // opt-in requires at least one ticket
+    const betSelection =
+      registerBet && betSelected.length > 0
+        ? appendBetSelectionRevision({ tickets: activeResult.tickets, betSelection: undefined }, betSelected, {
+            recordedAt: new Date().toISOString(),
+            resultAvailability: determineResultAvailability(activeResult.contest, dataset),
+            datasetLatestContestAtRecording: dataset?.latestContest,
+          })
+        : null;
+    const finalRecord = await savePortfolio({
       schemaVersion: 1,
       id: activeResult.id,
       modality,
@@ -383,9 +410,23 @@ export function GerarPage({ modality }: { modality: Modality }) {
       tickets: activeResult.tickets,
       metrics: activeResult.metrics,
       audit: activeResult.audit,
-      markedAsBet: false,
+      markedAsBet: betSelection ? betSelection.markedAsBet : false,
+      ...(betSelection ? { betSelection: betSelection.betSelection } : {}),
     });
-    setSavedMessage("Estes jogos foram salvos em Meus jogos salvos.");
+    setSaveOpen(false);
+    setRegisterBet(false); // reopening the dialog always starts with registration OFF (opt-in)
+    setBetSelected([]);
+    // Describe the FINAL persisted state (a repeated save may have preserved or
+    // appended to an earlier registration), not only the dialog's incoming state.
+    const betCount = getCurrentBetTicketNumbers(finalRecord).length;
+    const base = "Estes jogos foram salvos em Meus jogos salvos.";
+    setSavedMessage(
+      betCount === 0
+        ? `${base} Nenhuma aposta foi registrada.`
+        : betSelection
+          ? `${base} ${betCount} de ${finalRecord.tickets.length} jogos registrados como apostados.`
+          : `${base} O registro de aposta existente foi preservado: ${betCount} de ${finalRecord.tickets.length} jogos registrados como apostados.`,
+    );
   }
 
   function copyAll() {
@@ -668,7 +709,14 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={handleSave} className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground hover:bg-brand-actionHover">
+              <button
+                type="button"
+                onClick={() => {
+                  setSaveOpen(true);
+                  setSavedMessage(null);
+                }}
+                className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground hover:bg-brand-actionHover"
+              >
                 Salvar estes jogos
               </button>
               <button type="button" onClick={copyAll} className="rounded-md border border-brand-borderStrong px-4 py-2 text-sm font-semibold text-brand-text hover:bg-white/5">
@@ -684,6 +732,45 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 Limpar resultado
               </button>
             </div>
+            {saveOpen && (
+              <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded-lg border border-brand-border bg-brand-surfaceElevated p-4">
+                <h3 className="text-sm font-semibold text-brand-text">Salvar carteira</h3>
+                <p className="text-sm text-brand-textMuted">
+                  {activeResult.tickets.length === 1 ? "O jogo gerado será salvo." : `Todos os ${activeResult.tickets.length} jogos gerados serão salvos.`}
+                </p>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-brand-text">
+                  <input
+                    type="checkbox"
+                    checked={registerBet}
+                    onChange={(e) => {
+                      setRegisterBet(e.target.checked);
+                      if (e.target.checked) setBetSelected(activeResult.tickets.map((_, i) => i + 1));
+                    }}
+                    className="h-4 w-4"
+                  />
+                  Registrar também quais jogos foram apostados
+                </label>
+                {registerBet && <BetTicketPicker tickets={activeResult.tickets} selected={betSelected} onChange={setBetSelected} />}
+                {registerBet && betSelected.length === 0 && (
+                  <p className="text-xs text-amber-300" role="alert">
+                    Selecione ao menos um jogo apostado ou desative o registro de aposta.
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={registerBet && betSelected.length === 0}
+                    className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground hover:bg-brand-actionHover disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Salvar carteira
+                  </button>
+                  <button type="button" onClick={() => setSaveOpen(false)} className="rounded-md border border-brand-border px-4 py-2 text-sm font-semibold text-brand-text hover:bg-white/5">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
             <ComparePanel
               modality={modality}
               currentStrategyId={activeResult.strategyId}

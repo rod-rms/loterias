@@ -8,7 +8,7 @@ import {
   listPortfolios,
   previewBackup,
   savePortfolio,
-  setMarkedAsBet,
+  setBetSelection,
 } from "../../src/shared/lib/portfolioStore";
 import type { SavedPortfolio } from "../../src/shared/types";
 
@@ -57,7 +57,7 @@ describe("portfolio persistence (IndexedDB via Dexie)", () => {
 
   it("toggles the markedAsBet flag", async () => {
     await savePortfolio(makePortfolio("p1"));
-    await setMarkedAsBet("p1", true);
+    await setBetSelection("p1", [1], { resultAvailability: "unknown" });
     const [p] = await listPortfolios();
     expect(p!.markedAsBet).toBe(true);
   });
