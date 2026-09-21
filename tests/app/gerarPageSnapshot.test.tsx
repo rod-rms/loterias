@@ -132,6 +132,7 @@ describe("GerarPage — two-snapshot generation state", () => {
     await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
 
     fireEvent.click(screen.getByRole("button", { name: "Salvar estes jogos" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
 
     await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(1));
     const saved = savePortfolio.mock.calls[0][0];
@@ -194,6 +195,7 @@ describe("GerarPage — two-snapshot generation state", () => {
 
     // Saving after a clear must still use the frozen (pre-clear) snapshot.
     fireEvent.click(screen.getByRole("button", { name: "Salvar estes jogos" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
     await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(1));
     expect(savePortfolio.mock.calls[0][0].parameters.numberOfTickets).toBe(3);
   });
