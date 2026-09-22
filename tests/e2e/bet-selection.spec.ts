@@ -21,10 +21,10 @@ test.describe("LotoAtlas — per-ticket bet registration and full-portfolio chec
     for (let n = 1; n <= 6; n += 1) await expect(page.getByRole("checkbox", { name: `J${n} apostado` })).toBeChecked();
     for (let n = 1; n <= 6; n += 1) await page.getByRole("checkbox", { name: `J${n} apostado` }).uncheck();
     await expect(page.getByText("Selecione ao menos um jogo apostado ou desative o registro de aposta.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Salvar carteira" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Confirmar e salvar" })).toBeDisabled();
     for (let n = 1; n <= 5; n += 1) await page.getByRole("checkbox", { name: `J${n} apostado` }).check();
     await expect(page.getByText("5 de 6 jogos marcados como apostados")).toBeVisible();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText(/5 de 6 jogos registrados como apostados/)).toBeVisible();
 
     await page.goto("/carteiras");

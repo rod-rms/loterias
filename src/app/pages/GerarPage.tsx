@@ -717,7 +717,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 }}
                 className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground hover:bg-brand-actionHover"
               >
-                Salvar estes jogos
+                {activeResult.tickets.length === 1 ? "Salvar este jogo" : "Salvar estes jogos"}
               </button>
               <button type="button" onClick={copyAll} className="rounded-md border border-brand-borderStrong px-4 py-2 text-sm font-semibold text-brand-text hover:bg-white/5">
                 Copiar todos
@@ -732,6 +732,14 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 Limpar resultado
               </button>
             </div>
+            {/* Rendered immediately next to the save action so the confirmation is
+                visibly tied to the button the user just clicked, not displaced by
+                the comparison panel below. */}
+            {savedMessage && (
+              <p role="status" className="text-sm text-emerald-300">
+                {savedMessage}
+              </p>
+            )}
             {saveOpen && (
               <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded-lg border border-brand-border bg-brand-surfaceElevated p-4">
                 <h3 className="text-sm font-semibold text-brand-text">Salvar carteira</h3>
@@ -763,7 +771,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                     disabled={registerBet && betSelected.length === 0}
                     className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground hover:bg-brand-actionHover disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Salvar carteira
+                    Confirmar e salvar
                   </button>
                   <button type="button" onClick={() => setSaveOpen(false)} className="rounded-md border border-brand-border px-4 py-2 text-sm font-semibold text-brand-text hover:bg-white/5">
                     Cancelar
@@ -781,7 +789,6 @@ export function GerarPage({ modality }: { modality: Modality }) {
               currentResult={activeResult}
             />
           </div>
-          {savedMessage && <p role="status" className="text-sm text-emerald-300">{savedMessage}</p>}
 
           <div className="space-y-2 border-t border-brand-border pt-3">
             <Disclosure title="Ver análise detalhada" open={showDetailedAnalysis} onOpenChange={setShowDetailedAnalysis}>
