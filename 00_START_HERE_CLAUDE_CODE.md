@@ -1,3 +1,11 @@
+> ## ⚠️ HISTORICAL INITIAL IMPLEMENTATION HANDOFF
+>
+> Este documento descreve a **missão original de implementação da v1**. O aplicativo **já foi implementado** (e evoluiu depois da v1.1.2).
+> **Não** use este arquivo como fonte do estado atual nem do roadmap do projeto.
+> A continuação atual começa em [`CLAUDE.md`](CLAUDE.md) e [`docs/project-management/HANDOFF.md`](docs/project-management/HANDOFF.md).
+
+---
+
 # 00 — START HERE: Implementação integral Loterias v1 no Claude Code
 
 **Status:** handoff operacional aprovado para implementação  
@@ -76,6 +84,8 @@ Não:
 # 3. Ordem de autoridade das fontes
 
 Quando houver dúvida, use esta precedência:
+
+> **Nota (atual):** esta precedência vale apenas para a missão original de implementação da v1. Para o trabalho atual ela está superada por [`CLAUDE.md`](CLAUDE.md) e [`docs/project-management/HANDOFF.md`](docs/project-management/HANDOFF.md).
 
 1. **este arquivo `00_START_HERE_CLAUDE_CODE.md`;**
 2. `docs/global/ACCEPTANCE_CRITERIA_V1.md`;
