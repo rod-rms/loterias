@@ -5,18 +5,18 @@
 
 | Campo | Valor |
 |---|---|
-| Última revisão | 2026-09-21 |
+| Última revisão | 2026-09-22 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `978d63d398c21885a72e282564303603a7d6690b` (merge do PR #7) |
+| `main` no momento da revisão | `8d463c59a850d95b8440a510d66b4c70b9f82137` (tip pós-merge do PR #8 + atualização automática de dataset) |
 | Versão em `package.json` | `1.1.2` |
 | Última release estável com tag | `v1.1.2` (2026-09-10) |
 
 ## Release com tag ≠ estado atual de produção
 
-- **Release com tag:** `v1.1.2` — release de confiabilidade (Worker fatal errors, Error Boundary, alerta de falha do atualizador, `.gitattributes`/`.editorconfig`). **Não** contém a integração visual da marca LotoAtlas, o FIX-001 (PR #6) nem o BET-001 (PR #7).
-- **Produção hoje:** `main` em `978d63d`, **à frente** de `v1.1.2`: inclui a marca LotoAtlas (PR #5), o FIX-001 (PR #6) e o BET-001 (PR #7), e os commits automáticos de atualização de dados. Essas mudanças estão em `## [Unreleased]` do `CHANGELOG.md` e ainda não têm tag/release. A versão do app continua `1.1.2` de propósito (nenhum bump foi autorizado).
-- Produção verificada em 2026-09-21: o bundle servido em `loterias-bkr.pages.dev` é o mesmo do deploy do commit `978d63d`; CI de `main` (push) verde.
+- **Release com tag:** `v1.1.2` — release de confiabilidade (Worker fatal errors, Error Boundary, alerta de falha do atualizador, `.gitattributes`/`.editorconfig`). **Não** contém a integração visual da marca LotoAtlas, o FIX-001 (PR #6), o BET-001 (PR #7) nem a fundação de continuidade de projeto (PR #8).
+- **Produção hoje:** `main` em `8d463c5`, **à frente** de `v1.1.2`: inclui a marca LotoAtlas (PR #5), o FIX-001 (PR #6), o BET-001 (PR #7), a fundação de continuidade de projeto (PR #8 — este próprio conjunto de documentos) e os commits automáticos de atualização de dataset. As mudanças de produto/UX estão em `## [Unreleased]` do `CHANGELOG.md` e ainda não têm tag/release. A versão do app continua `1.1.2` de propósito (nenhum bump foi autorizado).
+- Produção verificada em 2026-09-21 (merge do PR #7, `978d63d`) e novamente confirmada verde via CI de `main` no merge do PR #8 (`4fb0589`, documentação apenas — sem verificação funcional de produto necessária).
 
 ## Capacidades atualmente em produção
 
@@ -29,22 +29,22 @@
 - Identidade visual LotoAtlas (dark-first, tokens `brand.*`).
 - Dados pessoais somente locais; nenhuma conta, nenhum backend.
 
-## Datasets (lidos de `public/data/status.json` em 2026-09-21)
+## Datasets (lidos de `public/data/status.json` em 2026-09-22)
 
 | Modalidade | Último concurso | Data do sorteio | Status |
 |---|---|---|---|
-| Lotofácil | 3783 | 2026-09-18 | ok, 0 lacunas |
-| Mega-Sena | 3059 | 2026-09-17 | ok, 0 lacunas |
+| Lotofácil | 3785 | 2026-09-21 | ok, 0 lacunas |
+| Mega-Sena | 3060 | 2026-09-20 | ok, 0 lacunas |
 
 Estes números avançam sozinhos (commits `data: update lottery datasets` em `main`). **Sempre releia `public/data/status.json`.**
 
 ## PRs abertos
 
-Nenhum PR de funcionalidade aberto no momento da revisão. (O PR de documentação que introduziu este arquivo é o único aberto até ser mergeado.)
+Nenhum, no momento da revisão (verificado via `gh pr list`).
 
 ## Item de desenvolvimento em andamento
 
-Nenhum. Esta fundação de continuidade (documentação/governança) é o único trabalho aberto.
+Nenhum.
 
 ## Próximo item de implementação aprovado
 
