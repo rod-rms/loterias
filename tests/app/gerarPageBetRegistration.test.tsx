@@ -133,7 +133,7 @@ describe("GerarPage — save panel and opt-in bet registration", () => {
 
   it("saving without registering bets saves ALL tickets, markedAsBet=false, no betSelection", async () => {
     await generateSix();
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
     await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(1));
     const saved = savePortfolio.mock.calls[0][0];
     expect(saved.tickets).toHaveLength(6);
@@ -154,7 +154,7 @@ describe("GerarPage — save panel and opt-in bet registration", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }));
     fireEvent.click(screen.getByRole("checkbox", { name: "J6 apostado" }));
     expect(screen.getByText("5 de 6 jogos marcados como apostados")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
 
     await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(1));
     const saved = savePortfolio.mock.calls[0][0];
@@ -190,12 +190,12 @@ describe("GerarPage — zero-ticket bet registration is not allowed", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }));
     for (let n = 1; n <= 6; n += 1) fireEvent.click(screen.getByRole("checkbox", { name: `J${n} apostado` }));
     expect(screen.getByText("Selecione ao menos um jogo apostado ou desative o registro de aposta.")).toBeInTheDocument();
-    const save = screen.getByRole("button", { name: "Salvar carteira" });
+    const save = screen.getByRole("button", { name: "Confirmar e salvar" });
     expect(save).toBeDisabled();
     fireEvent.click(save);
     expect(savePortfolio).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }));
-    expect(screen.getByRole("button", { name: "Salvar carteira" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Confirmar e salvar" })).toBeEnabled();
   });
 });
 
@@ -211,7 +211,7 @@ describe("GerarPage — repeated save of the same generated portfolio reports th
     await generateSix();
     toggleRegister();
     fireEvent.click(screen.getByRole("checkbox", { name: "J6 apostado" }));
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
     await screen.findByText(/5 de 6 jogos registrados como apostados/);
   };
   const reopenSave = async () => {
@@ -223,7 +223,7 @@ describe("GerarPage — repeated save of the same generated portfolio reports th
     await saveFirst5of6();
     const [before] = await listPortfolios();
     await reopenSave();
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
     await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(2));
     expect(await screen.findByText(/O registro de aposta existente foi preservado: 5 de 6 jogos registrados como apostados/)).toBeInTheDocument();
     expect(screen.queryByText(/Nenhuma aposta foi registrada/)).not.toBeInTheDocument();
@@ -245,7 +245,7 @@ describe("GerarPage — repeated save of the same generated portfolio reports th
     toggleRegister();
     fireEvent.click(screen.getByRole("checkbox", { name: "J5 apostado" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "J6 apostado" }));
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
     expect(await screen.findByText(/Estes jogos foram salvos em Meus jogos salvos. 4 de 6 jogos registrados como apostados/)).toBeInTheDocument();
     const [p] = await listPortfolios();
     expect(p!.betSelection!.revisions).toHaveLength(2);
@@ -256,7 +256,7 @@ describe("GerarPage — repeated save of the same generated portfolio reports th
     await reopenSave();
     toggleRegister();
     fireEvent.click(screen.getByRole("checkbox", { name: "J6 apostado" }));
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
     await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(2));
     expect(await screen.findByText(/5 de 6 jogos registrados como apostados/)).toBeInTheDocument();
     expect((await listPortfolios())[0]!.betSelection!.revisions).toHaveLength(1);
@@ -264,10 +264,10 @@ describe("GerarPage — repeated save of the same generated portfolio reports th
 
   it("first save with no registration, repeated with none: still 'Nenhuma aposta foi registrada'", async () => {
     await generateSix();
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
     await screen.findByText(/Nenhuma aposta foi registrada/);
     await reopenSave();
-    fireEvent.click(screen.getByRole("button", { name: "Salvar carteira" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar e salvar" }));
     await waitFor(() => expect(savePortfolio).toHaveBeenCalledTimes(2));
     expect(await screen.findByText(/Nenhuma aposta foi registrada/)).toBeInTheDocument();
   });

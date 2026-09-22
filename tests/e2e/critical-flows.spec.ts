@@ -99,7 +99,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await selectStrategy(page, "Gerar jogos aleatórios");
     await generateAndWait(page);
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
   });
 
@@ -108,7 +108,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await selectStrategy(page, "Gerar jogos aleatórios");
     await generateAndWait(page);
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
 
     await page.goto("/carteiras");
@@ -123,7 +123,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await selectStrategy(page, "Gerar jogos aleatórios");
     await generateAndWait(page);
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
 
     await page.goto("/carteiras");
@@ -174,7 +174,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill("100");
     await generateAndWait(page);
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
 
     await page.goto("/carteiras");
@@ -469,7 +469,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toBeVisible();
 
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
 
     await page.goto("/carteiras");
@@ -500,7 +500,7 @@ test.describe("LotoAtlas — critical flows", () => {
 
     // "Limpar configuração" itself never touches saved games in IndexedDB.
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
     await page.goto("/carteiras");
     await expect(page.getByText(/Gerar jogos aleatórios/)).toBeVisible();
@@ -589,7 +589,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
     await generateAndWait(page);
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
-    await page.getByRole("button", { name: "Salvar carteira" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
 
     await page.goto("/carteiras");
