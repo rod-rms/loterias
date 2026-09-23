@@ -264,7 +264,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
       {selected && (
         <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-brand-border bg-brand-surface p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">Detalhes — {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
+            <h2 className="font-semibold">Detalhes: {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
             <button type="button" onClick={() => setSelected(null)} className="rounded border border-brand-border px-2 py-1 text-sm">
               Fechar
             </button>
@@ -288,7 +288,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               <>
                 <div className="mb-3 space-y-2 rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-sm">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Resultado oficial — Concurso {checkedResult.contest}</p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Resultado oficial, concurso {checkedResult.contest}</p>
                     <p className="mt-0.5 font-mono text-base text-brand-text">{formatDrawNumbers(checkedResult.numbers)}</p>
                   </div>
                   {summary.sentence && (

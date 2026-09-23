@@ -62,7 +62,7 @@ function renderPage() {
 async function openAndCheck() {
   fireEvent.click(await screen.findByRole("button", { name: "Abrir" }));
   fireEvent.click(screen.getByRole("button", { name: "Conferir resultado" }));
-  await screen.findByText(/Resultado oficial — Concurso 3780/);
+  await screen.findByText(/Resultado oficial, concurso 3780/);
 }
 
 describe("CarteirasPage — saved portfolio bet status", () => {

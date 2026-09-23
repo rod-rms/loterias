@@ -68,7 +68,7 @@ describe("CarteirasPage — full result checking with ties and labels", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Abrir" }));
     fireEvent.click(screen.getByRole("button", { name: "Conferir resultado" }));
 
-    await screen.findByText(/Resultado oficial — Concurso 100/);
+    await screen.findByText(/Resultado oficial, concurso 100/);
     expect(screen.getByText("01 · 02 · 03 · 04 · 05 · 06")).toBeInTheDocument();
     expect(screen.getByText("J1 foi o melhor jogo, com 4 acertos · Quadra.")).toBeInTheDocument();
     const ticketList = screen.getByRole("list", { name: /Lista de \d+ jogos/ });

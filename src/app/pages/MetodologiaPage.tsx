@@ -31,7 +31,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
   return (
     <div className="max-w-none space-y-8">
       <BackLink to={`/${modality}/gerar`} label={`Voltar para ${MODALITY_LABEL[modality]}`} />
-      <h1 className="text-2xl font-bold">Metodologia — {MODALITY_LABEL[modality]}</h1>
+      <h1 className="text-2xl font-bold">Metodologia: {MODALITY_LABEL[modality]}</h1>
 
       <section className="space-y-4 rounded-xl border border-brand-border bg-brand-surface p-5">
         <h2 className="text-lg font-semibold text-brand-text">Como este aplicativo funciona</h2>
@@ -40,7 +40,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
           dezenas sairão nem aumenta a probabilidade de uma combinação específica.
         </p>
         <p className="text-brand-textMuted">
-          <strong>Variar mais os jogos</strong> distribui melhor as dezenas entre os jogos e reduz repetição entre eles — isso deixa o conjunto mais
+          <strong>Variar mais os jogos</strong> distribui melhor as dezenas entre os jogos e reduz repetição entre eles, o que deixa o conjunto mais
           diverso, não mais provável.
         </p>
         {modality === "lotofacil" ? (
@@ -51,7 +51,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
             </p>
             <p className="text-brand-textMuted">
               <strong>Equilibrar meus 6 jogos (RMS)</strong> usa os concursos anteriores apenas para organizar grupos de dezenas e montar uma carteira
-              estruturalmente equilibrada — não para prever o próximo resultado.
+              estruturalmente equilibrada, não para prever o próximo resultado.
             </p>
           </>
         ) : (
@@ -62,7 +62,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
         )}
         <p className="text-brand-textMuted">
           <strong>Jogos aleatórios equivalentes</strong> é uma referência de comparação: a média (ou um controle reproduzível) de conjuntos aleatórios com a
-          mesma quantidade de jogos e as mesmas restrições — não é um conjunto que você recebe.
+          mesma quantidade de jogos e as mesmas restrições; não é um conjunto que você recebe.
         </p>
       </section>
 
@@ -96,7 +96,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
             <h3 className="text-base font-semibold">Aleatória concreta vs. baseline</h3>
             <p className="mt-1 text-sm text-brand-textMuted">
               "Aleatória distinta" é um conjunto concreto gerado de forma uniforme. "Baseline" é a média teórica (ou um controle reproduzível) usada apenas
-              para comparação — não é um conjunto que você recebe.
+              para comparação; não é um conjunto que você recebe.
             </p>
           </section>
 
@@ -113,7 +113,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
               <h3 className="text-base font-semibold">RMS v2</h3>
               <p className="mt-1 text-sm text-brand-textMuted">
                 A RMS v2 organiza seis jogos usando pools A/B/C calculadas sobre os 20 concursos anteriores, com regras de exposição, interseção, paridade
-                e estrutura auditáveis. O histórico define rotação e pools — não dezenas "mais prováveis". A RMS não aumenta a chance de 15 acertos frente
+                e estrutura auditáveis. O histórico define rotação e pools, não dezenas "mais prováveis". A RMS não aumenta a chance de 15 acertos frente
                 a outros seis jogos distintos quaisquer.
               </p>
             </section>
@@ -122,7 +122,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
               <h3 className="text-base font-semibold">F4 / F5</h3>
               <p className="mt-1 text-sm text-brand-textMuted">
                 F4 e F5 medem a chance de pelo menos um jogo do conjunto atingir Quadra+ ou Quina+, respectivamente. Não devem ser interpretados como
-                "chance de ganhar dinheiro" — apenas como chance de atingir aquele patamar de acertos sob o modelo de sorteio equiprovável.
+                "chance de ganhar dinheiro", apenas como chance de atingir aquele patamar de acertos sob o modelo de sorteio equiprovável.
               </p>
             </section>
           )}
@@ -164,7 +164,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
             <div>
               <dt className="text-xs text-brand-textMuted">Fonte oficial</dt>
               <dd className="break-all font-medium">
-                Loterias CAIXA —{" "}
+                Loterias CAIXA:{" "}
                 <a href={SOURCE_URL[modality]} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-brand-text">
                   {SOURCE_URL[modality]}
                 </a>

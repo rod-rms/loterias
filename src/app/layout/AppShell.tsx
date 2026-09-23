@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Mobile header (below sm): three deliberate rows — brand+nav, modality switcher, freshness. */}
         <div className="mx-auto max-w-6xl px-4 sm:hidden">
           <div className="flex items-center justify-between gap-3 py-3">
-            <Link to="/" className="flex shrink-0 items-center" aria-label="LotoAtlas — página inicial">
+            <Link to="/" className="flex shrink-0 items-center" aria-label="LotoAtlas, página inicial">
               <img src={lotoatlasSymbolUi} alt="LotoAtlas" className="h-7 w-auto" width={33} height={28} />
             </Link>
             <nav aria-label="Navegação principal" className="flex items-center gap-3">
@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* Desktop/tablet header (sm and up): one primary row (logo, switcher, nav), freshness as a secondary row. */}
         <div className="mx-auto hidden max-w-6xl items-center gap-4 px-4 py-3 sm:flex">
-          <Link to="/" className="flex shrink-0 items-center" aria-label="LotoAtlas — página inicial">
+          <Link to="/" className="flex shrink-0 items-center" aria-label="LotoAtlas, página inicial">
             <img src={lotoatlasLogoUi} alt="LotoAtlas" className="h-7 w-auto" width={96} height={28} />
           </Link>
           <GameSwitcher />

@@ -181,7 +181,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await page.getByRole("button", { name: "Abrir" }).first().click();
     await page.getByRole("button", { name: "Conferir resultado" }).click();
     // Full result, not a single summarized sentence: official numbers, per-ticket hits, best ticket.
-    await expect(page.getByText("Resultado oficial — Concurso 100")).toBeVisible();
+    await expect(page.getByText("Resultado oficial, concurso 100")).toBeVisible();
     await expect(page.getByText(/foi o melhor jogo|foram os melhores jogos|tiveram a maior pontuação/)).toBeVisible();
     const ticketList = page.getByRole("list", { name: /Lista de \d+ jogos/ });
     await expect(ticketList).toContainText("acertos");
@@ -595,7 +595,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await page.goto("/carteiras");
     await page.getByRole("button", { name: "Abrir" }).first().click();
     await page.getByRole("button", { name: "Conferir resultado" }).click();
-    await expect(page.getByText(`Resultado oficial — Concurso ${ds.lastDraw.contest}`)).toBeVisible();
+    await expect(page.getByText(`Resultado oficial, concurso ${ds.lastDraw.contest}`)).toBeVisible();
     // A best-ticket sentence must always render; the exact hit count depends on the random draw.
     await expect(page.getByText(/foi o melhor jogo|foram os melhores jogos|tiveram a maior pontuação/)).toBeVisible();
     // Lotofácil's labeled hit counts (11-15) must never render as "X acertos · X acertos".

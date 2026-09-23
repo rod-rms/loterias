@@ -33,7 +33,7 @@ test.describe("LotoAtlas — per-ticket bet registration and full-portfolio chec
 
     await page.getByRole("button", { name: "Abrir" }).first().click();
     await page.getByRole("button", { name: "Conferir resultado" }).click();
-    await expect(page.getByText("Resultado oficial — Concurso 100")).toBeVisible();
+    await expect(page.getByText("Resultado oficial, concurso 100")).toBeVisible();
 
     const ticketList = page.getByRole("list", { name: "Lista de 6 jogos" });
     await expect(ticketList.locator(":scope > li")).toHaveCount(6);
