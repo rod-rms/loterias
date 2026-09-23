@@ -2,7 +2,7 @@
 
 Este arquivo é o registro **estratégico atual**. O log histórico detalhado (decisões 1–38, v1 a v1.1.2) permanece em [`docs/global/DECISIONS_AND_OPEN_POINTS_V1.md`](../global/DECISIONS_AND_OPEN_POINTS_V1.md) e não é duplicado aqui. Novas decisões relevantes entram aqui com ID `DEC-NNN` no mesmo PR que as origina.
 
-Última revisão: 2026-09-21.
+Última revisão: 2026-09-23.
 
 ## Governança e processo
 
@@ -32,3 +32,7 @@ Este arquivo é o registro **estratégico atual**. O log histórico detalhado (d
 - **DEC-017 — O desempate RMS 20+50 é apenas candidato de pesquisa** (RMS-201); nenhuma implementação sem experimento reprodutível documentado.
 - **DEC-018 — A Rolling 20 Balanceada v2.1 (MEGA-ROLL-001) está aprovada para implementação futura**, mas **não** faz parte da produção até ser desenvolvida, mergeada e implantada explicitamente. O título oficial de UI de MEGA-ROLL-001 é "Organizar pelo histórico recente"; "Rolling 20 Balanceada v2.1" permanece como nome técnico.
 - **DEC-019 — O Strategy Registry controla as capacidades; toda geração tem seed; a RMS nunca relaxa restrições rígidas silenciosamente.**
+
+## Marca e propriedade intelectual
+
+- **DEC-021 (2026-09-23) — Classificação de marca "LotoAtlas" pesquisada; registro formal adiado até regularização do MEI.** Busca informal no portal atual do INPI (`servicos.busca.inpi.gov.br/marcas`) para "LotoAtlas", "Loto Atlas", "Loto-Atlas", "Lotto Atlas", "Atlas Loto" e "Atlas Loteria" nas classes de Nice 9, 41 e 42: zero conflitos em todas as combinações. Um agente externo de propriedade industrial foi contratado para um parecer de enquadramento completo (relatório local em `docs/global/Relatorio_Enquadramento_INPI_LotoAtlas.md`, não versionado). Recomendação do agente: depositar somente na **NCL 42**, especificamente "Provimento de software de computador on-line não baixável" (código 420300) — a classe que corresponde ao que o LotoAtlas é hoje (software web entregue on-line, não baixável, sem operação de loteria). A **NCL 9** (software/app baixável) foi considerada desnecessária por ora, só relevante se um app nativo Android/iOS/desktop for concretamente planejado. A **NCL 41** (serviços de operação de loteria/jogos de azar, ex. "Operação de loterias") foi explicitamente **rejeitada por enquadramento incorreto**: o LotoAtlas não opera loteria, não recebe apostas nem processa pagamentos, e depositar nessa classe poderia caracterizar erroneamente o produto como serviço de aposta/jogo de azar, além de conflitar com a exigência do Art. 128 da LPI de que a marca corresponda à atividade lícita efetivamente exercida pelo requerente. **Decisão:** o depósito formal fica deliberadamente **adiado** (não rejeitado) até a regularização do MEI (Microempreendedor Individual) do product owner, para que o titular do pedido já seja a entidade jurídica correta desde o início — é uma escolha de sequenciamento, não de aversão a risco, e não bloqueia nenhum trabalho de engenharia. Três perguntas do agente permanecem em aberto e não são resolvidas por esta entrada: titular do pedido (PF, MEI ou outra PJ), planos concretos de app nativo, e se a área de conteúdo "Metodologia" se tornará um produto editorial/curso independente. A pesquisa de classificação já está feita e não deve precisar ser refeita quando o depósito ocorrer.

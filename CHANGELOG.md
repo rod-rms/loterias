@@ -2,7 +2,9 @@
 
 Registro de mudanças voltadas ao usuário e à operação do produto. Não é um espelho de cada commit — para o histórico técnico completo, use `git log`.
 
-## [Unreleased]
+## [1.2.0] — 2026-09-23
+
+- **Identidade visual LotoAtlas.** A interface, antes cinza e sem marca, passa a usar a identidade LotoAtlas: tema escuro por padrão (`data-theme="dark"`), paleta de tokens semânticos `brand.*` derivada do Brand Kit v0.3, uma única cor de ação funcional (violeta Atlas) para CTAs/estados selecionados, tipografia Inter (UI) e JetBrains Mono (valores numéricos), e o logotipo/símbolo (rede + trevo) no cabeçalho. Cabeçalho reorganizado para telas móvel e desktop, com a tagline removida do menu. Mudança visual/de marca e de responsividade; sem qualquer impacto em matemática, estratégias, RMS, geração, validação, no-look-ahead, atualizador de dados ou schema de persistência.
 
 - **Clareza do fluxo de salvar jogos gerados.** O botão que abre o painel de salvar agora deixa claro que ainda não persiste nada ("Salvar este jogo"/"Salvar estes jogos", conforme a quantidade), e o botão que efetivamente grava a carteira dentro do painel foi renomeado para "Confirmar e salvar", eliminando a ambiguidade entre os dois passos (ambos antes usavam o mesmo verbo). A mensagem de confirmação após salvar passou a aparecer imediatamente ao lado do botão de ação, em vez de depois do painel de comparação — reforçando visualmente que ela é o resultado do clique anterior. Nenhuma mudança de comportamento: o registro opcional de aposta (BET-001) continua exatamente no mesmo lugar do fluxo.
 
