@@ -5,18 +5,18 @@
 
 | Campo | Valor |
 |---|---|
-| Última revisão | 2026-09-22 |
+| Última revisão | 2026-09-23 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `8d463c59a850d95b8440a510d66b4c70b9f82137` (tip pós-merge do PR #8 + atualização automática de dataset) |
-| Versão em `package.json` | `1.1.2` |
-| Última release estável com tag | `v1.1.2` (2026-09-10) |
+| `main` no momento da revisão | `d1274e825b142dc4d5445aca64f065a79a95e036` (branch-base deste PR de release; o merge deste próprio PR avança `main` mais uma vez — ver Passo 6/tag abaixo) |
+| Versão em `package.json` | `1.2.0` |
+| Última release estável com tag | `v1.2.0` — criada junto com este PR de release (ver `CHANGELOG.md`); substitui `v1.1.2` (2026-09-10) como a mais recente |
 
 ## Release com tag ≠ estado atual de produção
 
-- **Release com tag:** `v1.1.2` — release de confiabilidade (Worker fatal errors, Error Boundary, alerta de falha do atualizador, `.gitattributes`/`.editorconfig`). **Não** contém a integração visual da marca LotoAtlas, o FIX-001 (PR #6), o BET-001 (PR #7) nem a fundação de continuidade de projeto (PR #8).
-- **Produção hoje:** `main` em `8d463c5`, **à frente** de `v1.1.2`: inclui a marca LotoAtlas (PR #5), o FIX-001 (PR #6), o BET-001 (PR #7), a fundação de continuidade de projeto (PR #8 — este próprio conjunto de documentos) e os commits automáticos de atualização de dataset. As mudanças de produto/UX estão em `## [Unreleased]` do `CHANGELOG.md` e ainda não têm tag/release. A versão do app continua `1.1.2` de propósito (nenhum bump foi autorizado).
-- Produção verificada em 2026-09-21 (merge do PR #7, `978d63d`) e novamente confirmada verde via CI de `main` no merge do PR #8 (`4fb0589`, documentação apenas — sem verificação funcional de produto necessária).
+Pela primeira vez desde `v1.1.2`, a tag e a produção correspondem ao mesmo conteúdo de release: `v1.2.0` inclui a marca LotoAtlas (PR #5), o FIX-001 (PR #6), o BET-001 (PR #7), a fundação de continuidade de projeto (PR #8), a sincronização de autorretrato (PR #9) e a clareza do fluxo de salvar (PR #10) — tudo o que estava em `[Unreleased]` no `CHANGELOG.md` foi movido para `## [1.2.0]`. Essa equivalência vale até a próxima mudança não lançada aparecer em `[Unreleased]`; a partir daí, volte a distinguir "release com tag" de "estado atual de produção" nesta seção.
+
+Produção verificada em 2026-09-21 (merge do PR #7) e novamente confirmada verde via CI de `main` no merge do PR #8; a verificação de produção específica da tag `v1.2.0` está registrada no Passo 7 do release (SHA do merge commit, deploy Cloudflare correspondente e smoke test com o rodapé mostrando `1.2.0`).
 
 ## Capacidades atualmente em produção
 
@@ -29,7 +29,7 @@
 - Identidade visual LotoAtlas (dark-first, tokens `brand.*`).
 - Dados pessoais somente locais; nenhuma conta, nenhum backend.
 
-## Datasets (lidos de `public/data/status.json` em 2026-09-22)
+## Datasets (lidos de `public/data/status.json` em 2026-09-23)
 
 | Modalidade | Último concurso | Data do sorteio | Status |
 |---|---|---|---|
@@ -40,7 +40,7 @@ Estes números avançam sozinhos (commits `data: update lottery datasets` em `ma
 
 ## PRs abertos
 
-Nenhum, no momento da revisão (verificado via `gh pr list`).
+Nenhum PR de funcionalidade aberto (verificado via `gh pr list`). O PR de preparação da release `v1.2.0` que introduziu esta revisão do arquivo é o único aberto até ser mergeado.
 
 ## Item de desenvolvimento em andamento
 
