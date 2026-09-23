@@ -48,12 +48,23 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   const [importError, setImportError] = useState<string | null>(null);
   const [editingBet, setEditingBet] = useState<{ portfolio: SavedPortfolio; selected: number[] } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Guards every setState that follows an `await` below against firing after
+  // this component has unmounted (e.g. navigating away while a request is in
+  // flight) — a no-op for the normal mounted case, never changes behavior.
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   async function refresh() {
     const filters: Parameters<typeof listPortfolios>[0] = {};
     if (filterModality !== "all") filters.modality = filterModality;
     if (filterBet !== "all") filters.markedAsBet = filterBet === "yes";
-    setPortfolios(await listPortfolios(filters));
+    const result = await listPortfolios(filters);
+    if (!isMountedRef.current) return;
+    setPortfolios(result);
   }
 
   useEffect(() => {
@@ -93,6 +104,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   async function confirmImport() {
     if (!importPreview) return;
     const result = await importBackup(importPreview.raw);
+    if (!isMountedRef.current) return;
     setMessage(`Importado: ${result.imported} de ${result.totalInFile} (duplicados ignorados: ${result.skippedDuplicates}).`);
     setImportPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -113,6 +125,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     await setBetSelection(portfolio.id, selectedTicketNumbers, { resultAvailability: availability, datasetLatestContestAtRecording: latest });
     await refresh();
     const fresh = (await listPortfolios()).find((x) => x.id === portfolio.id);
+    if (!isMountedRef.current) return;
     setSelected((prev) => (prev && prev.id === portfolio.id && fresh ? fresh : prev));
   }
 
@@ -120,6 +133,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     if (!portfolio.contest) return;
     setMessage(null);
     const dataset = await loadDataset(portfolio.modality);
+    if (!isMountedRef.current) return;
     const draw = dataset.draws.find((d) => d.contest === portfolio.contest);
     if (!draw) {
       setMessage("Resultado oficial deste concurso ainda não está disponível no dataset.");
@@ -128,6 +142,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     const checkedResult = checkTicketsAgainstDraw(portfolio.tickets, draw);
     await saveCheckedResult(portfolio.id, checkedResult);
     await refresh();
+    if (!isMountedRef.current) return;
     // Keep the open detail view in sync immediately, instead of waiting for
     // a later re-open — `selected` is a snapshot, not a live reference into `portfolios`.
     setSelected((prev) => (prev && prev.id === portfolio.id ? { ...prev, checkedResult } : prev));
