@@ -168,6 +168,7 @@ export function evaluateMegaSenaPortfolio(
       popularityMode,
       algorithmVersion: options.algorithmVersion,
       warnings: options.warnings,
+      strategySnapshot: options.strategySnapshot,
     }),
   };
   return result;

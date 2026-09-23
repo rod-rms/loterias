@@ -8,15 +8,13 @@
 | Última revisão | 2026-09-23 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `d1274e825b142dc4d5445aca64f065a79a95e036` (branch-base deste PR de release; o merge deste próprio PR avança `main` mais uma vez — ver Passo 6/tag abaixo) |
+| `main` no momento da revisão | `091a29057a8c9530ca0c66460071a87e6d52d19e` (tip pós-merge do PR #14 + atualização automática de dataset) |
 | Versão em `package.json` | `1.2.0` |
-| Última release estável com tag | `v1.2.0` — criada junto com este PR de release (ver `CHANGELOG.md`); substitui `v1.1.2` (2026-09-10) como a mais recente |
+| Última release estável com tag | `v1.2.0` (2026-09-23) |
 
 ## Release com tag ≠ estado atual de produção
 
-Pela primeira vez desde `v1.1.2`, a tag e a produção correspondem ao mesmo conteúdo de release: `v1.2.0` inclui a marca LotoAtlas (PR #5), o FIX-001 (PR #6), o BET-001 (PR #7), a fundação de continuidade de projeto (PR #8), a sincronização de autorretrato (PR #9) e a clareza do fluxo de salvar (PR #10) — tudo o que estava em `[Unreleased]` no `CHANGELOG.md` foi movido para `## [1.2.0]`. Essa equivalência vale até a próxima mudança não lançada aparecer em `[Unreleased]`; a partir daí, volte a distinguir "release com tag" de "estado atual de produção" nesta seção.
-
-Produção verificada em 2026-09-21 (merge do PR #7) e novamente confirmada verde via CI de `main` no merge do PR #8; a verificação de produção específica da tag `v1.2.0` está registrada no Passo 7 do release (SHA do merge commit, deploy Cloudflare correspondente e smoke test com o rodapé mostrando `1.2.0`).
+`v1.2.0` inclui a marca LotoAtlas, o FIX-001, o BET-001, a fundação de continuidade de projeto e a clareza do fluxo de salvar. Desde então, `main` recebeu correções internas adicionais sem release própria ainda (PR #12 correção de copy, PR #13 spike de validação do agrupamento MEGA-ROLL-001, PR #14 correção defensiva de unmount) — nenhuma delas é uma capacidade nova visível ao usuário. **MEGA-ROLL-001 (implementação completa) está em PR aberto, ainda não mergeado** — ver seção "Item de desenvolvimento em andamento".
 
 ## Capacidades atualmente em produção
 
@@ -33,22 +31,22 @@ Produção verificada em 2026-09-21 (merge do PR #7) e novamente confirmada verd
 
 | Modalidade | Último concurso | Data do sorteio | Status |
 |---|---|---|---|
-| Lotofácil | 3785 | 2026-09-21 | ok, 0 lacunas |
-| Mega-Sena | 3060 | 2026-09-20 | ok, 0 lacunas |
+| Lotofácil | 3786 | 2026-09-22 | ok, 0 lacunas |
+| Mega-Sena | 3061 | 2026-09-22 | ok, 0 lacunas |
 
 Estes números avançam sozinhos (commits `data: update lottery datasets` em `main`). **Sempre releia `public/data/status.json`.**
 
 ## PRs abertos
 
-Nenhum PR de funcionalidade aberto (verificado via `gh pr list`). O PR de preparação da release `v1.2.0` que introduziu esta revisão do arquivo é o único aberto até ser mergeado.
+O PR de implementação completa do MEGA-ROLL-001 (`feat/mega-roll-001-implementation`) é o único aberto no momento em que esta revisão foi escrita — releia `gh pr list` para confirmar, pois pode já ter avançado.
 
 ## Item de desenvolvimento em andamento
 
-Nenhum.
+**MEGA-ROLL-001** — Mega-Sena Rolling 20 Balanceada v2.1: implementação completa (agrupamento, alocação, filtros, otimizador, Strategy Registry, UI), CI verde, **aguardando validação de preview e autorização de merge do product owner** (`DEC-022`). Ver `ROADMAP.md` para o link do PR e o status detalhado.
 
-## Próximo item de implementação aprovado
+## Próxima implementação aprovada
 
-**MEGA-ROLL-001** — Mega-Sena Rolling 20 Balanceada v2.1. Status `APPROVED`; **implementação não iniciada**. Contrato de implementação versionado em [`docs/megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) (o pacote bruto de auditoria local é só evidência de apoio). Título oficial de UI: "Organizar pelo histórico recente". Ver `ROADMAP.md`.
+Nenhuma outra além do MEGA-ROLL-001 acima (em revisão, não em produção).
 
 ## Itens de pesquisa
 

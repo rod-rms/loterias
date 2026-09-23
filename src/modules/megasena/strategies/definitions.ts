@@ -122,9 +122,45 @@ export const MEGASENA_UNIFORM_RANDOM: StrategyDefinition = {
   },
 };
 
+export const MEGASENA_ROLLING20_V2: StrategyDefinition = {
+  id: "megasena.rolling_20_v2",
+  version: "2.1.0",
+  modality: "megasena",
+  name: "Rolling 20 Balanceada",
+  shortDescription: "Usa os 20 concursos anteriores para formar três grupos e organizar jogos com exposição equilibrada e controle de repetição entre eles.",
+  status: "active",
+  evidence: "structural",
+  ticketCount: { mode: "range", min: 1, max: 100 },
+  supportsBudget: true,
+  supportsFixedNumbers: false,
+  supportsExcludedNumbers: false,
+  supportsUserSeed: true,
+  supportsQualityPreset: true,
+  requiresHistoricalDraws: true,
+  requiresTargetContest: true,
+  historyWindowSize: 20,
+  optimizedMetrics: ["equilíbrio de exposição", "sobreposição", "F4 como desempate estrutural"],
+  reportedMetrics: ["F4", "F5", "F6", "sobreposição", "baseline"],
+  disclaimers: [
+    NOT_PREDICTION_DISCLAIMER,
+    "O histórico define grupos rotativos, não dezenas mais prováveis.",
+    "Os filtros estruturais não aumentam a chance individual de uma combinação.",
+  ],
+  ux: {
+    title: "Organizar pelo histórico recente",
+    summary: "Usa os 20 concursos anteriores para formar três grupos e organizar jogos com exposição equilibrada e controle de repetição entre eles.",
+    badge: "Estratégia personalizada",
+    helpTitle: "Como funciona Organizar pelo histórico recente",
+    helpBody:
+      "Os três grupos são recalculados a cada concurso e servem para variar a estrutura da carteira; depois a busca distribui melhor as dezenas e reduz a sobreposição. O histórico organiza a carteira, mas não prevê o próximo sorteio nem torna uma dezena mais provável.",
+    technicalName: "Rolling 20 Balanceada v2.1",
+  },
+};
+
 export const MEGASENA_STRATEGIES: StrategyDefinition[] = [
   MEGASENA_MAX_F4,
   MEGASENA_MAX_F5,
   MEGASENA_MAX_DIVERSIFICATION,
   MEGASENA_UNIFORM_RANDOM,
+  MEGASENA_ROLLING20_V2,
 ];

@@ -1,14 +1,15 @@
 /**
- * MEGA-ROLL-001 — Rolling 20 Balanceada v2.1: grouping step ONLY (§2–§3 of
+ * MEGA-ROLL-001 — Rolling 20 Balanceada v2.1: grouping step (§2–§3 of
  * `docs/megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`).
  *
- * VALIDATION SPIKE, NOT A STRATEGY. This file is intentionally NOT exported
- * from `./index` and is NOT registered in the Strategy Registry. It exists to
- * prove the G1/G2/G3 grouping algorithm reproduces the audited reference
- * fixture (contest 3056) before any full-implementation task is authorized —
- * the same "reproducible experiment before implementation" discipline as
- * DEC-017. Allocation (§4), structural filters (§5) and the optimizer (§6)
- * are explicitly out of scope here.
+ * Originally written and merged as an isolated validation spike (proving
+ * this algorithm reproduces the audited reference fixture for contest 3056
+ * before any implementation was authorized — DEC-017-style reproducible
+ * experiment). Now exported from `./index` and wired into the real
+ * `megasena.rolling_20_v2` strategy (`strategies/rolling20.ts`,
+ * `strategies/adapters.ts`); the grouping algorithm itself is untouched —
+ * only an additive `frequency` field was added to `Rolling20Groups` for the
+ * strategy's audit snapshot (spec §7).
  *
  * Pure domain code, zero dependency on `shared/lib` (matching every other
  * file in `src/modules/megasena/domain/`): `deriveRolling20Window` reimplements
@@ -35,6 +36,8 @@ export interface Rolling20Groups {
   g1: number[];
   g2: number[];
   g3: number[];
+  /** Frequency in the window, indexed by number (1..60); index 0 is unused. Carried through only for the audit snapshot (spec §7) — never a score. */
+  frequency: number[];
 }
 
 export class Rolling20GroupingError extends Error {
@@ -121,5 +124,5 @@ export function computeRolling20Groups(window: Rolling20DrawInput[]): Rolling20G
     else g3.push(n);
   }
 
-  return { g1, g2, g3 };
+  return { g1, g2, g3, frequency };
 }

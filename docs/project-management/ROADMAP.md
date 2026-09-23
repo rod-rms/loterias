@@ -31,23 +31,14 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 | FIX-001 | Isolamento do estado de geração entre modalidades (PR #6) | DONE |
 | BET-001 | Registro de aposta por jogo + conferência da carteira completa (PR #7, merge `978d63d`) | DONE — verificado em produção em 2026-09-21 (CI de `main` verde, bundle em produção = deploy do merge, smoke Playwright 48/48 contra produção) |
 
-## Próxima implementação aprovada
+## Em revisão (aguardando validação do product owner)
 
 ### MEGA-ROLL-001 — Mega-Sena Rolling 20 Balanceada v2.1
-Status: **APPROVED — implementação não iniciada.**
+Status: **PR_OPEN** — implementação completa (agrupamento §2-§3, alocação §4, filtros §5, otimizador §6, registro no Strategy Registry, wiring de UI), CI verde, aguardando validação de preview e autorização de merge do product owner (`DEC-022`: nenhum merge visível ao usuário acontece sem essa validação prévia, mesmo com autorização pré-concedida no documento de instrução). **Ainda não em produção.**
 
-Propósito de alto nível:
-- usar os 20 concursos imediatamente anteriores ao alvo;
-- agrupamento histórico G1/G2/G3 **descritivo, nunca preditivo**;
-- alocação proporcional para G2 no lugar do 2-0-4 rígido do legado;
-- diversificação em nível de carteira;
-- estritamente no-look-ahead;
-- geração determinística e auditável (seed);
-- especificação/auditoria detalhadas já preparadas antes da implementação.
-
-**Especificação canônica versionada:** [`../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) — contém tudo o necessário para implementar (grupos, alocação proporcional, filtros, otimização, capacidades, critérios de aceite). O pacote bruto de auditoria (`MEGASENA_ROLLING20_AUDIT_PACKAGE_v2_1/`, local e não versionado) é apenas evidência de apoio e **não** é necessário.
-
-Pré-requisito de qualquer trabalho: ler a especificação acima e confirmar que `main` está atualizada. Título oficial de UI: "Organizar pelo histórico recente"; nome técnico: "Rolling 20 Balanceada v2.1".
+- Estratégia `megasena.rolling_20_v2` v2.1.0, título de UI "Organizar pelo histórico recente", nome técnico "Rolling 20 Balanceada v2.1".
+- Implementação em `src/modules/megasena/domain/rolling20{Grouping,Allocation,Filters}.ts` e `src/modules/megasena/strategies/rolling20.ts` + `adapters.ts`/`definitions.ts`, seguindo a especificação [`../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) e o mesmo padrão de wiring já usado por `lotofacil.rms_v2`.
+- Os 10 critérios de aceite da spec §12 foram verificados (ver PR).
 
 ## Pesquisa
 

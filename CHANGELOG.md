@@ -4,6 +4,8 @@ Registro de mudanças voltadas ao usuário e à operação do produto. Não é u
 
 ## [Unreleased]
 
+- **Mega-Sena: nova estratégia "Organizar pelo histórico recente" (Rolling 20 Balanceada v2.1, MEGA-ROLL-001).** Usa os 20 concursos anteriores para formar três grupos rotativos (G1/G2/G3) e organiza a carteira com exposição equilibrada e controle de repetição entre os jogos, com filtros estruturais transparentes (paridade, soma, faixas de dezenas, blocos consecutivos). Estritamente no-look-ahead: o concurso-alvo e posteriores nunca chegam à estratégia. Não prevê o próximo sorteio, não identifica dezenas "mais prováveis" e não altera a probabilidade individual de nenhuma combinação — o histórico organiza a carteira, não a "prevê". Sem suporte a dezenas fixas/excluídas nesta versão inicial. Segue exatamente a especificação já auditada e documentada (`docs/megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`); nenhuma das quatro estratégias Mega-Sena existentes foi alterada.
+
 - **Correção de copy: nome do produto na página Sobre e remoção de travessões do texto visível.** A página "Sobre" citava o nome antigo "Loterias" em vez de "LotoAtlas". Além disso, travessões ("—") usados como separador de cláusula em textos visíveis (Sobre, Meus jogos salvos, Metodologia, e nos rótulos de acessibilidade do logo) foram substituídos por vírgula, ponto-e-vírgula, dois-pontos ou frases separadas, conforme a leitura mais natural de cada uma — mudança de texto apenas, sem alteração de comportamento, estrutura de dados ou lógica.
 
 ## [1.2.0] — 2026-09-23
