@@ -57,7 +57,7 @@ test.describe("LotoAtlas — mobile critical flows (iPhone 13 viewport)", () => 
   test("header: brand, navigation, and modality switcher are all reachable in their own rows, with no overlap", async ({ page }) => {
     await page.goto("/");
     const header = page.locator("header");
-    await expect(header.getByRole("link", { name: "LotoAtlas — página inicial" })).toBeVisible();
+    await expect(header.getByRole("link", { name: "LotoAtlas, página inicial" })).toBeVisible();
     await expect(header.getByRole("link", { name: "Meus jogos salvos" })).toBeVisible();
     await expect(header.getByRole("link", { name: "Sobre" })).toBeVisible();
     await expect(header.getByRole("navigation", { name: "Alternar modalidade" })).toBeVisible();
@@ -65,7 +65,7 @@ test.describe("LotoAtlas — mobile critical flows (iPhone 13 viewport)", () => 
     // The tagline is reserved for Home/institutional/social contexts, never the nav header.
     await expect(header.getByText("Organize. Analise. Confira.")).toHaveCount(0);
 
-    const logoBox = await header.getByRole("link", { name: "LotoAtlas — página inicial" }).boundingBox();
+    const logoBox = await header.getByRole("link", { name: "LotoAtlas, página inicial" }).boundingBox();
     const navBox = await header.getByRole("link", { name: "Sobre" }).boundingBox();
     const switcherBox = await header.getByRole("navigation", { name: "Alternar modalidade" }).boundingBox();
     expect(logoBox).not.toBeNull();

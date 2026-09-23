@@ -2,6 +2,10 @@
 
 Registro de mudanças voltadas ao usuário e à operação do produto. Não é um espelho de cada commit — para o histórico técnico completo, use `git log`.
 
+## [Unreleased]
+
+- **Correção de copy: nome do produto na página Sobre e remoção de travessões do texto visível.** A página "Sobre" citava o nome antigo "Loterias" em vez de "LotoAtlas". Além disso, travessões ("—") usados como separador de cláusula em textos visíveis (Sobre, Meus jogos salvos, Metodologia, e nos rótulos de acessibilidade do logo) foram substituídos por vírgula, ponto-e-vírgula, dois-pontos ou frases separadas, conforme a leitura mais natural de cada uma — mudança de texto apenas, sem alteração de comportamento, estrutura de dados ou lógica.
+
 ## [1.2.0] — 2026-09-23
 
 - **Identidade visual LotoAtlas.** A interface, antes cinza e sem marca, passa a usar a identidade LotoAtlas: tema escuro por padrão (`data-theme="dark"`), paleta de tokens semânticos `brand.*` derivada do Brand Kit v0.3, uma única cor de ação funcional (violeta Atlas) para CTAs/estados selecionados, tipografia Inter (UI) e JetBrains Mono (valores numéricos), e o logotipo/símbolo (rede + trevo) no cabeçalho. Cabeçalho reorganizado para telas móvel e desktop, com a tagline removida do menu. Mudança visual/de marca e de responsividade; sem qualquer impacto em matemática, estratégias, RMS, geração, validação, no-look-ahead, atualizador de dados ou schema de persistência.
