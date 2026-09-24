@@ -97,6 +97,7 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 | TECH-005 | Aviso no upload do relatório do Playwright quando o diretório não existe | DEFERRED |
 | TECH-006 | Investigar o erro intermitente de teardown assíncrono "window is not defined" se reaparecer (visto uma vez em `carteirasResultChecking.test.tsx`; re-run passou) | DEFERRED |
 | REPO-001 | Limpeza opcional/baixa prioridade do repositório e de arquivos locais não versionados | DEFERRED |
+| AUTH-001 | Integração com Supabase para autenticação (login opcional) e possível sincronização de dados entre dispositivos | IDEA |
 
 ### Ideias de produto (IDEA — sem aprovação)
 
@@ -106,8 +107,8 @@ Migradas do antigo pacote local de gestão (v1.1.1); todas exigem definição de
 - histórico mais rico, filtros, indicadores e exportação melhorada; eventual impressão/PDF;
 - analytics de adoção (hoje não há métricas de uso estruturadas);
 - monetização: somente após dados de uso, sem prejudicar a transparência (ex.: freemium/recursos analíticos), separando análise de incentivo à aposta;
-- novas modalidades e apostas ampliadas; conta/sync; PWA mais avançado;
+- novas modalidades e apostas ampliadas; PWA mais avançado;
 - verificação de nome/marca (INPI, domínio, lojas): status **não verificado** no repositório;
 - RMS v3, Crowd Score, popularidade/rateio, ablação de regras (pesquisa).
 
-Adiados de produto herdados da v1 (`docs/global/DECISIONS_AND_OPEN_POINTS_V1.md`): Crowd Score calibrado, ROI previsto, compra de apostas, pagamentos, login/sync, push, IA explicativa em runtime, RMS v3, apostas ampliadas.
+Adiados de produto herdados da v1 (`docs/global/DECISIONS_AND_OPEN_POINTS_V1.md`): Crowd Score calibrado, ROI previsto, compra de apostas, pagamentos, push, IA explicativa em runtime, RMS v3, apostas ampliadas.
