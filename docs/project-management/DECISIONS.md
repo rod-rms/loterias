@@ -2,7 +2,7 @@
 
 Este arquivo é o registro **estratégico atual**. O log histórico detalhado (decisões 1–38, v1 a v1.1.2) permanece em [`docs/global/DECISIONS_AND_OPEN_POINTS_V1.md`](../global/DECISIONS_AND_OPEN_POINTS_V1.md) e não é duplicado aqui. Novas decisões relevantes entram aqui com ID `DEC-NNN` no mesmo PR que as origina.
 
-Última revisão: 2026-09-23.
+Última revisão: 2026-09-24.
 
 ## Governança e processo
 
@@ -18,10 +18,11 @@ Este arquivo é o registro **estratégico atual**. O log histórico detalhado (d
 ## Produto e modelo de dados
 
 - **DEC-008 — Carteira gerada, metadados da carteira salva e seleção de aposta real são conceitos distintos.** `tickets` é sempre a carteira gerada completa e imutável; `betSelection` é metadado separado.
-- **DEC-009 — Salvar não significa apostar.** O registro de aposta é opt-in explícito.
+- **DEC-009 — Salvar não significa apostar.** O registro de aposta é opt-in explícito. **Emendada por `DEC-023`** quanto ao estado inicial do checkbox no painel de salvar (opt-out desde 2026-09-24); o conceito — salvar ≠ apostar, e o registro exige um checkbox visível e explícito — permanece.
 - **DEC-010 — A conferência avalia a carteira gerada/salva inteira, inclusive jogos não marcados como apostados.** A comparação apostado × não apostado é estritamente factual, sem julgamento de valor.
 - **DEC-011 — Revisões de `betSelection` são append-only.** Editar ou remover acrescenta uma revisão (remover = revisão vazia); edições posteriores ao resultado ficam distinguíveis (`resultAvailability`). Um novo salvamento do mesmo id nunca altera o conteúdo gerado e nunca apaga histórico de aposta (`savePortfolio` é append-only, protegido na persistência). `markedAsBet` deve coincidir com "a revisão atual tem ≥1 jogo" (validado no schema); registros legados sem `betSelection` e com `markedAsBet=true` significam "todos os jogos apostados".
 - **DEC-012 — Dados pessoais de aposta ficam no IndexedDB local por padrão**; só saem do dispositivo por exportação explícita do usuário.
+- **DEC-023 (2026-09-24) — Registro de aposta passa a vir marcado por padrão (opt-out), amenda `DEC-009`.** O painel "Salvar carteira" agora mostra a lista de jogos com "Registrar também quais jogos foram apostados" já marcada, em vez de desmarcada. O mecanismo continua sendo um checkbox explícito e visível, que o usuário pode desmarcar antes de confirmar — a mudança é só o estado inicial (opt-out em vez de opt-in). Motivo: o product owner quer que o painel de salvar sempre evidencie os jogos que serão salvos como um passo de confirmação visual; validado por ele em preview antes do merge (`DEC-022`) antes de ir para produção. `BET-002` no `ROADMAP.md`.
 
 ## Matemática e estratégia
 

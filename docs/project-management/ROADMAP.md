@@ -31,6 +31,15 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 | FIX-001 | Isolamento do estado de geração entre modalidades (PR #6) | DONE |
 | BET-001 | Registro de aposta por jogo + conferência da carteira completa (PR #7, merge `978d63d`) | DONE — verificado em produção em 2026-09-21 (CI de `main` verde, bundle em produção = deploy do merge, smoke Playwright 48/48 contra produção) |
 
+## Em revisão (aguardando validação do product owner)
+
+### BET-002 — Registro de aposta padrão visível (opt-out) + destaque visual do painel de salvar
+Status: **PR_OPEN** — CI verde, aguardando validação de preview e autorização de merge do product owner (`DEC-022`). **Ainda não em produção.**
+
+- O painel "Salvar carteira" passa a mostrar "Registrar também quais jogos foram apostados" já marcada por padrão (opt-out, `DEC-023`, emenda `DEC-009`), em vez de desmarcada; continua sendo um checkbox explícito e visível, desmarcável antes de confirmar.
+- O painel ganhou destaque visual (borda `brand-borderStrong` + fundo `bg-brand-action/10`) para deixar de se confundir com elementos neutros da tela.
+- Nenhuma mudança no modelo de persistência de `betSelection`, na derivação de `markedAsBet` ou na conferência de resultado.
+
 ## Próxima implementação aprovada
 
 ### MEGA-ROLL-001 — Mega-Sena Rolling 20 Balanceada v2.1
