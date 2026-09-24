@@ -127,10 +127,13 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
-  // Save panel: saving always persists the COMPLETE generated portfolio; registering
-  // real bets is a separate, explicit opt-in (saving != betting).
+  // Save panel: saving always persists the COMPLETE generated portfolio.
+  // Registering real bets is a separate, explicit step (saving != betting) —
+  // opt-OUT by default (DEC-023 amends DEC-009): the panel opens with every
+  // ticket already marked as bet, visibly, so the user reviews/unchecks
+  // before confirming rather than never seeing the option.
   const [saveOpen, setSaveOpen] = useState(false);
-  const [registerBet, setRegisterBet] = useState(false);
+  const [registerBet, setRegisterBet] = useState(true);
   const [betSelected, setBetSelected] = useState<number[]>([]);
 
   // Two-snapshot generation state: `lastGeneratedInput` is the normalized
@@ -214,8 +217,8 @@ export function GerarPage({ modality }: { modality: Modality }) {
     setShowTechnicalDetails(false);
     setShowDetailedAnalysis(false);
     setSaveOpen(false);
-    setRegisterBet(false);
-    setBetSelected([]);
+    setRegisterBet(true);
+    setBetSelected([]); // no tickets exist yet for the new modality
   }, [modality]);
 
   useEffect(() => {
@@ -233,8 +236,11 @@ export function GerarPage({ modality }: { modality: Modality }) {
   const activeResultId = activeResult?.id;
   useEffect(() => {
     setSaveOpen(false);
-    setRegisterBet(false);
-    setBetSelected([]);
+    setRegisterBet(true);
+    // Opt-out default: every ticket starts marked as bet, mirroring exactly
+    // what the checkbox's own onChange does when checked manually.
+    setBetSelected(activeResult ? activeResult.tickets.map((_, i) => i + 1) : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeResultId]);
 
   const maxNumber = modality === "lotofacil" ? 25 : 60;
@@ -414,8 +420,9 @@ export function GerarPage({ modality }: { modality: Modality }) {
       ...(betSelection ? { betSelection: betSelection.betSelection } : {}),
     });
     setSaveOpen(false);
-    setRegisterBet(false); // reopening the dialog always starts with registration OFF (opt-in)
-    setBetSelected([]);
+    // Reopening the dialog always starts fresh, opt-out: every ticket marked as bet again.
+    setRegisterBet(true);
+    setBetSelected(activeResult.tickets.map((_, i) => i + 1));
     // Describe the FINAL persisted state (a repeated save may have preserved or
     // appended to an earlier registration), not only the dialog's incoming state.
     const betCount = getCurrentBetTicketNumbers(finalRecord).length;
@@ -741,7 +748,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
               </p>
             )}
             {saveOpen && (
-              <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded-lg border border-brand-border bg-brand-surfaceElevated p-4">
+              <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded-lg border border-brand-borderStrong bg-brand-action/10 p-4">
                 <h3 className="text-sm font-semibold text-brand-text">Salvar carteira</h3>
                 <p className="text-sm text-brand-textMuted">
                   {activeResult.tickets.length === 1 ? "O jogo gerado será salvo." : `Todos os ${activeResult.tickets.length} jogos gerados serão salvos.`}

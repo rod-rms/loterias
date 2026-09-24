@@ -17,7 +17,8 @@ test.describe("LotoAtlas — per-ticket bet registration and full-portfolio chec
 
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
     await expect(page.getByText("Todos os 6 jogos gerados serão salvos.")).toBeVisible();
-    await page.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }).check();
+    // Bet registration defaults ON (opt-out, DEC-023): the checkbox and the full ticket list are already visible/checked.
+    await expect(page.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ })).toBeChecked();
     for (let n = 1; n <= 6; n += 1) await expect(page.getByRole("checkbox", { name: `J${n} apostado` })).toBeChecked();
     for (let n = 1; n <= 6; n += 1) await page.getByRole("checkbox", { name: `J${n} apostado` }).uncheck();
     await expect(page.getByText("Selecione ao menos um jogo apostado ou desative o registro de aposta.")).toBeVisible();
@@ -46,5 +47,22 @@ test.describe("LotoAtlas — per-ticket bet registration and full-portfolio chec
     await expect(comparison).toContainText("Melhor entre os não apostados");
     await expect(page.getByText("Melhor da carteira gerada")).toBeVisible();
     await expect(page.getByText(/boa decisão|decisão ruim|vencedor|ganhou/i)).toHaveCount(0);
+  });
+
+  test("explicitly unchecking the master checkbox turns registration off and saves without a bet registration", async ({ page }) => {
+    await page.goto("/lotofacil/gerar");
+    await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).first().click();
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
+    await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+
+    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
+    await page.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }).uncheck();
+    await expect(page.getByRole("list", { name: "Jogos apostados" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
+    await expect(page.getByText(/Nenhuma aposta foi registrada/)).toBeVisible();
+
+    await page.goto("/carteiras");
+    await expect(page.getByTestId("bet-status")).toHaveText("Aposta não registrada");
   });
 });

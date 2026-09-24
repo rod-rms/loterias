@@ -33,6 +33,13 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 
 ## Em revisão (aguardando validação do product owner)
 
+### BET-002 — Registro de aposta padrão visível (opt-out) + destaque visual do painel de salvar
+Status: **PR_OPEN** — CI verde, aguardando validação de preview e autorização de merge do product owner (`DEC-022`). **Ainda não em produção.**
+
+- O painel "Salvar carteira" passa a mostrar "Registrar também quais jogos foram apostados" já marcada por padrão (opt-out, `DEC-023`, emenda `DEC-009`), em vez de desmarcada; continua sendo um checkbox explícito e visível, desmarcável antes de confirmar.
+- O painel ganhou destaque visual (borda `brand-borderStrong` + fundo `bg-brand-action/10`) para deixar de se confundir com elementos neutros da tela.
+- Nenhuma mudança no modelo de persistência de `betSelection`, na derivação de `markedAsBet` ou na conferência de resultado.
+
 ### MEGA-ROLL-001 — Mega-Sena Rolling 20 Balanceada v2.1
 Status: **PR_OPEN** — implementação completa (agrupamento §2-§3, alocação §4, filtros §5, otimizador §6, registro no Strategy Registry, wiring de UI), CI verde, aguardando validação de preview e autorização de merge do product owner (`DEC-022`: nenhum merge visível ao usuário acontece sem essa validação prévia, mesmo com autorização pré-concedida no documento de instrução). **Ainda não em produção.**
 
@@ -79,6 +86,7 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 | TECH-005 | Aviso no upload do relatório do Playwright quando o diretório não existe | DEFERRED |
 | TECH-006 | Investigar o erro intermitente de teardown assíncrono "window is not defined" se reaparecer (visto uma vez em `carteirasResultChecking.test.tsx`; re-run passou) | DEFERRED |
 | REPO-001 | Limpeza opcional/baixa prioridade do repositório e de arquivos locais não versionados | DEFERRED |
+| AUTH-001 | Integração com Supabase para autenticação (login opcional) e possível sincronização de dados entre dispositivos | IDEA |
 
 ### Ideias de produto (IDEA — sem aprovação)
 
@@ -88,8 +96,8 @@ Migradas do antigo pacote local de gestão (v1.1.1); todas exigem definição de
 - histórico mais rico, filtros, indicadores e exportação melhorada; eventual impressão/PDF;
 - analytics de adoção (hoje não há métricas de uso estruturadas);
 - monetização: somente após dados de uso, sem prejudicar a transparência (ex.: freemium/recursos analíticos), separando análise de incentivo à aposta;
-- novas modalidades e apostas ampliadas; conta/sync; PWA mais avançado;
+- novas modalidades e apostas ampliadas; PWA mais avançado;
 - verificação de nome/marca (INPI, domínio, lojas): status **não verificado** no repositório;
 - RMS v3, Crowd Score, popularidade/rateio, ablação de regras (pesquisa).
 
-Adiados de produto herdados da v1 (`docs/global/DECISIONS_AND_OPEN_POINTS_V1.md`): Crowd Score calibrado, ROI previsto, compra de apostas, pagamentos, login/sync, push, IA explicativa em runtime, RMS v3, apostas ampliadas.
+Adiados de produto herdados da v1 (`docs/global/DECISIONS_AND_OPEN_POINTS_V1.md`): Crowd Score calibrado, ROI previsto, compra de apostas, pagamentos, push, IA explicativa em runtime, RMS v3, apostas ampliadas.
