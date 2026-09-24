@@ -1,6 +1,6 @@
 # LotoAtlas — Roadmap
 
-Última revisão: 2026-09-21. Estado de `main` no momento da revisão: `978d63d` (ver `PROJECT_STATE.md`).
+Última revisão: 2026-09-24. Estado de `main` no momento da revisão: `3e88e4d` (ver `PROJECT_STATE.md`).
 
 ## Status
 
@@ -30,6 +30,7 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 | BRAND-000 | Integração da marca LotoAtlas (PR #5), sem tag própria | DONE (em produção; sem release com tag) |
 | FIX-001 | Isolamento do estado de geração entre modalidades (PR #6) | DONE |
 | BET-001 | Registro de aposta por jogo + conferência da carteira completa (PR #7, merge `978d63d`) | DONE — verificado em produção em 2026-09-21 (CI de `main` verde, bundle em produção = deploy do merge, smoke Playwright 48/48 contra produção) |
+| MEGA-ROLL-001 | Mega-Sena Rolling 20 Balanceada v2.1 — "Organizar pelo histórico recente" (PR #15, merge `3e88e4d`) | DONE — verificado em produção em 2026-09-24 (CI de `main` verde no commit do merge; bundle em produção idêntico ao deploy do merge; UI em produção confirmada mostrando "Organizar pelo histórico recente" como primeiro card de estratégia da Mega-Sena e gerando normalmente para concurso histórico) |
 
 ## Em revisão (aguardando validação do product owner)
 
@@ -39,13 +40,6 @@ Status: **PR_OPEN** — CI verde, aguardando validação de preview e autorizaç
 - O painel "Salvar carteira" passa a mostrar "Registrar também quais jogos foram apostados" já marcada por padrão (opt-out, `DEC-023`, emenda `DEC-009`), em vez de desmarcada; continua sendo um checkbox explícito e visível, desmarcável antes de confirmar.
 - O painel ganhou destaque visual (borda `brand-borderStrong` + fundo `bg-brand-action/10`) para deixar de se confundir com elementos neutros da tela.
 - Nenhuma mudança no modelo de persistência de `betSelection`, na derivação de `markedAsBet` ou na conferência de resultado.
-
-### MEGA-ROLL-001 — Mega-Sena Rolling 20 Balanceada v2.1
-Status: **PR_OPEN** — implementação completa (agrupamento §2-§3, alocação §4, filtros §5, otimizador §6, registro no Strategy Registry, wiring de UI), CI verde, aguardando validação de preview e autorização de merge do product owner (`DEC-022`: nenhum merge visível ao usuário acontece sem essa validação prévia, mesmo com autorização pré-concedida no documento de instrução). **Ainda não em produção.**
-
-- Estratégia `megasena.rolling_20_v2` v2.1.0, título de UI "Organizar pelo histórico recente", nome técnico "Rolling 20 Balanceada v2.1".
-- Implementação em `src/modules/megasena/domain/rolling20{Grouping,Allocation,Filters}.ts` e `src/modules/megasena/strategies/rolling20.ts` + `adapters.ts`/`definitions.ts`, seguindo a especificação [`../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md`](../megasena/MEGASENA_ROLLING20_BALANCED_V2_1_SPEC.md) e o mesmo padrão de wiring já usado por `lotofacil.rms_v2`.
-- Os 10 critérios de aceite da spec §12 foram verificados (ver PR).
 
 ## Pesquisa
 
