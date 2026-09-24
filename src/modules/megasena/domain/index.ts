@@ -8,3 +8,6 @@ export * from "./portfolio";
 export * from "./optimizer";
 export * from "./popularity";
 export * from "./audit";
+export * from "./rolling20Grouping";
+export * from "./rolling20Allocation";
+export * from "./rolling20Filters";

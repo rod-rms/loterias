@@ -31,6 +31,7 @@ export interface AuditInput {
   popularityMode?: PopularityMode;
   algorithmVersion?: string;
   warnings?: string[];
+  strategySnapshot?: Record<string, unknown>;
 }
 
 export function createAuditMetadata(input: AuditInput): MegaSenaAuditMetadata {
@@ -48,5 +49,6 @@ export function createAuditMetadata(input: AuditInput): MegaSenaAuditMetadata {
     elapsedMs: input.elapsedMs,
     popularityMode: input.popularityMode ?? "off",
     warnings: input.warnings,
+    strategySnapshot: input.strategySnapshot,
   };
 }

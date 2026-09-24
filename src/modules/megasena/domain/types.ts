@@ -106,6 +106,14 @@ export interface MegaSenaAuditMetadata {
   elapsedMs?: number;
   popularityMode: PopularityMode;
   warnings?: string[];
+  /**
+   * Optional, strategy-specific audit snapshot (e.g. Rolling 20's grouping
+   * window/G1-G2-G3/allocation/filters). Opaque to the shared domain code;
+   * never read or interpreted here, only carried through for the UI's
+   * "Detalhes técnicos" and for audit reproducibility. Every existing
+   * strategy omits it, so this is purely additive.
+   */
+  strategySnapshot?: Record<string, unknown>;
 }
 
 export interface MegaSenaGenerationInput {
@@ -142,6 +150,7 @@ export interface PortfolioEvaluationOptions extends CoverageEvaluationOptions {
   iterations?: number;
   elapsedMs?: number;
   warnings?: string[];
+  strategySnapshot?: Record<string, unknown>;
 }
 
 export interface MegaSenaPortfolioResult {

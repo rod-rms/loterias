@@ -618,4 +618,34 @@ test.describe("LotoAtlas — critical flows", () => {
     await page.goto("/carteiras");
     await expect(page.getByText("Seus jogos ficam salvos somente neste navegador.")).toBeVisible();
   });
+
+  test("44. Mega-Sena: Organizar pelo histórico recente (MEGA-ROLL-001) gera normalmente para um concurso histórico, sem linguagem preditiva", async ({ page }) => {
+    const ds = readDatasetSnapshot("megasena");
+    await page.goto("/megasena/gerar");
+    await selectStrategy(page, "Organizar pelo histórico recente");
+    await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill(String(ds.lastDraw.contest));
+    await expect(page.getByText(/Esta opção usa os 20 concursos imediatamente anteriores/)).toBeVisible();
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
+    await generateAndWait(page);
+
+    const games = page.getByRole("list", { name: "Lista de 6 jogos" }).locator(":scope > li");
+    await expect(games).toHaveCount(6);
+
+    await page.getByText("Detalhes técnicos do resultado").click();
+    await expect(page.getByText("Rolling 20 Balanceada v2.1")).toBeVisible();
+    await expect(page.getByText(/megasena\.rolling_20_v2/).first()).toBeVisible();
+
+    // Spec §11 "Proibido" list: none of these phrases may ever render.
+    await expect(page.getByText(/maior chance de ganhar/i)).toHaveCount(0);
+    await expect(page.getByText(/números? (quente|frio|atrasad)/i)).toHaveCount(0);
+    await expect(page.getByText(/composição vencedora/i)).toHaveCount(0);
+    await expect(page.getByText(/IA prev[êe]/i)).toHaveCount(0);
+
+    // Save and confirm the strategy is checkable from "Meus jogos salvos" like any other.
+    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
+    await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
+    await page.goto("/carteiras");
+    await expect(page.getByText("Organizar pelo histórico recente")).toBeVisible();
+  });
 });

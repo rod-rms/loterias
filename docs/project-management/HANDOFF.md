@@ -32,7 +32,7 @@ Material histórico/local pode informar uma tarefa, mas **não substitui silenci
 7. Preserve arquivos locais/não versionados do usuário (`Claude outputs/`, pacotes de auditoria, Brand Kits, DOCX etc.).
 8. Nunca use `git add .` às cegas; faça staging direcionado.
 9. Nunca faça force push; não faça rebase de branches de feature compartilhadas (merge normal de `origin/main`).
-10. Nunca faça merge, tag ou release sem autorização explícita do product owner.
+10. Nunca faça merge, tag ou release sem autorização explícita do product owner. Para qualquer mudança visível/comportamental ao usuário, essa autorização só pode vir **depois** que o product owner validar pessoalmente uma URL de preview (deploy de preview do Cloudflare Pages no branch, ou preview local/no dispositivo) — não peça nem assuma autorização de merge antes disso (`DEC-022`). Autorização pré-concedida no próprio documento de instrução só é aceitável para mudanças puramente internas/invisíveis (testes, refatoração sem superfície de UI, documentação, correções defensivas sem mudança de comportamento no caso normal).
 11. Ao final de trabalho substancial, atualize os documentos de gestão **no mesmo PR** quando o estado, o roadmap ou uma decisão mudou.
 
 ## Manutenção da documentação ao fim da tarefa

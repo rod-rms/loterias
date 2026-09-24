@@ -1,7 +1,7 @@
 import { comb } from "../../../shared/lib/combinatorics";
 import { resolveSeed } from "../../../shared/lib/seed";
 import { ticketsForBudget } from "../../../shared/utils/currency";
-import { loadGameConfig } from "../../../shared/lib/dataLoaders";
+import { loadGameConfig, loadDataset, referenceWindow } from "../../../shared/lib/dataLoaders";
 import type { GameConfig, GeneratePortfolioRequest, PortfolioEnvelope } from "../../../shared/types";
 import {
   MEGASENA_MAX_NUMBER,
@@ -11,12 +11,16 @@ import {
   buildUniformAverageBaselineComparison,
   buildSeededControlBaselineComparison,
   ALGORITHM_VERSION,
+  computeRolling20Groups,
+  Rolling20GroupingError,
+  ROLLING20_WINDOW_SIZE,
   type MegaSenaAuditMetadata,
   type MegaSenaPortfolioResult,
 } from "../domain";
 import { generateUniformDistinctTickets, createSeededRandom } from "../domain/random";
 import { generateMegaMaxDiversification } from "./diversification";
-import { MEGASENA_MAX_DIVERSIFICATION, MEGASENA_MAX_F4, MEGASENA_MAX_F5, MEGASENA_UNIFORM_RANDOM } from "./definitions";
+import { generateRolling20Portfolio, Rolling20SearchError } from "./rolling20";
+import { MEGASENA_MAX_DIVERSIFICATION, MEGASENA_MAX_F4, MEGASENA_MAX_F5, MEGASENA_ROLLING20_V2, MEGASENA_UNIFORM_RANDOM } from "./definitions";
 
 export class MegaSenaGenerationError extends Error {
   code: string;
@@ -134,6 +138,111 @@ export async function generateMaxDiversificationAdapter(request: GeneratePortfol
   return buildEnvelope(MEGASENA_MAX_DIVERSIFICATION.id, MEGASENA_MAX_DIVERSIFICATION.version, request, result);
 }
 
+/**
+ * MEGA-ROLL-001 — Rolling 20 Balanceada v2.1. Follows the same historical-
+ * window wiring shape as `lotofacil.rms_v2`
+ * (`modules/lotofacil/strategies/adapters.ts`'s `generateRmsV2Adapter`):
+ * resolve target contest → `loadDataset` → `referenceWindow` (no-look-ahead:
+ * never returns a window reaching the target contest, `null` on any gap) →
+ * domain grouping (§2-§3) → allocation (§4) + search (§6, in `./rolling20`)
+ * → shared `evaluateMegaSenaPortfolio` for the final reported metrics
+ * (F4/F5/F6, overlap, baseline) — never a bespoke evaluation path.
+ */
+export async function generateRolling20Adapter(request: GeneratePortfolioRequest): Promise<PortfolioEnvelope<MegaSenaPortfolioResult, MegaSenaAuditMetadata>> {
+  if (request.contest === undefined || !Number.isInteger(request.contest) || request.contest <= 0) {
+    throw new MegaSenaGenerationError("ROLLING20_INVALID_TARGET_CONTEST", "Rolling 20 Balanceada requires a valid target contest (a positive integer).");
+  }
+  const config = (await loadGameConfig()).megasena;
+  const numberOfTickets = resolveTicketCount(request, config);
+  assertFeasible(numberOfTickets, MEGASENA_ROLLING20_V2.ticketCount.max ?? Infinity, undefined, undefined);
+
+  const dataset = await loadDataset("megasena");
+  const window = referenceWindow(dataset, request.contest, ROLLING20_WINDOW_SIZE);
+  if (!window) {
+    throw new MegaSenaGenerationError(
+      "ROLLING20_INCOMPLETE_HISTORY_WINDOW",
+      `Rolling 20 Balanceada requires the ${ROLLING20_WINDOW_SIZE} contests immediately before contest ${request.contest} to be available in the dataset.`,
+    );
+  }
+
+  let groups;
+  try {
+    groups = computeRolling20Groups(window);
+  } catch (error) {
+    if (error instanceof Rolling20GroupingError) throw new MegaSenaGenerationError(error.code, error.message);
+    throw error;
+  }
+
+  const seed = resolveSeed(request.seed);
+  // Both ludic options (spec §5's "Opções lúdicas") default OFF and are read
+  // only from an explicit `advanced` request payload — never enabled
+  // implicitly, and never folded into the standard filter set.
+  const advanced = (request.advanced ?? {}) as { repeatPreviousDraw?: boolean; requireLow10?: boolean };
+  const filterOptions = { repeatPreviousDraw: advanced.repeatPreviousDraw === true, requireLow10: advanced.requireLow10 === true };
+  const previousDraw = filterOptions.repeatPreviousDraw ? dataset.draws.find((d) => d.contest === request.contest! - 1)?.numbers : undefined;
+
+  let generation;
+  try {
+    generation = generateRolling20Portfolio({
+      numberOfTickets,
+      groups,
+      seed,
+      qualityPreset: request.qualityPreset,
+      filterOptions,
+      previousDraw,
+    });
+  } catch (error) {
+    if (error instanceof Rolling20SearchError) throw new MegaSenaGenerationError(error.code, error.message);
+    throw error;
+  }
+
+  const windowFirstContest = request.contest - ROLLING20_WINDOW_SIZE;
+  const windowLastContest = request.contest - 1;
+  const warnings: string[] = [];
+  if (request.fixedNumbers?.length || request.excludedNumbers?.length) {
+    warnings.push("Rolling 20 Balanceada não suporta dezenas fixas/excluídas; a solicitação foi ignorada (sem suporte parcial silencioso).");
+  }
+  const result = evaluateMegaSenaPortfolio(generation.tickets, {
+    ticketCostBRL: config.ticketCostBRL,
+    ticketCostSource: config.source,
+    ticketCostReferenceDate: config.referenceDate,
+    seed,
+    objective: "evaluation_only",
+    algorithmVersion: `${MEGASENA_ROLLING20_V2.version}+rolling20-grouping-allocation-filters-search-v1`,
+    iterations: generation.iterations,
+    warnings: warnings.length > 0 ? warnings : undefined,
+    // Spec §7 audit snapshot: grouping window/G1-G2-G3, tie-break rule,
+    // allocation per pattern, active filters and seed — all descriptive,
+    // never re-entering as a score.
+    strategySnapshot: {
+      strategyId: MEGASENA_ROLLING20_V2.id,
+      strategyVersion: MEGASENA_ROLLING20_V2.version,
+      targetContest: request.contest,
+      windowFirstContest,
+      windowLastContest,
+      datasetLatestContest: dataset.latestContest,
+      datasetImportedAt: dataset.importedAt,
+      frequency: groups.frequency.slice(1),
+      groups: { g1: groups.g1, g2: groups.g2, g3: groups.g3 },
+      tieBreakRule: "frequency desc, then most recent occurrence in window desc, then number asc",
+      allocation: {
+        targetG2Slots: generation.allocation.targetG2Slots,
+        baseB: generation.allocation.baseB,
+        extraB: generation.allocation.extraB,
+        perTicket: generation.allocation.perTicket,
+      },
+      filtersActive: filterOptions,
+      seed,
+      qualityPreset: generation.qualityPreset,
+      generationMethod: `rolling-20 grouping (§2-§3) + proportional G2 allocation (§4) + structural filters (§5) + lexicographic exposure/overlap local search, F4 as final tie-break only (§6), ${generation.iterations} iterations`,
+      candidateAttempts: generation.candidateAttempts,
+      score: generation.score,
+    },
+  });
+  result.randomBaseline = buildUniformAverageBaselineComparison(result);
+  return buildEnvelope(MEGASENA_ROLLING20_V2.id, MEGASENA_ROLLING20_V2.version, request, result);
+}
+
 export async function generateUniformRandomAdapter(request: GeneratePortfolioRequest): Promise<PortfolioEnvelope<MegaSenaPortfolioResult, MegaSenaAuditMetadata>> {
   const config = (await loadGameConfig()).megasena;
   const numberOfTickets = resolveTicketCount(request, config);
@@ -165,6 +274,8 @@ export async function generateMegaSenaPortfolioRequest(request: GeneratePortfoli
       return generateMaxDiversificationAdapter(request);
     case MEGASENA_UNIFORM_RANDOM.id:
       return generateUniformRandomAdapter(request);
+    case MEGASENA_ROLLING20_V2.id:
+      return generateRolling20Adapter(request);
     default:
       throw new MegaSenaGenerationError("UNKNOWN_STRATEGY", `Unknown Mega-Sena strategy: ${request.strategyId}`);
   }
