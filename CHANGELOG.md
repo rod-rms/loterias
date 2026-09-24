@@ -4,6 +4,8 @@ Registro de mudanças voltadas ao usuário e à operação do produto. Não é u
 
 ## [Unreleased]
 
+- **Painel de salvar: registro de aposta agora vem marcado por padrão, com destaque visual.** Ao salvar uma carteira, "Registrar também quais jogos foram apostados" agora aparece já marcada (com a lista de jogos visível), em vez de desmarcada — o usuário pode desmarcar qualquer jogo, ou desativar o registro por completo, antes de confirmar. O painel também ganhou uma cor de destaque para se diferenciar visualmente do restante da tela. Salvar continua sempre persistindo a carteira gerada completa; o que muda é só o ponto de partida do registro de aposta (opt-out em vez de opt-in) — a mecânica de registro em si (append-only, "salvar ≠ apostar") não muda.
+
 - **Correção de copy: nome do produto na página Sobre e remoção de travessões do texto visível.** A página "Sobre" citava o nome antigo "Loterias" em vez de "LotoAtlas". Além disso, travessões ("—") usados como separador de cláusula em textos visíveis (Sobre, Meus jogos salvos, Metodologia, e nos rótulos de acessibilidade do logo) foram substituídos por vírgula, ponto-e-vírgula, dois-pontos ou frases separadas, conforme a leitura mais natural de cada uma — mudança de texto apenas, sem alteração de comportamento, estrutura de dados ou lógica.
 
 ## [1.2.0] — 2026-09-23
