@@ -27,3 +27,27 @@ test("Meus jogos salvos: agrupado por dia, data estimada e aviso de resultado pe
   await dialog.getByRole("button", { name: "Conferir resultado" }).click();
   await expect(dialog.getByTestId("no-result-yet")).toContainText(`concurso ${next} ainda não foi divulgado pela CAIXA`);
 });
+
+test("Detalhes abre logo abaixo do cartão clicado (não no fim da página)", async ({ page }) => {
+  for (const n of ["2", "3"]) {
+    await page.goto("/lotofacil/gerar");
+    await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).first().click();
+    await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill(n);
+    await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+    await page.getByRole("button", { name: "Salvar estes jogos" }).click();
+    await page.getByRole("button", { name: "Confirmar e salvar" }).click();
+    await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
+  }
+  await page.goto("/carteiras");
+  const cards = page.getByTestId("saved-card");
+  await expect(cards).toHaveCount(2);
+  await cards.first().getByRole("button", { name: "Abrir" }).click();
+  const dialog = page.getByRole("dialog", { name: "Detalhes dos jogos salvos" });
+  const first = await cards.first().boundingBox();
+  const second = await cards.nth(1).boundingBox();
+  const box = await dialog.boundingBox();
+  expect(box!.y).toBeGreaterThanOrEqual(first!.y + first!.height - 1);
+  // the second card is pushed below the panel, i.e. the panel is not at the page bottom
+  expect(second!.y).toBeGreaterThanOrEqual(box!.y + box!.height - 1);
+});

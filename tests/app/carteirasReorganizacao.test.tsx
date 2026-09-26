@@ -113,3 +113,27 @@ describe("CarteirasPage — pending-result notice lives inside the dialog", () =
     await waitFor(() => expect(screen.queryByTestId("no-result-yet")).not.toBeInTheDocument());
   });
 });
+
+describe("CarteirasPage — Detalhes opens right below the clicked card", () => {
+  it("renders the detail panel immediately after the opened card (before the following cards), not at the page bottom", async () => {
+    await savePortfolio(make("first", "lotofacil", 100, new Date(Date.now() - 1000).toISOString()));
+    await savePortfolio(make("second", "megasena", 50, new Date(Date.now() - 2000).toISOString()));
+    await savePortfolio(make("third", "lotofacil", 99, daysAgo(1)));
+    renderPage();
+    const cards = await screen.findAllByTestId("saved-card");
+    expect(cards).toHaveLength(3);
+    fireEvent.click(within(cards[0]!).getByRole("button", { name: "Abrir" }));
+    const dialog = await screen.findByRole("dialog", { name: "Detalhes dos jogos salvos" });
+    // the wrapper is the very next sibling of the opened card, inside the same day grid
+    expect(cards[0]!.nextElementSibling).toContainElement(dialog);
+    // only one details panel exists, and it precedes the later cards in document order
+    expect(screen.getAllByRole("dialog", { name: "Detalhes dos jogos salvos" })).toHaveLength(1);
+    expect(dialog.compareDocumentPosition(cards[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // opening another card moves the panel there; Fechar removes it
+    fireEvent.click(within(cards[2]!).getByRole("button", { name: "Abrir" }));
+    const moved = await screen.findByRole("dialog", { name: "Detalhes dos jogos salvos" });
+    expect(cards[2]!.nextElementSibling).toContainElement(moved);
+    fireEvent.click(within(moved).getByRole("button", { name: "Fechar" }));
+    expect(screen.queryByRole("dialog", { name: "Detalhes dos jogos salvos" })).not.toBeInTheDocument();
+  });
+});

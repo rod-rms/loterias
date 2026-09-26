@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   listPortfolios,
   setBetSelection,
@@ -281,8 +281,8 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               <h2 className="sticky top-0 z-10 border-b border-brand-border bg-brand-bg/95 py-1 text-sm font-semibold text-brand-textMuted">{group.label}</h2>
               <div className="grid gap-3 md:grid-cols-2">
                 {group.portfolios.map((p) => (
+                  <Fragment key={p.id}>
                   <SavedPortfolioCard
-                    key={p.id}
                     portfolio={p}
                     dataset={datasets[p.modality]}
                     onOpen={() => setSelected(p)}
@@ -297,6 +297,84 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                       if (confirm("Excluir este conjunto de jogos?")) deletePortfolio(p.id).then(refresh);
                     }}
                   />
+                  {/* Details open right below the card that was opened, spanning the full grid row. */}
+                  {selected && selected.id === p.id && (
+                    <div key={`${p.id}-detail`} className="md:col-span-2">
+              <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-brand-border bg-brand-surface p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="font-semibold">Detalhes: {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
+                  <button type="button" onClick={() => setSelected(null)} className="rounded border border-brand-border px-2 py-1 text-sm">
+                    Fechar
+                  </button>
+                </div>
+                {(() => {
+                  const checkedResult = selected.checkedResult;
+                  if (!checkedResult) {
+                    return (
+                      <>
+                        {noResultYet && (
+                          <div role="alert" data-testid="no-result-yet" className="mb-3 rounded-lg border border-amber-700 bg-amber-950/40 p-3 text-sm text-amber-100">
+                            O resultado oficial do concurso {selected.contest} ainda não foi divulgado pela CAIXA. Volte a conferir mais tarde.
+                          </div>
+                        )}
+                        <PortfolioTicketList tickets={selected.tickets} ticketBadges={buildBetBadges(selected)} />
+                        <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-brand-border px-3 py-1.5 text-sm">
+                          Conferir resultado
+                        </button>
+                      </>
+                    );
+                  }
+                  const summary = summarizeCheckedResult(selected.modality, checkedResult);
+                  const betSummary = summarizeBetSelectionResult(selected.modality, checkedResult.hitsPerTicket, getCurrentBetTicketNumbers(selected));
+                  const comparison = describeBetComparison(betSummary);
+                  return (
+                    <>
+                      <div className="mb-3 space-y-2 rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-sm">
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Resultado oficial, concurso {checkedResult.contest}</p>
+                          <p className="mt-0.5 font-mono text-base text-brand-text">{formatDrawNumbers(checkedResult.numbers)}</p>
+                        </div>
+                        {summary.sentence && (
+                          <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">{betSummary.hasSelection ? "Melhor da carteira gerada" : "Melhor resultado"}</p>
+                            <p className="mt-0.5 text-brand-text">{summary.sentence}</p>
+                            {betSummary.overallBestWasNotBet && <p className="mt-0.5 text-xs text-brand-textMuted">O melhor jogo da carteira não foi marcado como apostado.</p>}
+                          </div>
+                        )}
+                        {betSummary.hasSelection && (
+                          <div data-testid="bet-comparison" className="space-y-1">
+                            {betSummary.bestBet && (
+                              <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os apostados</p>
+                                <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestBet)}</p>
+                              </div>
+                            )}
+                            {betSummary.bestNonBet && (
+                              <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os não apostados</p>
+                                <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestNonBet)}</p>
+                              </div>
+                            )}
+                            {comparison && <p className="text-sm text-brand-text">{comparison}</p>}
+                          </div>
+                        )}
+                        <p className="text-xs text-brand-textMuted">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
+                      </div>
+                      <PortfolioTicketList
+                        tickets={selected.tickets}
+                        highlightNumbers={checkedResult.numbers}
+                        hitsPerTicket={checkedResult.hitsPerTicket}
+                        formatHits={(hits) => formatHitResult(selected.modality, hits)}
+                        bestTicketNumbers={summary.bestTicketNumbers}
+                        ticketBadges={buildBetBadges(selected)}
+                      />
+                    </>
+                  );
+                })()}
+              </div>
+                    </div>
+                  )}
+                  </Fragment>
                 ))}
               </div>
             </section>
@@ -346,81 +424,6 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               Cancelar
             </button>
           </div>
-        </div>
-      )}
-
-      {selected && (
-        <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-brand-border bg-brand-surface p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">Detalhes: {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
-            <button type="button" onClick={() => setSelected(null)} className="rounded border border-brand-border px-2 py-1 text-sm">
-              Fechar
-            </button>
-          </div>
-          {(() => {
-            const checkedResult = selected.checkedResult;
-            if (!checkedResult) {
-              return (
-                <>
-                  {noResultYet && (
-                    <div role="alert" data-testid="no-result-yet" className="mb-3 rounded-lg border border-amber-700 bg-amber-950/40 p-3 text-sm text-amber-100">
-                      O resultado oficial do concurso {selected.contest} ainda não foi divulgado pela CAIXA. Volte a conferir mais tarde.
-                    </div>
-                  )}
-                  <PortfolioTicketList tickets={selected.tickets} ticketBadges={buildBetBadges(selected)} />
-                  <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-brand-border px-3 py-1.5 text-sm">
-                    Conferir resultado
-                  </button>
-                </>
-              );
-            }
-            const summary = summarizeCheckedResult(selected.modality, checkedResult);
-            const betSummary = summarizeBetSelectionResult(selected.modality, checkedResult.hitsPerTicket, getCurrentBetTicketNumbers(selected));
-            const comparison = describeBetComparison(betSummary);
-            return (
-              <>
-                <div className="mb-3 space-y-2 rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-sm">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Resultado oficial, concurso {checkedResult.contest}</p>
-                    <p className="mt-0.5 font-mono text-base text-brand-text">{formatDrawNumbers(checkedResult.numbers)}</p>
-                  </div>
-                  {summary.sentence && (
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">{betSummary.hasSelection ? "Melhor da carteira gerada" : "Melhor resultado"}</p>
-                      <p className="mt-0.5 text-brand-text">{summary.sentence}</p>
-                      {betSummary.overallBestWasNotBet && <p className="mt-0.5 text-xs text-brand-textMuted">O melhor jogo da carteira não foi marcado como apostado.</p>}
-                    </div>
-                  )}
-                  {betSummary.hasSelection && (
-                    <div data-testid="bet-comparison" className="space-y-1">
-                      {betSummary.bestBet && (
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os apostados</p>
-                          <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestBet)}</p>
-                        </div>
-                      )}
-                      {betSummary.bestNonBet && (
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os não apostados</p>
-                          <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestNonBet)}</p>
-                        </div>
-                      )}
-                      {comparison && <p className="text-sm text-brand-text">{comparison}</p>}
-                    </div>
-                  )}
-                  <p className="text-xs text-brand-textMuted">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
-                </div>
-                <PortfolioTicketList
-                  tickets={selected.tickets}
-                  highlightNumbers={checkedResult.numbers}
-                  hitsPerTicket={checkedResult.hitsPerTicket}
-                  formatHits={(hits) => formatHitResult(selected.modality, hits)}
-                  bestTicketNumbers={summary.bestTicketNumbers}
-                  ticketBadges={buildBetBadges(selected)}
-                />
-              </>
-            );
-          })()}
         </div>
       )}
     </div>
