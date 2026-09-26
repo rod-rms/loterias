@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "lotofacil": {
     "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil",
-    "latestContest": 3788,
-    "latestDrawDate": "2026-09-24",
-    "lastUpdatedAt": "2026-09-25T06:37:06.886Z",
-    "lastCheckedAt": "2026-09-25T14:58:09.738Z",
+    "latestContest": 3789,
+    "latestDrawDate": "2026-09-25",
+    "lastUpdatedAt": "2026-09-26T06:37:16.443Z",
+    "lastCheckedAt": "2026-09-26T06:37:16.443Z",
     "status": "ok",
     "gapCount": 0
   },
