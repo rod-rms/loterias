@@ -41,6 +41,9 @@ Status: **PR_OPEN** — CI verde, aguardando validação de preview e autorizaç
 - O painel ganhou destaque visual (borda `brand-borderStrong` + fundo `bg-brand-action/10`) para deixar de se confundir com elementos neutros da tela.
 - Nenhuma mudança no modelo de persistência de `betSelection`, na derivação de `markedAsBet` ou na conferência de resultado.
 
+### CART-001 — Meus jogos salvos: agrupar por dia, data estimada do sorteio e aviso de resultado pendente
+Status: **PR_OPEN** — CI verde, aguardando validação de preview e autorização de merge do product owner (`DEC-022`). **Ainda não em produção.** Somente apresentação em `CarteirasPage`/`SavedPortfolioCard` (+ `drawSchedule.ts`, `portfolioGrouping.ts`); armazenamento e conferência inalterados.
+
 ## Pesquisa
 
 ### RMS-201 — RMS v2.x, desempate multi-horizonte 20+50

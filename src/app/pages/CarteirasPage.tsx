@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   listPortfolios,
   setBetSelection,
@@ -22,7 +22,12 @@ import {
 import { formatDrawNumbers } from "../../shared/utils/numberFormat";
 import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink, InfoHelp, BetTicketPicker } from "../../shared/components";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
-import type { Modality, SavedPortfolio } from "../../shared/types";
+import { groupPortfoliosByDay } from "../../shared/lib/portfolioGrouping";
+import type { LotteryDataset, Modality, SavedPortfolio } from "../../shared/types";
+
+/** Day-groups rendered by default, and how many more each "Carregar mais" click reveals. */
+const INITIAL_DAY_GROUPS = 3;
+const DAY_GROUPS_PER_PAGE = 3;
 
 const MODALITY_LABEL: Record<Modality, string> = { lotofacil: "Lotofácil", megasena: "Mega-Sena" };
 
@@ -44,6 +49,12 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   const [filterBet, setFilterBet] = useState<"all" | "yes" | "no">("all");
   const [selected, setSelected] = useState<SavedPortfolio | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [filterContest, setFilterContest] = useState("");
+  const [visibleDayGroups, setVisibleDayGroups] = useState(INITIAL_DAY_GROUPS);
+  // Datasets per modality present in the list (loaded once, only to show draw dates on cards).
+  const [datasets, setDatasets] = useState<Partial<Record<Modality, LotteryDataset>>>({});
+  // "Result not published yet" notice, scoped to the open detail view (not the page-level message).
+  const [noResultYet, setNoResultYet] = useState(false);
   const [importPreview, setImportPreview] = useState<{ count: number; raw: unknown } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [editingBet, setEditingBet] = useState<{ portfolio: SavedPortfolio; selected: number[] } | null>(null);
@@ -58,6 +69,13 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     };
   }, []);
 
+  const filteredPortfolios = useMemo(() => {
+    const q = filterContest.trim();
+    if (!q) return portfolios;
+    return portfolios.filter((p) => p.contest !== undefined && String(p.contest).includes(q));
+  }, [portfolios, filterContest]);
+  const dayGroups = useMemo(() => groupPortfoliosByDay(filteredPortfolios), [filteredPortfolios]);
+
   async function refresh() {
     const filters: Parameters<typeof listPortfolios>[0] = {};
     if (filterModality !== "all") filters.modality = filterModality;
@@ -66,6 +84,25 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
     if (!isMountedRef.current) return;
     setPortfolios(result);
   }
+
+  const modalitiesInList = useMemo(() => Array.from(new Set(portfolios.map((p) => p.modality))).sort().join(","), [portfolios]);
+  useEffect(() => {
+    let cancelled = false;
+    for (const m of modalitiesInList.split(",").filter(Boolean) as Modality[]) {
+      loadDataset(m)
+        .then((d) => {
+          if (!cancelled) setDatasets((prev) => (prev[m] === d ? prev : { ...prev, [m]: d }));
+        })
+        .catch(() => undefined); // draw-date line is optional; the list works without it
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [modalitiesInList]);
+
+  useEffect(() => {
+    setNoResultYet(false);
+  }, [selected?.id]);
 
   useEffect(() => {
     refresh();
@@ -132,11 +169,13 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   async function handleCheck(portfolio: SavedPortfolio) {
     if (!portfolio.contest) return;
     setMessage(null);
+    setNoResultYet(false);
     const dataset = await loadDataset(portfolio.modality);
     if (!isMountedRef.current) return;
     const draw = dataset.draws.find((d) => d.contest === portfolio.contest);
     if (!draw) {
-      setMessage("Resultado oficial deste concurso ainda não está disponível no dataset.");
+      // Shown inside the open detail dialog, next to the button that was clicked.
+      setNoResultYet(true);
       return;
     }
     const checkedResult = checkTicketsAgainstDraw(portfolio.tickets, draw);
@@ -161,6 +200,21 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
             <option value="lotofacil">Lotofácil</option>
             <option value="megasena">Mega-Sena</option>
           </select>
+        </label>
+        <label className="text-sm">
+          Concurso:{" "}
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            value={filterContest}
+            onChange={(e) => {
+              setFilterContest(e.target.value);
+              setVisibleDayGroups(INITIAL_DAY_GROUPS);
+            }}
+            placeholder="nº"
+            className="w-24 rounded border border-brand-border bg-transparent px-2 py-1"
+          />
         </label>
         <label className="text-sm">
           Com aposta registrada:{" "}
@@ -218,25 +272,44 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
 
       {portfolios.length === 0 ? (
         <EmptyState title="Nenhum jogo salvo ainda" description="Gere um conjunto de jogos e salve para vê-lo aqui." />
+      ) : filteredPortfolios.length === 0 ? (
+        <EmptyState title="Nenhum jogo encontrado" description="Nenhum jogo salvo corresponde ao concurso informado." />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2">
-          {portfolios.map((p) => (
-            <SavedPortfolioCard
-              key={p.id}
-              portfolio={p}
-              onOpen={() => setSelected(p)}
-              onEditBet={() => {
-                const current = getCurrentBetTicketNumbers(p);
-                setEditingBet({ portfolio: p, selected: current.length > 0 ? current : p.tickets.map((_, i) => i + 1) });
-              }}
-              onRemoveBet={() => {
-                if (confirm("Remover o registro de aposta? O histórico anterior é preservado e todos os jogos continuam salvos.")) recordBet(p, []);
-              }}
-              onDelete={() => {
-                if (confirm("Excluir este conjunto de jogos?")) deletePortfolio(p.id).then(refresh);
-              }}
-            />
+        <div className="space-y-6">
+          {dayGroups.slice(0, visibleDayGroups).map((group) => (
+            <section key={group.dayKey} aria-label={group.label} className="space-y-3">
+              <h2 className="sticky top-0 z-10 border-b border-brand-border bg-brand-bg/95 py-1 text-sm font-semibold text-brand-textMuted">{group.label}</h2>
+              <div className="grid gap-3 md:grid-cols-2">
+                {group.portfolios.map((p) => (
+                  <SavedPortfolioCard
+                    key={p.id}
+                    portfolio={p}
+                    dataset={datasets[p.modality]}
+                    onOpen={() => setSelected(p)}
+                    onEditBet={() => {
+                      const current = getCurrentBetTicketNumbers(p);
+                      setEditingBet({ portfolio: p, selected: current.length > 0 ? current : p.tickets.map((_, i) => i + 1) });
+                    }}
+                    onRemoveBet={() => {
+                      if (confirm("Remover o registro de aposta? O histórico anterior é preservado e todos os jogos continuam salvos.")) recordBet(p, []);
+                    }}
+                    onDelete={() => {
+                      if (confirm("Excluir este conjunto de jogos?")) deletePortfolio(p.id).then(refresh);
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
+          {dayGroups.length > visibleDayGroups && (
+            <button
+              type="button"
+              onClick={() => setVisibleDayGroups((n) => n + DAY_GROUPS_PER_PAGE)}
+              className="rounded border border-brand-border px-4 py-2 text-sm hover:bg-white/5"
+            >
+              Carregar mais
+            </button>
+          )}
         </div>
       )}
 
@@ -289,6 +362,11 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
             if (!checkedResult) {
               return (
                 <>
+                  {noResultYet && (
+                    <div role="alert" data-testid="no-result-yet" className="mb-3 rounded-lg border border-amber-700 bg-amber-950/40 p-3 text-sm text-amber-100">
+                      O resultado oficial do concurso {selected.contest} ainda não foi divulgado pela CAIXA. Volte a conferir mais tarde.
+                    </div>
+                  )}
                   <PortfolioTicketList tickets={selected.tickets} ticketBadges={buildBetBadges(selected)} />
                   <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-brand-border px-3 py-1.5 text-sm">
                     Conferir resultado
