@@ -813,7 +813,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 </div>
                 <div>
                   <dt className="font-medium text-brand-text">Identificador / versão</dt>
-                  <dd className="font-mono">
+                  <dd className="break-all font-mono">
                     {activeResult.strategyId} · v{activeResult.strategyVersion}
                   </dd>
                 </div>
