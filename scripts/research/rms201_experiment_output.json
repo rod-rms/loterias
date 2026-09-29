@@ -1,0 +1,137 @@
+{
+  "dataset": {
+    "source": "public/data/lotofacil/results.json",
+    "firstContest": 1,
+    "latestContest": 3790
+  },
+  "sample": {
+    "firstTarget": 52,
+    "lastTarget": 3790,
+    "stride": 10,
+    "requested": 374,
+    "usable": 374,
+    "skipped": 0
+  },
+  "metric1_hitDistribution": {
+    "A": {
+      "11": 177,
+      "12": 29,
+      "13": 1,
+      "14": 0,
+      "15": 0
+    },
+    "B": {
+      "11": 167,
+      "12": 34,
+      "13": 3,
+      "14": 0,
+      "15": 0
+    },
+    "R": {
+      "11": 168,
+      "12": 29,
+      "13": 0,
+      "14": 0,
+      "15": 0
+    },
+    "totalTicketsA": 2004,
+    "totalTicketsB": 1950,
+    "totalTicketsR": 1902
+  },
+  "metric2_bestTicketChange": {
+    "comparableBestCount": 303,
+    "sameBestCount": 124,
+    "changedCount": 179,
+    "examples": [
+      {
+        "contest": 52,
+        "bestA": 11,
+        "bestB": 10
+      },
+      {
+        "contest": 72,
+        "bestA": 11,
+        "bestB": 10
+      },
+      {
+        "contest": 162,
+        "bestA": 10,
+        "bestB": 11
+      },
+      {
+        "contest": 182,
+        "bestA": 11,
+        "bestB": 10
+      },
+      {
+        "contest": 192,
+        "bestA": 11,
+        "bestB": 9
+      },
+      {
+        "contest": 202,
+        "bestA": 12,
+        "bestB": 11
+      },
+      {
+        "contest": 232,
+        "bestA": 10,
+        "bestB": 11
+      },
+      {
+        "contest": 242,
+        "bestA": 12,
+        "bestB": 10
+      },
+      {
+        "contest": 262,
+        "bestA": 10,
+        "bestB": 12
+      },
+      {
+        "contest": 322,
+        "bestA": 11,
+        "bestB": 10
+      }
+    ]
+  },
+  "metric3_structuralCheck": {
+    "structuralCheckedA": 334,
+    "structuralOkA": 334,
+    "structuralCheckedB": 325,
+    "structuralOkB": 325
+  },
+  "metric4_poolStability": {
+    "n": 374,
+    "meanRetainedA": 14.254010695187166,
+    "meanRetainedB": 4.334224598930481,
+    "meanRetainedC": 3.609625668449198,
+    "poolSizes": {
+      "A": 15,
+      "B": 5,
+      "C": 5
+    }
+  },
+  "metric5_boundaryTieRate": {
+    "n": 374,
+    "tieAnyRate": 0.9224598930481284,
+    "acTieRate": 0.7165775401069518,
+    "cbTieRate": 0.7272727272727273
+  },
+  "metric6_vsRandomBaseline": {
+    "distDiffAB": {
+      "11": -10,
+      "12": 5,
+      "13": 2,
+      "14": 0,
+      "15": 0
+    },
+    "distDiffAR": {
+      "11": -9,
+      "12": 0,
+      "13": -1,
+      "14": 0,
+      "15": 0
+    }
+  }
+}
