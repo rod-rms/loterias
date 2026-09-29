@@ -5,48 +5,53 @@
 
 | Campo | Valor |
 |---|---|
-| Última revisão | 2026-09-23 |
+| Última revisão | 2026-09-28 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `091a29057a8c9530ca0c66460071a87e6d52d19e` (tip pós-merge do PR #14 + atualização automática de dataset) |
+| `main` no momento da revisão | `63f1a8b76603a4c897c6ca88e1cb80cfdf0fd8fe` (tip pós-merge do PR #21 + atualização automática de dataset) |
 | Versão em `package.json` | `1.2.0` |
 | Última release estável com tag | `v1.2.0` (2026-09-23) |
 
 ## Release com tag ≠ estado atual de produção
 
-`v1.2.0` inclui a marca LotoAtlas, o FIX-001, o BET-001, a fundação de continuidade de projeto e a clareza do fluxo de salvar. Desde então, `main` recebeu correções internas adicionais sem release própria ainda (PR #12 correção de copy, PR #13 spike de validação do agrupamento MEGA-ROLL-001, PR #14 correção defensiva de unmount) — nenhuma delas é uma capacidade nova visível ao usuário. **MEGA-ROLL-001 (implementação completa) está em PR aberto, ainda não mergeado** — ver seção "Item de desenvolvimento em andamento".
+`v1.2.0` inclui a marca LotoAtlas, o FIX-001, o BET-001, a fundação de continuidade de projeto e a clareza do fluxo de salvar. Desde a tag, três capacidades novas visíveis ao usuário já foram mergeadas e verificadas em produção sem uma release própria: **MEGA-ROLL-001** (PR #15, 24/09), **BET-002** (PR #17, 24/09) e **CART-001** (PR #20, 26/09) — ver a tabela abaixo. Correções internas sem superfície de UI (PR #12, #13, #14) também entraram no meio tempo.
+
+**Observação (DEC-006):** `package.json` permanece em `1.2.0` e não há tag mais recente que `v1.2.0`, mas a produção já contém três entregas de produto além do que essa tag descreve. Uma nova release com tag está **em atraso** frente ao que está de fato em produção — sinalizado aqui para o product owner decidir quando cortar a próxima tag; nenhuma tag/bump foi feito por esta revisão (`DEC-003`, fora do escopo de uma tarefa somente de documentação).
 
 ## Capacidades atualmente em produção
 
 - Lotofácil (LF15) e Mega-Sena (Mega6): geração de jogos simples por estratégias do Strategy Registry (incl. RMS v2 = exatamente 6 jogos), sempre com seed, métricas com status `exact/estimated/upper_bound/lower_bound/not_computed`.
 - Simulação histórica com proteção *no-look-ahead* (o concurso-alvo e os posteriores nunca chegam à estratégia).
 - Carteiras salvas localmente (IndexedDB), backup/importação, conferência de resultado contra concurso histórico.
-- **BET-001:** salvar ≠ apostar. A carteira gerada é salva por inteiro; o registro dos jogos realmente apostados (`betSelection`) é opt-in, append-only e separado; a conferência checa **todos** os jogos, com selos Apostado/Não apostado e comparação factual.
+- **BET-001:** salvar ≠ apostar. A carteira gerada é salva por inteiro; o registro dos jogos realmente apostados (`betSelection`) é append-only e separado; a conferência checa **todos** os jogos, com selos Apostado/Não apostado e comparação factual.
+- **BET-002:** o painel "Salvar carteira" mostra "Registrar também quais jogos foram apostados" já marcada por padrão (opt-out, `DEC-023`, emenda `DEC-009`) — o usuário desmarca jogos ou desativa o registro antes de confirmar, em vez de precisar marcar antes. Painel com destaque visual próprio (borda `brand-borderStrong` + fundo `bg-brand-action/10`).
 - **FIX-001:** isolamento do estado de geração entre modalidades (Lotofácil ↔ Mega-Sena).
+- **MEGA-ROLL-001:** estratégia Mega-Sena "Organizar pelo histórico recente" (Rolling 20 Balanceada v2.1, `megasena.rolling_20_v2`) — agrupamento G1/G2/G3 pelos 20 concursos anteriores, alocação proporcional, filtros estruturais e otimizador de exposição/sobreposição; estritamente no-look-ahead, sem afirmação preditiva.
+- **CART-001:** "Meus jogos salvos" agrupado por dia de criação (Hoje/Ontem/data completa, teto de 3 dias com "Carregar mais"), faixa de cor por modalidade nos cartões, filtro rápido por concurso, data real (do dataset) ou estimada (pela periodicidade oficial CAIXA, sempre rotulada como estimativa) do sorteio em cada cartão, aviso de resultado ainda não divulgado dentro do diálogo de detalhes (não mais no topo da página), e o próprio painel de detalhes abrindo logo abaixo do cartão clicado.
 - Atualização automática de datasets a partir da API da CAIXA (workflow agendado, com alerta por issue `data-update-failure`).
 - Identidade visual LotoAtlas (dark-first, tokens `brand.*`).
 - Dados pessoais somente locais; nenhuma conta, nenhum backend.
 
-## Datasets (lidos de `public/data/status.json` em 2026-09-23)
+## Datasets (lidos de `public/data/status.json` em 2026-09-28)
 
 | Modalidade | Último concurso | Data do sorteio | Status |
 |---|---|---|---|
-| Lotofácil | 3786 | 2026-09-22 | ok, 0 lacunas |
-| Mega-Sena | 3061 | 2026-09-22 | ok, 0 lacunas |
+| Lotofácil | 3790 | 2026-09-27 | ok, 0 lacunas |
+| Mega-Sena | 3063 | 2026-09-27 | ok, 0 lacunas |
 
 Estes números avançam sozinhos (commits `data: update lottery datasets` em `main`). **Sempre releia `public/data/status.json`.**
 
 ## PRs abertos
 
-O PR de implementação completa do MEGA-ROLL-001 (`feat/mega-roll-001-implementation`) é o único aberto no momento em que esta revisão foi escrita — releia `gh pr list` para confirmar, pois pode já ter avançado.
+Nenhum, no momento em que esta revisão foi escrita (verificado via `gh pr list`) — releia para confirmar, pois pode já ter avançado.
 
 ## Item de desenvolvimento em andamento
 
-**MEGA-ROLL-001** — Mega-Sena Rolling 20 Balanceada v2.1: implementação completa (agrupamento, alocação, filtros, otimizador, Strategy Registry, UI), CI verde, **aguardando validação de preview e autorização de merge do product owner** (`DEC-022`). Ver `ROADMAP.md` para o link do PR e o status detalhado.
+Nenhum.
 
 ## Próxima implementação aprovada
 
-Nenhuma outra além do MEGA-ROLL-001 acima (em revisão, não em produção).
+Nenhuma no momento (MEGA-ROLL-001, BET-002 e CART-001 já estão em produção — ver acima e `ROADMAP.md`).
 
 ## Itens de pesquisa
 
