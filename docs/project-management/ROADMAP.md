@@ -1,6 +1,6 @@
 # LotoAtlas — Roadmap
 
-Última revisão: 2026-09-28. Estado de `main` no momento da revisão: `63f1a8b` (ver `PROJECT_STATE.md`).
+Última revisão: 2026-09-29. Estado de `main` no momento da revisão: `63f1a8b` (ver `PROJECT_STATE.md`).
 
 ## Status
 
@@ -34,6 +34,15 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 | BET-002 | Registro de aposta padrão visível (opt-out, `DEC-023`, emenda `DEC-009`) + destaque visual do painel de salvar (PR #17, merge `9e3d660`) | DONE — verificado em produção em 2026-09-28 (PR mergeado em 2026-09-24T21:46:59Z após validação pessoal do product owner via preview; CI de `main` verde no commit do merge; comportamento opt-out e destaque visual (`bg-brand-action/10`) confirmados presentes no bundle atual de produção) |
 | CART-001 | Meus jogos salvos: agrupado por dia (teto de 3 dias + "Carregar mais"), faixa de cor por modalidade, filtro por concurso, data real/estimada do sorteio, aviso de resultado pendente no dialog e painel "Detalhes" logo abaixo do cartão aberto (PR #20; a correção de posição foi incorporada ao mesmo item) | DONE — verificado em produção em 2026-09-26 (CI de `main` verde no commit do merge; bundle em produção = deploy do merge; UI confirmada: Detalhes abre logo abaixo do cartão clicado) |
 
+## Em revisão (aguardando validação do product owner)
+
+### BRAND-001 — Ajuste fino do trevo no símbolo/logo
+Status: **PR_OPEN** — CI verde, aguardando validação de preview e autorização de merge do product owner (`DEC-022`). **Ainda não em produção.**
+
+- Reconciliação (2026-09-29) de uma instrução antiga (rascunho de 22/09) contra o código atual: os arquivos de UI (`lotoatlas-logo-ui-reversed.svg`, `lotoatlas-symbol-ui-on-dark.svg`) já eram transparentes e sem tagline (corrigido em PR anterior); a arquitetura responsiva do cabeçalho, o grid de "Detalhes técnicos" e o posicionamento do popover "Como funciona?" também já estavam corrigidos. O único item pendente era a centralização óptica do trevo.
+- Verificação visual (renderização isolada, não só o cálculo do bounding box): o trevo estava em y=165 contra o centro geométrico da composição em y=155,5. Comparando as duas versões lado a lado, a versão centralizada lê como visivelmente mais equilibrada. Micro-ajuste aplicado: apenas a translação do grupo do trevo, mesmo trevo/tamanho.
+- Adicionalmente, quebra de linha defensiva (`break-all`) no identificador técnico de estratégia em "Detalhes técnicos do resultado".
+
 ## Pesquisa
 
 ### RMS-201 — RMS v2.x, desempate multi-horizonte 20+50
@@ -65,7 +74,6 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 
 | ID | Item | Status |
 |---|---|---|
-| BRAND-001 | Refinamento da centralização óptica do trevo/logo | DEFERRED |
 | TECH-001 | Limpeza da descrição legada/interna em `package.json` | DEFERRED |
 | TECH-002 | Upgrades major de dependências (React, Router, Vite, Tailwind, TypeScript…); não fazer em lote casualmente | DEFERRED |
 | TECH-003 | Housekeeping de runtime do GitHub Actions (avisos de depreciação do Node, upgrade de actions) | DEFERRED |
