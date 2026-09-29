@@ -33,7 +33,6 @@ import { assignPoolToBucketsWithExposureMap } from "../../src/shared/lib/degreeA
 import { createSeededRandom, shuffleInPlace, type RandomSource } from "../../src/shared/lib/prng";
 import type { LotofacilRmsPoolSnapshot } from "../../src/modules/lotofacil/domain/types";
 
-const LOTOFACIL_MIN = 1;
 const LOTOFACIL_MAX = 25;
 const WINDOW_20 = 20;
 const WINDOW_50 = 50;
@@ -285,7 +284,7 @@ function main() {
   // ---- Metric 2: best ticket per carteira, and whether it changes between A and B ----
   let sameBestCount = 0;
   let comparableBestCount = 0;
-  let bestChangedExamples: { contest: number; bestA: number; bestB: number }[] = [];
+  const bestChangedExamples: { contest: number; bestA: number; bestB: number }[] = [];
   for (const r of results) {
     if (r.hitsA.length === 0 || r.hitsB.length === 0) continue;
     comparableBestCount += 1;
