@@ -8,7 +8,7 @@
 | Última revisão | 2026-09-29 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `f40cdb2d8e8fd46b197852f510fc047f4af9e9dd` (tip pós-merge do PR #25, precedido pelo merge do PR #24) |
+| `main` no momento da revisão | `8312dfb750479346ee07dadbb64cf920506c8167` (catch-up manual de dados após o incidente DATA-002, ver abaixo) |
 | Versão em `package.json` | `1.2.0` |
 | Última release estável com tag | `v1.2.0` (2026-09-23) |
 
@@ -33,14 +33,16 @@
 - Identidade visual LotoAtlas (dark-first, tokens `brand.*`).
 - Dados pessoais somente locais; nenhuma conta, nenhum backend.
 
-## Datasets (lidos de `public/data/status.json` em 2026-09-29)
+## Datasets (lidos de `public/data/status.json` em 2026-09-29, pós catch-up manual)
 
 | Modalidade | Último concurso | Data do sorteio | Status |
 |---|---|---|---|
-| Lotofácil | 3790 | 2026-09-27 | ok, 0 lacunas |
-| Mega-Sena | 3063 | 2026-09-27 | ok, 0 lacunas |
+| Lotofácil | 3792 | 2026-09-29 | ok, 0 lacunas |
+| Mega-Sena | 3064 | 2026-09-29 | ok, 0 lacunas |
 
 Estes números avançam sozinhos (commits `data: update lottery datasets` em `main`). **Sempre releia `public/data/status.json`.**
+
+**Incidente DATA-002 (2026-09-29):** o workflow agendado `data-update.yml` falhou em 3 execuções seguidas (07:30, 10:03, 16:18 UTC) com HTTP 403 de `servicebus2.caixa.gov.br`, deixando o app oferecer o concurso errado como próximo a jogar (produção presa em 3790/3063 enquanto os concursos reais já eram 3792/3064). Causa raiz confirmada: o bloqueio é específico das máquinas do GitHub Actions (a mesma chamada, headers idênticos, funciona normalmente fora dessa rede) — não é um problema de código, header ou token, e não foi causado pelos PRs #24/#25/#26 (confirmado via diff, nenhuma mudança no caminho do updater). Dataset corrigido manualmente (commit `8312dfb`, mesmo script idempotente `scripts/data/update-dataset.mjs`, rodado de uma rede não bloqueada) e confirmado ao vivo em produção oferecendo o concurso 3793 (Lotofácil) e 3065 (Mega-Sena) como próximos a jogar. O mecanismo automático em si **continua quebrado** até uma decisão de infraestrutura ser tomada — ver `DATA-002` em `ROADMAP.md` e a issue [#23](https://github.com/rod-rms/loterias/issues/23) (mantida aberta de propósito).
 
 ## PRs abertos
 
@@ -61,7 +63,7 @@ Nenhuma no momento (MEGA-ROLL-001, BET-002, CART-001 e BRAND-001 já estão em p
 
 ## Dívida técnica conhecida, não bloqueante
 
-TECH-001 … TECH-006 (ver `ROADMAP.md`). BRAND-001 (centralização óptica do trevo/logo) foi resolvida — ver tabela acima.
+TECH-001 … TECH-006 (ver `ROADMAP.md`). BRAND-001 (centralização óptica do trevo/logo) foi resolvida — ver tabela acima. **DATA-002** (atualizador automático bloqueado por IP nos runners do GitHub Actions) é conhecida e **não bloqueante para o usuário** (dado corrigido manualmente), mas segue sem solução definitiva — ver `ROADMAP.md`.
 
 ## Observações
 
