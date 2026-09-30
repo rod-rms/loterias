@@ -74,6 +74,7 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 | TECH-006 | Investigar o erro intermitente de teardown assíncrono "window is not defined" se reaparecer (visto uma vez em `carteirasResultChecking.test.tsx`; re-run passou) | DEFERRED |
 | REPO-001 | Limpeza opcional/baixa prioridade do repositório e de arquivos locais não versionados | DEFERRED |
 | AUTH-001 | Integração com Supabase para autenticação (login opcional) e possível sincronização de dados entre dispositivos | IDEA |
+| DATA-002 | Atualizador automático (`data-update.yml`) bloqueado: `servicebus2.caixa.gov.br` retorna HTTP 403 especificamente para as máquinas efêmeras do GitHub Actions desde 2026-09-29 07:30 UTC (confirmado: a mesma requisição, mesmos headers, funciona normalmente de uma rede não-Actions — indício de bloqueio por IP/ASN do lado da CAIXA, não um problema de header/token/código; nenhuma mudança de código no caminho do updater desde a última execução bem-sucedida). Correção definitiva exige uma decisão de infraestrutura (runner self-hosted, egress por proxy, ou outra saída de rede) fora do escopo de um fix mínimo de código — aguardando decisão do product owner. Catch-up manual dos dados feito em 2026-09-29/30 (commit `8312dfb`); o alerta de falha (issue #23, `data-update-failure`) permanece aberto de propósito até a causa raiz do próprio mecanismo automático ser resolvida. | RESEARCH |
 
 ### Ideias de produto (IDEA — sem aprovação)
 
