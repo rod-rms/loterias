@@ -51,9 +51,13 @@ wrangler deploy
 
 No Cloudflare Dashboard → Workers & Pages → `lottery-data-updater` → Settings → Triggers.
 Devem aparecer 3 crons:
-- `45 1 * * 2-6`  — 22:45 BRT Seg-Sex (intermediário)
-- `0 10 * * 2-6`  — 07:00 BRT Ter-Sáb (fallback final)
-- `0 23 * * 0`    — 20:00 BRT Domingo (fallback final)
+- `0 2 * * 2-6`   — 23:00 BRT Seg-Sex (intermediário)
+- `15 10 * * 2-6` — 07:15 BRT Ter-Sáb (fallback final)
+- `15 23 * * 0`   — 20:15 BRT Domingo (fallback final)
+
+Esses horários estão deslocados +15min dos crons equivalentes no GitHub Actions
+(`data-update.yml`) de propósito — veja a seção "GitHub Actions — período de
+transição" abaixo.
 
 ## 5. Testar manualmente
 
@@ -72,14 +76,29 @@ curl -H "Authorization: Bearer <GITHUB_TOKEN>" \
 
 | Cron | BRT | Tipo | Comportamento |
 |------|-----|------|---------------|
-| `45 1 * * 2-6` | 22:45 Seg-Sex | Intermediário | Não persiste `lastCheckedAt` se não houver novo concurso |
-| `0 10 * * 2-6` | 07:00 Ter-Sáb | **Fallback final** | Sempre persiste `lastCheckedAt` |
-| `0 23 * * 0`  | 20:00 Dom | **Fallback final** | Sempre persiste `lastCheckedAt` |
+| `0 2 * * 2-6`   | 23:00 Seg-Sex | Intermediário | Não persiste `lastCheckedAt` se não houver novo concurso |
+| `15 10 * * 2-6` | 07:15 Ter-Sáb | **Fallback final** | Sempre persiste `lastCheckedAt` |
+| `15 23 * * 0`   | 20:15 Dom | **Fallback final** | Sempre persiste `lastCheckedAt` |
 
 ## Alertas
 
-Falhas abrem (ou comentam em) uma GitHub Issue com label `data-update-failure`.
-Sucesso fecha qualquer issue aberta com esse label.
+Abre (ou comenta em) uma GitHub Issue com label `data-update-failure` quando:
+- a verificação da fonte oficial (CAIXA) falha para alguma modalidade, OU
+- o commit das mudanças no GitHub falha (conflito de ref, token expirado, erro de API).
+
+Em qualquer um dos dois casos o alerta dispara — uma falha de commit não passa
+em branco silenciosamente. Sucesso fecha qualquer issue aberta com esse label.
+
+## Segurança contra leitura inconsistente do estado atual
+
+Antes de buscar qualquer dado novo na CAIXA, o Worker lê o estado atual
+(`results.json` de cada modalidade + `status.json`) via `raw.githubusercontent.com`.
+Se essa leitura falhar por qualquer motivo que não seja um 404 genuíno (erro 5xx,
+timeout, etc.), o Worker **aborta a execução sem escrever nada e sem consultar a
+CAIXA** — nunca assume "o arquivo não existe" quando na verdade só não conseguiu
+ler. Isso evita que uma instabilidade passageira do CDN do GitHub dispare uma
+reconstrução completa do histórico (milhares de requisições à CAIXA) ou sobrescreva
+um dataset bom com um incompleto.
 
 ## GitHub Actions — período de transição
 
@@ -87,6 +106,11 @@ Os crons do `.github/workflows/data-update.yml` **permanecem ativos** como rede 
 segurança enquanto este Worker não tiver pelo menos 2-3 execuções agendadas reais
 com sucesso em produção (verificar logs no Cloudflare Dashboard + commits
 `chore(data): update ... [skip ci]` aparecendo no repositório).
+
+Os crons do Worker (acima) são deslocados +15min dos horários do GitHub Actions
+de propósito, para que os dois sistemas nunca leiam-e-commitem ao mesmo tempo
+durante essa validação. Isso pode ficar assim indefinidamente — uma vez que os
+crons do GitHub Actions forem removidos, não há mais nada para colidir.
 
 Só depois dessa validação os crons do GitHub Actions devem ser removidos
 (mantendo apenas `workflow_dispatch` como fallback manual), em um commit

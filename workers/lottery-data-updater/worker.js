@@ -21,7 +21,11 @@ const GITHUB_API_BASE  = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_
 // Crons that count as "final fallback" — a successful check with no new
 // contest STILL persists lastCheckedAt. Others are "intermediate" windows
 // that skip the status commit when nothing changed.
-const FINAL_FALLBACK_CRONS = new Set(["0 10 * * 2-6", "0 23 * * 0"]);
+//
+// These must match wrangler.toml's [triggers].crons exactly (the final
+// two there, offset +15min from the GitHub Actions schedule — see that
+// file's comments for why).
+const FINAL_FALLBACK_CRONS = new Set(["15 10 * * 2-6", "15 23 * * 0"]);
 
 const ISSUE_LABEL = "data-update-failure";
 
@@ -185,19 +189,31 @@ async function githubApi(token, method, path, body) {
 
 /**
  * Read a JSON file from the repo via raw.githubusercontent.com.
- * No auth required, no 1 MB limit. Returns null if file does not exist.
+ * No auth required, no 1 MB limit.
+ *
+ * Returns null ONLY on a genuine 404 (file does not exist yet — e.g. the
+ * very first run). Any other failure (5xx, network error, timeout, bad
+ * JSON) is retried a few times and then THROWN — it must never be
+ * silently treated as "the file doesn't exist", because that would make
+ * the caller think there's no prior dataset and trigger a full historical
+ * backfill against the official source, potentially overwriting a known-
+ * good snapshot with an incomplete one built under transient-error cover.
  */
 async function readJsonFromRepo(filePath) {
   const url = `${GITHUB_RAW_BASE}/${filePath}`;
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "lottery-data-updater/1.0", "Cache-Control": "no-cache" },
-    });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch {
-    return null;
+  const RAW_READ_RETRIES = 3;
+  for (let attempt = 1; attempt <= RAW_READ_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { "User-Agent": "lottery-data-updater/1.0", "Cache-Control": "no-cache" },
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`HTTP ${res.status} reading ${filePath} from raw.githubusercontent.com`);
+      return await res.json();
+    } catch (err) {
+      if (attempt === RAW_READ_RETRIES) throw err;
+      await sleep(1000 * attempt);
+    }
   }
 }
 
@@ -414,12 +430,29 @@ function buildStatusJson(results, existingStatus, allowCheckedOnly) {
 async function runUpdate(githubToken, triggerLabel, allowCheckedOnly) {
   console.log(`=== lottery-data-updater START trigger=${triggerLabel} allowCheckedOnly=${allowCheckedOnly} ===`);
 
-  // Read current snapshots from repo (parallel)
-  const [existingLotofacil, existingMegasena, existingStatus] = await Promise.all([
-    readJsonFromRepo(MODALITIES.lotofacil.dataPath),
-    readJsonFromRepo(MODALITIES.megasena.dataPath),
-    readJsonFromRepo(STATUS_PATH),
-  ]);
+  // Read current snapshots from repo (parallel). readJsonFromRepo only
+  // returns null for a genuine 404 — any other failure throws here. If it
+  // throws, we do NOT know the current state of the repo, so we must not
+  // guess "no file" and must not write anything or fetch from the official
+  // source this run. Abort safely and raise an alert instead.
+  let existingLotofacil, existingMegasena, existingStatus;
+  try {
+    [existingLotofacil, existingMegasena, existingStatus] = await Promise.all([
+      readJsonFromRepo(MODALITIES.lotofacil.dataPath),
+      readJsonFromRepo(MODALITIES.megasena.dataPath),
+      readJsonFromRepo(STATUS_PATH),
+    ]);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`FAILED to read current repo state — aborting without writes or source checks: ${msg}`);
+    await openOrCommentFailureIssue(
+      githubToken,
+      triggerLabel,
+      `Could not read current dataset/status from raw.githubusercontent.com — aborted without any writes.\n${msg}`
+    ).catch((e) => console.error("Issue alert failed:", e));
+    console.log(`=== lottery-data-updater END (aborted: could not read repo state) ===`);
+    return { anyCheckFailed: true, aborted: true, summary: [] };
+  }
   const existingDatasets = { lotofacil: existingLotofacil, megasena: existingMegasena };
 
   const results = [];
@@ -451,24 +484,37 @@ async function runUpdate(githubToken, triggerLabel, allowCheckedOnly) {
     filesToCommit.push({ path: STATUS_PATH, content: JSON.stringify(newStatus, null, 2) + "\n" });
   }
 
+  // Commit, if there's anything to commit. A failure here (ref conflict
+  // from a concurrent run, expired token, API error, ...) must NOT be
+  // allowed to skip the alerting step below — this is the single most
+  // likely real-world failure mode, so it has to reach the GitHub Issue
+  // just like a source-check failure does.
+  let commitFailed = false;
+  let commitError = null;
   if (filesToCommit.length > 0) {
     const changedModalities = results.filter((r) => r?.changed).map((r) => r.modality);
     const commitMsg = changedModalities.length > 0
       ? `chore(data): update ${changedModalities.join(", ")} dataset [skip ci]\n\nTriggered by ${triggerLabel}`
       : `chore(data): update status.json [skip ci]\n\nTriggered by ${triggerLabel}`;
     console.log(`Committing ${filesToCommit.length} file(s): ${filesToCommit.map((f) => f.path).join(", ")}`);
-    const sha = await commitFilesToGitHub(githubToken, commitMsg, filesToCommit);
-    console.log(`Committed: ${sha}`);
+    try {
+      const sha = await commitFilesToGitHub(githubToken, commitMsg, filesToCommit);
+      console.log(`Committed: ${sha}`);
+    } catch (err) {
+      commitFailed = true;
+      commitError = err instanceof Error ? err.message : String(err);
+      console.error(`Commit to GitHub FAILED: ${commitError}`);
+    }
   } else {
     console.log("Nothing to commit this run.");
   }
 
   // Issue alerting
-  if (anyCheckFailed) {
-    const errorSummary = results
-      .filter((r) => !r?.checked)
-      .map((r) => `[${r.modality}] source check failed`)
-      .join("\n");
+  if (anyCheckFailed || commitFailed) {
+    const errorSummary = [
+      ...results.filter((r) => !r?.checked).map((r) => `[${r.modality}] source check failed`),
+      ...(commitFailed ? [`[commit] failed to write changes to GitHub: ${commitError}`] : []),
+    ].join("\n");
     await openOrCommentFailureIssue(githubToken, triggerLabel, errorSummary)
       .catch((e) => console.error("Issue alert failed:", e));
   } else {
@@ -485,8 +531,8 @@ async function runUpdate(githubToken, triggerLabel, allowCheckedOnly) {
     gaps:          r.gaps?.length ?? 0,
   }));
   console.log("Summary:", JSON.stringify(summary, null, 2));
-  console.log(`=== lottery-data-updater END anyCheckFailed=${anyCheckFailed} ===`);
-  return { anyCheckFailed, summary };
+  console.log(`=== lottery-data-updater END anyCheckFailed=${anyCheckFailed} commitFailed=${commitFailed} ===`);
+  return { anyCheckFailed: anyCheckFailed || commitFailed, summary };
 }
 
 // ---------------------------------------------------------------------------
