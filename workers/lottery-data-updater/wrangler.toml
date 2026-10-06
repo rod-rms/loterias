@@ -1,0 +1,26 @@
+name            = "lottery-data-updater"
+main            = "worker.js"
+compatibility_date = "2026-10-06"
+
+# ---------------------------------------------------------------------------
+# Cron Triggers (3 max on Cloudflare free plan)
+#
+# UTC times — draws happen at ~20:00 BRT (UTC-3), ~21:00 BRT (BRST UTC-2)
+#
+#   45 1 * * 2-6   = 22:45 BRT (Mon-Fri)  → intermediate follow-up ~3h post-draw
+#   0 10 * * 2-6   = 07:00 BRT (Tue-Sat)  → final fallback, next morning
+#   0 23 * * 0     = 20:00 BRT (Sunday)   → final fallback for Sunday morning draws
+#
+# "Final fallback" crons (0 10 * * 2-6 and 0 23 * * 0) set
+# ALLOW_CHECKED_ONLY_STATUS_WRITE=true so a successful check with no new
+# contest still persists lastCheckedAt, keeping status.json fresh.
+# The intermediate cron (45 1 * * 2-6) skips the status commit when
+# nothing changed, to avoid noisy status-only commits in Git history.
+# ---------------------------------------------------------------------------
+
+[triggers]
+crons = [
+  "45 1 * * 2-6",  # 22:45 BRT Mon-Fri — intermediate follow-up
+  "0 10 * * 2-6",  # 07:00 BRT Tue-Sat — final fallback
+  "0 23 * * 0",    # 20:00 BRT Sunday  — final fallback for Sunday draws
+]
