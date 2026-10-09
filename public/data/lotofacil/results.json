@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "modality": "lotofacil",
   "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil",
-  "importedAt": "2026-10-08T07:59:25.108Z",
-  "latestContest": 3799,
+  "importedAt": "2026-10-09T08:00:28.884Z",
+  "latestContest": 3800,
   "draws": [
     {
       "contest": 1,
@@ -79782,6 +79782,27 @@
         23,
         24,
         25
+      ]
+    },
+    {
+      "contest": 3800,
+      "drawDate": "2026-10-08",
+      "numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14,
+        15,
+        19,
+        21
       ]
     }
   ]
