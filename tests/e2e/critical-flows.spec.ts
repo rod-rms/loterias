@@ -648,4 +648,36 @@ test.describe("LotoAtlas — critical flows", () => {
     await page.goto("/carteiras");
     await expect(page.getByText("Organizar pelo histórico recente")).toBeVisible();
   });
+
+  for (const [modalityPath, strategyName] of [
+    ["/lotofacil/gerar", "Gerar jogos aleatórios"],
+    ["/megasena/gerar", "Gerar jogos aleatórios"],
+  ] as const) {
+    test(`result layout (${modalityPath}): actions sit right below the summary, games come before the probability cards, and the baseline comparison no longer repeats "Seus jogos"`, async ({ page }) => {
+      await page.goto(modalityPath);
+      await selectStrategy(page, strategyName);
+      await generateAndWait(page);
+
+      const yOf = async (locator: import("@playwright/test").Locator) => (await locator.first().boundingBox())!.y;
+      const saveY = await yOf(page.getByRole("button", { name: /^Salvar (este jogo|estes jogos)$/ }));
+      const gamesY = await yOf(page.getByText("J1", { exact: true }));
+      const metricY = await yOf(page.locator("[data-testid^=\"metric-\"]"));
+      expect(saveY).toBeLessThan(gamesY);
+      expect(gamesY).toBeLessThan(metricY);
+
+      const comparison = page.getByText("Comparação com jogos aleatórios equivalentes", { exact: true });
+      if (await comparison.count()) {
+        expect(metricY).toBeLessThan(await yOf(comparison));
+        await expect(page.getByText(/Seus jogos:/)).toHaveCount(0);
+        await expect(page.getByText(/Jogos aleatórios equivalentes:/).first()).toBeVisible();
+      }
+
+      // The save confirmation stays adjacent to the save button (above the games).
+      await page.getByRole("button", { name: /^Salvar (este jogo|estes jogos)$/ }).click();
+      await page.getByRole("button", { name: "Confirmar e salvar" }).click();
+      const saved = page.getByRole("status").filter({ hasText: /foram salvos|foi salvo/ });
+      await expect(saved).toBeVisible();
+      expect(await yOf(saved)).toBeLessThan(gamesY);
+    });
+  }
 });
