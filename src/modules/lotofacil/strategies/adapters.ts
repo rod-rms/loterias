@@ -7,6 +7,7 @@ import {
   DIVERSIFICATION_ALGORITHM_VERSION,
   COVERAGE_ALGORITHM_VERSION,
   RMS_ALGORITHM_VERSION,
+  RMS_ALGORITHM_VERSION_V2_0,
   RMS_HISTORY_WINDOW,
   RMS_TIEBREAK_WINDOW,
   UNIFORM_ALGORITHM_VERSION,
@@ -134,8 +135,11 @@ export async function generateRmsV2Adapter(request: GeneratePortfolioRequest): P
     ticketCostSource: config.source,
     ticketCostReferenceDate: config.referenceDate,
     strategyId: LOTOFACIL_RMS_V2.id,
+    // strategyVersion is the registry definition's contract version (2.1.0, whose documented behaviour
+    // includes this fallback), so it stays at definition level. algorithmVersion records the engine
+    // behaviour actually executed: v2.1.0 with the 50-window, v2.0.0 in the seed-only fallback.
     strategyVersion: LOTOFACIL_RMS_V2.version,
-    algorithmVersion: RMS_ALGORITHM_VERSION,
+    algorithmVersion: tiebreakWindow ? RMS_ALGORITHM_VERSION : RMS_ALGORITHM_VERSION_V2_0,
     generationMethod: `structural constraint search (patterns ${generation.patternUsed.join(", ")}; J6 variant ${generation.j6Variant}; ${tieBreakDescription})`,
     seedForAudit: seed,
     bestScore: generation.tieBreakScore,

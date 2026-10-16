@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { buildPools, computeFrequencies, generateRmsV2, type RmsDrawInput } from "../../src/modules/lotofacil/domain/rms";
+import { referenceWindow } from "../../src/shared/lib/dataLoaders";
 import { RMS_ALGORITHM_VERSION, RMS_ALGORITHM_VERSION_V2_0, RMS_HISTORY_WINDOW, RMS_TIEBREAK_WINDOW } from "../../src/modules/lotofacil/domain/constants";
 import { createSeededRandom } from "../../src/shared/lib/prng";
 import type { GameConfig, LotteryDataset, LotteryDraw } from "../../src/shared/types";
@@ -311,6 +312,38 @@ describe("RMS-201 — adapter wiring", () => {
     expect(result.strategyVersion).toBe("2.1.0");
     expect(result.audit.algorithmVersion).toBe("rms-v2.1.0");
     expect(result.generationMethod).toMatch(/20-contest frequency, then 50-contest frequency, then seed/);
+  });
+
+  it("normal path: algorithmVersion rms-v2.1.0 and the pools use tieBreakRule multi_horizon_20_50 (adapter output == domain call with the 50-window)", async () => {
+    const dataset = makeDataset(FULL);
+    loadDatasetMock.mockResolvedValueOnce(dataset);
+    const result = await generateRmsV2Adapter({ ...baseRequest, contest: T });
+    const domain = generateRmsV2({
+      targetContest: T,
+      referenceWindow: referenceWindow(dataset, T, RMS_HISTORY_WINDOW)!,
+      tiebreakWindow: referenceWindow(dataset, T, RMS_TIEBREAK_WINDOW)!,
+      seed: baseRequest.seed,
+    });
+    expect(result.audit.algorithmVersion).toBe("rms-v2.1.0");
+    expect(domain.pools.tieBreakRule).toBe("multi_horizon_20_50");
+    expect(result.tickets).toEqual(domain.tickets);
+  });
+
+  it("fallback path: algorithmVersion is rms-v2.0.0, the pools use tieBreakRule seed, and the output reproduces the v2.0 domain call exactly", async () => {
+    const dataset = makeDataset(Array.from({ length: 40 }, (_, i) => i + 1));
+    loadDatasetMock.mockResolvedValueOnce(dataset);
+    const result = await generateRmsV2Adapter({ ...baseRequest, contest: 35 });
+    const legacy = generateRmsV2({
+      targetContest: 35,
+      referenceWindow: referenceWindow(dataset, 35, RMS_HISTORY_WINDOW)!,
+      seed: baseRequest.seed,
+    });
+    expect(result.audit.algorithmVersion).toBe("rms-v2.0.0");
+    expect(legacy.pools.tieBreakRule).toBe("seed");
+    expect(result.tickets).toEqual(legacy.tickets);
+    expect(result.audit.seed).toBe(legacy.seed);
+    // strategyVersion stays at registry-definition level in both paths (documented decision in the adapter).
+    expect(result.strategyVersion).toBe("2.1.0");
   });
 
   it("with fewer than 50 prior contests it falls back to the seed-only tie-break and never throws", async () => {
