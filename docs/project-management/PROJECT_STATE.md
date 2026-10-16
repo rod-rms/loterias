@@ -58,7 +58,7 @@ Nenhuma no momento (MEGA-ROLL-001, BET-002, CART-001 e BRAND-001 já estão em p
 
 ## Itens de pesquisa
 
-- **RMS-201** — RMS v2.x, desempate multi-horizonte 20+50: `RESEARCH`. Nada implementado. Base: [`docs/lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md).
+- **RMS-201** — RMS v2.x, desempate multi-horizonte 20+50: `PR_OPEN` (implementação aprovada por `DEC-024` em 2026-10-16; não em produção até validação de preview e merge autorizado). Base: [`docs/lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md) e [`docs/lotofacil/RMS_201_EXPERIMENT_RESULTS.md`](../lotofacil/RMS_201_EXPERIMENT_RESULTS.md).
 - **OBS-001** — Registro de Pesquisa Observacional: `RESEARCH / PLANNED`. Existe apenas a base de dados do BET-001; **não há painel/análise**.
 
 ## Dívida técnica conhecida, não bloqueante

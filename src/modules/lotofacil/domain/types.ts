@@ -119,6 +119,8 @@ export interface LotofacilRmsPoolSnapshot {
   poolB: number[];
   poolC: number[];
   boundaryTies: { boundary: "A/C" | "C/B"; frequency: number; numbers: number[] }[];
+  /** How ties within the 20-window frequency ranking were resolved: seed only (RMS v2.0 behaviour / fewer than 50 prior contests), or 50-window frequency first, then seed (RMS-201). */
+  tieBreakRule?: "seed" | "multi_horizon_20_50";
 }
 
 export interface GenerationOptions {

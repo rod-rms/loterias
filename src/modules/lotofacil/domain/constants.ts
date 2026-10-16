@@ -22,11 +22,16 @@ export const AT_LEAST_HIT_COUNTS = Object.freeze({
 } as const);
 
 export const MODEL_VERSION = "lotofacil-domain-v1";
-export const RMS_ALGORITHM_VERSION = "rms-v2.0.0";
+/** Original RMS v2 behaviour: 20-contest window only, boundary ties resolved by seed alone. Still reproducible (see buildPools without a tie-break window). */
+export const RMS_ALGORITHM_VERSION_V2_0 = "rms-v2.0.0";
+/** RMS v2.1 (RMS-201, DEC-024): same 20-contest pools, but ties in 20-window frequency are broken by 50-window frequency before falling back to the seed. */
+export const RMS_ALGORITHM_VERSION = "rms-v2.1.0";
 export const COVERAGE_ALGORITHM_VERSION = "coverage-greedy-local-v1";
 export const DIVERSIFICATION_ALGORITHM_VERSION = "diversification-lexicographic-v1";
 export const UNIFORM_ALGORITHM_VERSION = "uniform-random-v1";
 
 export const RMS_HISTORY_WINDOW = 20;
+/** Longer window used ONLY to break ties already present in the 20-contest frequency ranking; it never reorders numbers with different 20-window frequencies (DEC-015/DEC-016). */
+export const RMS_TIEBREAK_WINDOW = 50;
 
 export const RMS_NO_VALID_PORTFOLIO_FOUND = "RMS_NO_VALID_PORTFOLIO_FOUND";

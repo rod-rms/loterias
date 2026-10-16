@@ -7,7 +7,9 @@ import {
   DIVERSIFICATION_ALGORITHM_VERSION,
   COVERAGE_ALGORITHM_VERSION,
   RMS_ALGORITHM_VERSION,
+  RMS_ALGORITHM_VERSION_V2_0,
   RMS_HISTORY_WINDOW,
+  RMS_TIEBREAK_WINDOW,
   UNIFORM_ALGORITHM_VERSION,
   LOTOFACIL_MAX_NUMBER,
   LOTOFACIL_TICKET_SIZE,
@@ -119,16 +121,26 @@ export async function generateRmsV2Adapter(request: GeneratePortfolioRequest): P
       `RMS v2 requires the ${RMS_HISTORY_WINDOW} contests immediately before contest ${request.contest} to be available in the dataset.`,
     );
   }
+  // RMS-201 (DEC-024): the 50 contests immediately before the target break ties already present in
+  // the 20-window ranking. Strictly contest < target (DEC-014). With fewer than 50 prior contests
+  // available (or a gap in them) this falls back to the v2.0 seed-only tie-break; it never throws.
+  const tiebreakWindow = referenceWindow(dataset, request.contest, RMS_TIEBREAK_WINDOW) ?? undefined;
   const seed = resolveSeed(request.seed);
-  const generation = generateRmsV2({ targetContest: request.contest, referenceWindow: window, seed });
+  const generation = generateRmsV2({ targetContest: request.contest, referenceWindow: window, tiebreakWindow, seed });
+  const tieBreakDescription = tiebreakWindow
+    ? `pool tie-break: 20-contest frequency, then ${RMS_TIEBREAK_WINDOW}-contest frequency, then seed`
+    : `pool tie-break: seed only (fewer than ${RMS_TIEBREAK_WINDOW} prior contests available)`;
   const result = await evaluateAndAttachBaseline(generation.tickets as number[][], {
     ticketCostBRL: config.ticketCostBRL,
     ticketCostSource: config.source,
     ticketCostReferenceDate: config.referenceDate,
     strategyId: LOTOFACIL_RMS_V2.id,
+    // strategyVersion is the registry definition's contract version (2.1.0, whose documented behaviour
+    // includes this fallback), so it stays at definition level. algorithmVersion records the engine
+    // behaviour actually executed: v2.1.0 with the 50-window, v2.0.0 in the seed-only fallback.
     strategyVersion: LOTOFACIL_RMS_V2.version,
-    algorithmVersion: RMS_ALGORITHM_VERSION,
-    generationMethod: `structural constraint search (patterns ${generation.patternUsed.join(", ")}; J6 variant ${generation.j6Variant})`,
+    algorithmVersion: tiebreakWindow ? RMS_ALGORITHM_VERSION : RMS_ALGORITHM_VERSION_V2_0,
+    generationMethod: `structural constraint search (patterns ${generation.patternUsed.join(", ")}; J6 variant ${generation.j6Variant}; ${tieBreakDescription})`,
     seedForAudit: seed,
     bestScore: generation.tieBreakScore,
     iterations: generation.attempts,
