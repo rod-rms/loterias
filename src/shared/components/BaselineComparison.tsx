@@ -26,11 +26,10 @@ export function BaselineComparison({ kind, rows }: { kind: string; rows: Baselin
       <ul className="mt-3 space-y-3">
         {rows.map((row) => (
           <li key={row.label} className="border-t border-brand-border pt-3 first:border-t-0 first:pt-0">
-            <p className="text-sm font-medium text-brand-text">{row.label}</p>
-            <p className="mt-0.5 text-sm text-brand-textMuted">
-              Seus jogos: <span className="font-medium text-brand-text">{formatProbabilityPercent(row.portfolioProbability)}</span>
-              {" · "}
-              Jogos aleatórios equivalentes: <span className="font-medium text-brand-text">{formatProbabilityPercent(row.baselineProbability)}</span>
+            <p className="text-xs font-medium text-brand-textMuted">{row.label}</p>
+            <p className="mt-1 text-xs text-brand-textMuted">
+              Jogos aleatórios equivalentes:{" "}
+              <span className="font-mono text-lg font-semibold tabular-nums text-brand-text">{formatProbabilityPercent(row.baselineProbability)}</span>
             </p>
             <p className="mt-0.5 flex items-center gap-1 text-sm text-brand-textMuted">
               {formatComparisonSentence(row.absoluteDifference)}

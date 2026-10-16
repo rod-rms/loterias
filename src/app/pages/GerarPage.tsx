@@ -685,35 +685,6 @@ export function GerarPage({ modality }: { modality: Modality }) {
             )}
           </dl>
 
-          {probability && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-              {primaryKeys
-                .filter((k) => probability[k])
-                .map((key) => {
-                  const presentation = getMetricPresentation(modality, key);
-                  return (
-                    <MetricCard
-                      key={key}
-                      testId={`metric-${key}`}
-                      label={presentation.label}
-                      probability={probability[key]!.probability}
-                      status={probability[key]!.status}
-                      helpTitle={presentation.helpTitle}
-                      helpBody={presentation.helpBody}
-                    />
-                  );
-                })}
-            </div>
-          )}
-
-          <PortfolioTicketList tickets={activeResult.tickets} onCopyTicket={(t) => navigator.clipboard?.writeText(t.join(", "))} />
-
-          {rows.length > 0 && <BaselineComparison kind={(metrics?.randomBaseline as { kind: string })?.kind ?? ""} rows={rows} />}
-
-          {overlap && exposure && (
-            <SimpleDiversitySummary overlapMean={overlap.mean} exposureMin={exposure.exposure ? Math.min(...Object.values(exposure.exposure)) : 0} exposureMax={exposure.exposure ? Math.max(...Object.values(exposure.exposure)) : 0} />
-          )}
-
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
               <button
@@ -741,7 +712,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
             </div>
             {/* Rendered immediately next to the save action so the confirmation is
                 visibly tied to the button the user just clicked, not displaced by
-                the comparison panel below. */}
+                the games and analysis below. */}
             {savedMessage && (
               <p role="status" className="text-sm text-emerald-300">
                 {savedMessage}
@@ -786,16 +757,46 @@ export function GerarPage({ modality }: { modality: Modality }) {
                 </div>
               </div>
             )}
-            <ComparePanel
-              modality={modality}
-              currentStrategyId={activeResult.strategyId}
-              numberOfTickets={activeResult.tickets.length}
-              fixedNumbers={fixedNumbers.length ? fixedNumbers : undefined}
-              excludedNumbers={excludedNumbers.length ? excludedNumbers : undefined}
-              contest={activeResult.contest}
-              currentResult={activeResult}
-            />
           </div>
+
+          <PortfolioTicketList tickets={activeResult.tickets} onCopyTicket={(t) => navigator.clipboard?.writeText(t.join(", "))} />
+
+          {probability && (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {primaryKeys
+                .filter((k) => probability[k])
+                .map((key) => {
+                  const presentation = getMetricPresentation(modality, key);
+                  return (
+                    <MetricCard
+                      key={key}
+                      testId={`metric-${key}`}
+                      label={presentation.label}
+                      probability={probability[key]!.probability}
+                      status={probability[key]!.status}
+                      helpTitle={presentation.helpTitle}
+                      helpBody={presentation.helpBody}
+                    />
+                  );
+                })}
+            </div>
+          )}
+
+          {rows.length > 0 && <BaselineComparison kind={(metrics?.randomBaseline as { kind: string })?.kind ?? ""} rows={rows} />}
+
+          {overlap && exposure && (
+            <SimpleDiversitySummary overlapMean={overlap.mean} exposureMin={exposure.exposure ? Math.min(...Object.values(exposure.exposure)) : 0} exposureMax={exposure.exposure ? Math.max(...Object.values(exposure.exposure)) : 0} />
+          )}
+
+          <ComparePanel
+            modality={modality}
+            currentStrategyId={activeResult.strategyId}
+            numberOfTickets={activeResult.tickets.length}
+            fixedNumbers={fixedNumbers.length ? fixedNumbers : undefined}
+            excludedNumbers={excludedNumbers.length ? excludedNumbers : undefined}
+            contest={activeResult.contest}
+            currentResult={activeResult}
+          />
 
           <div className="space-y-2 border-t border-brand-border pt-3">
             <Disclosure title="Ver análise detalhada" open={showDetailedAnalysis} onOpenChange={setShowDetailedAnalysis}>
