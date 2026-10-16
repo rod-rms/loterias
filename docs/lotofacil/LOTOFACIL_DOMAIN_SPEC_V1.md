@@ -160,6 +160,15 @@ Depois de cumprir todas as restrições duras:
 
 Não usar F11 ou qualquer informação do resultado-alvo como critério oculto da RMS v2.
 
+### Desempate de fronteira entre pools (RMS v2.1 / RMS-201, `DEC-024`)
+
+A ordenação primária das dezenas para formar os pools A/C/B é a frequência em T-20…T-1 e permanece soberana. Quando duas ou mais dezenas empatam nessa frequência:
+
+1. desempatar pela frequência em T-50…T-1 (maior primeiro);
+2. persistindo o empate, desempatar pela seed, como na v2.0.
+
+A janela de 50 nunca move uma dezena entre níveis de frequência da janela de 20, apenas reordena dezenas já empatadas. Estritamente no-look-ahead (`DEC-014`): só concursos < T. Com menos de 50 concursos anteriores completos, vale o comportamento v2.0 (só seed). O comportamento v2.0 permanece reproduzível (`buildPools` sem janela de desempate). Este desempate **não** é afirmação preditiva (`DEC-013`): torna a resolução do empate determinística e auditável. Evidência: `docs/lotofacil/RMS_201_EXPERIMENT_RESULTS.md`.
+
 ### Falha
 
 Se nenhuma carteira válida for encontrada dentro da política de busca configurada, retornar erro estruturado `RMS_NO_VALID_PORTFOLIO_FOUND`. Não relaxar regras sem criar nova versão de estratégia.

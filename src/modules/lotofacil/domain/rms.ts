@@ -1,6 +1,14 @@
 import { createSeededRandom, randomInt, shuffleInPlace, type RandomSource } from "../../../shared/lib/prng";
 import { assignPoolToBuckets as assignPoolToGames, assignPoolToBucketsWithExposureMap } from "../../../shared/lib/degreeAssignment";
-import { LOTOFACIL_MAX_NUMBER, LOTOFACIL_MIN_NUMBER, RMS_ALGORITHM_VERSION, RMS_HISTORY_WINDOW, RMS_NO_VALID_PORTFOLIO_FOUND } from "./constants";
+import {
+  LOTOFACIL_MAX_NUMBER,
+  LOTOFACIL_MIN_NUMBER,
+  RMS_ALGORITHM_VERSION,
+  RMS_ALGORITHM_VERSION_V2_0,
+  RMS_HISTORY_WINDOW,
+  RMS_NO_VALID_PORTFOLIO_FOUND,
+  RMS_TIEBREAK_WINDOW,
+} from "./constants";
 import { ticketKey } from "./validation";
 import type { LotofacilRmsPoolSnapshot, LotofacilTicket } from "./types";
 
@@ -51,15 +59,34 @@ export function computeFrequencies(window: RmsDrawInput[]): Record<number, numbe
 
 /**
  * Builds pools A (15, most frequent), C (5, intermediate) and B (5, least
- * frequent) from the 20-contest reference window. Boundary ties are broken
- * deterministically using the RMS seed (never by claiming one tied number is
- * "more likely" than another).
+ * frequent) from the 20-contest reference window. The 20-window frequency is
+ * always the sovereign ranking.
+ *
+ * Ties within the 20-window ranking (RMS-201, DEC-024):
+ * - without `tiebreakWindow` (RMS v2.0 behaviour, and the fallback when fewer
+ *   than 50 prior contests exist): resolved deterministically by the RMS seed;
+ * - with `tiebreakWindow` (the 50 contests immediately before the target, a
+ *   superset of `window`): tied numbers are ordered by 50-window frequency
+ *   (descending) first; only numbers still tied are resolved by the seed.
+ * The longer window never moves a number across a frequency level of the
+ * 20-window ranking. This makes tie resolution deterministic and auditable; it
+ * is not a claim that one tied number is "more likely" than another.
  */
-export function buildPools(window: RmsDrawInput[], random: RandomSource): LotofacilRmsPoolSnapshot {
+export function buildPools(window: RmsDrawInput[], random: RandomSource, tiebreakWindow?: RmsDrawInput[]): LotofacilRmsPoolSnapshot {
   if (window.length !== RMS_HISTORY_WINDOW) {
     throw new Error(`RMS v2 requires exactly ${RMS_HISTORY_WINDOW} previous contests, received ${window.length}.`);
   }
+  if (tiebreakWindow) {
+    if (tiebreakWindow.length !== RMS_TIEBREAK_WINDOW) {
+      throw new Error(`The RMS tie-break window must contain exactly ${RMS_TIEBREAK_WINDOW} previous contests, received ${tiebreakWindow.length}.`);
+    }
+    const tail = tiebreakWindow.slice(-RMS_HISTORY_WINDOW);
+    if (tail.some((d, i) => d.contest !== window[i]!.contest)) {
+      throw new Error("The RMS tie-break window must end with the same 20 contests as the reference window.");
+    }
+  }
   const frequencies = computeFrequencies(window);
+  const tiebreakFrequencies = tiebreakWindow ? computeFrequencies(tiebreakWindow) : null;
   const numbers = Array.from({ length: LOTOFACIL_MAX_NUMBER }, (_, i) => i + 1);
 
   // Group numbers by frequency value, shuffle within each group deterministically
@@ -75,7 +102,19 @@ export function buildPools(window: RmsDrawInput[], random: RandomSource): Lotofa
   const boundaryTies: LotofacilRmsPoolSnapshot["boundaryTies"] = [];
   for (const f of orderedFrequencies) {
     const group = byFrequency.get(f)!;
-    shuffleInPlace([...group], random).forEach((n) => ranked.push(n));
+    if (tiebreakFrequencies && group.length > 1) {
+      const byTiebreak = new Map<number, number[]>();
+      for (const n of group) {
+        const f50 = tiebreakFrequencies[n] ?? 0;
+        if (!byTiebreak.has(f50)) byTiebreak.set(f50, []);
+        byTiebreak.get(f50)!.push(n);
+      }
+      for (const f50 of Array.from(byTiebreak.keys()).sort((a, b) => b - a)) {
+        shuffleInPlace([...byTiebreak.get(f50)!], random).forEach((n) => ranked.push(n));
+      }
+    } else {
+      shuffleInPlace([...group], random).forEach((n) => ranked.push(n));
+    }
     if (group.length > 1) {
       // Record if this frequency group straddles a pool boundary (15 or 20).
       const startIdx = ranked.length - group.length;
@@ -97,6 +136,7 @@ export function buildPools(window: RmsDrawInput[], random: RandomSource): Lotofa
     poolB,
     poolC,
     boundaryTies,
+    tieBreakRule: tiebreakWindow ? "multi_horizon_20_50" : "seed",
   };
 }
 
@@ -467,18 +507,21 @@ export interface RmsGenerationResult {
 export interface RmsGenerationOptions {
   targetContest: number;
   referenceWindow: RmsDrawInput[];
+  /** The 50 contests immediately before the target (RMS-201). Omit for RMS v2.0 behaviour. */
+  tiebreakWindow?: RmsDrawInput[];
   seed?: string | number;
   maxRestartsPerVariant?: number;
   maxIterationsPerRestart?: number;
 }
 
 export function generateRmsV2(options: RmsGenerationOptions): RmsGenerationResult {
-  const seed = options.seed ?? `rms-v2:${options.targetContest}:${RMS_ALGORITHM_VERSION}`;
+  const defaultVersion = options.tiebreakWindow ? RMS_ALGORITHM_VERSION : RMS_ALGORITHM_VERSION_V2_0;
+  const seed = options.seed ?? `rms-v2:${options.targetContest}:${defaultVersion}`;
   const maxRestarts = options.maxRestartsPerVariant ?? 20;
   const maxIterations = options.maxIterationsPerRestart ?? 2000;
 
   const poolRandom = createSeededRandom(`${seed}:pools`);
-  const pools = buildPools(options.referenceWindow, poolRandom);
+  const pools = buildPools(options.referenceWindow, poolRandom, options.tiebreakWindow);
 
   let best: { games: number[][]; penalty: PenaltyBreakdown; variantLabel: string } | null = null;
   let attempts = 0;

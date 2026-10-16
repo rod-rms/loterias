@@ -4,7 +4,7 @@ const NOT_PREDICTION_DISCLAIMER = "Não prevê o próximo sorteio nem altera a p
 
 export const LOTOFACIL_RMS_V2: StrategyDefinition = {
   id: "lotofacil.rms_v2",
-  version: "2.0.0",
+  version: "2.1.0",
   modality: "lotofacil",
   name: "RMS v2",
   shortDescription: "Carteira de 6 jogos com padrões A-B-C, exposição e sobreposição auditadas sobre os 20 concursos anteriores.",
@@ -32,7 +32,7 @@ export const LOTOFACIL_RMS_V2: StrategyDefinition = {
     badge: "6 jogos fixos",
     helpTitle: "Como funciona Equilibrar meus 6 jogos (RMS)",
     helpBody:
-      "Usa os 20 concursos anteriores apenas para organizar os grupos de dezenas e construir uma carteira estruturalmente equilibrada. Não prevê quais dezenas serão sorteadas e não aumenta a chance de 15 acertos em relação a outros 6 jogos distintos.",
+      "Usa os 20 concursos anteriores para organizar os grupos de dezenas e construir uma carteira estruturalmente equilibrada. Quando duas ou mais dezenas empatam na fronteira entre grupos, o desempate usa os 50 concursos anteriores e, persistindo o empate, uma semente auditável: isso apenas torna a escolha determinística e verificável. Não prevê quais dezenas serão sorteadas e não aumenta a chance de 15 acertos em relação a outros 6 jogos distintos.",
     technicalName: "RMS v2",
   },
 };

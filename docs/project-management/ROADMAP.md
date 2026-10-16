@@ -38,7 +38,7 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 ## Pesquisa
 
 ### RMS-201 — RMS v2.x, desempate multi-horizonte 20+50
-Status: **RESEARCH.** Nenhuma implementação aprovada.
+Status: **PR_OPEN** — implementação aprovada pelo product owner em 2026-10-16 (`DEC-024`), por determinismo/auditabilidade, **sem** alegação de ganho preditivo; aguardando validação de preview e autorização de merge (`DEC-022`). **Ainda não em produção.** Experimento exigido por `DEC-017`: [`../lotofacil/RMS_201_EXPERIMENT_RESULTS.md`](../lotofacil/RMS_201_EXPERIMENT_RESULTS.md).
 
 Memorando de pesquisa com a análise exploratória reproduzida: [`../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md).
 
