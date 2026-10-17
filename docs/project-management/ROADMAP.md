@@ -1,6 +1,6 @@
 # LotoAtlas — Roadmap
 
-Última revisão: 2026-09-29. Estado de `main` no momento da revisão: `f40cdb2` (ver `PROJECT_STATE.md`).
+Última revisão: 2026-10-17. Estado de `main` no momento da revisão: `be69808` (ver `PROJECT_STATE.md`).
 
 ## Status
 
@@ -34,11 +34,12 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 | BET-002 | Registro de aposta padrão visível (opt-out, `DEC-023`, emenda `DEC-009`) + destaque visual do painel de salvar (PR #17, merge `9e3d660`) | DONE — verificado em produção em 2026-09-28 (PR mergeado em 2026-09-24T21:46:59Z após validação pessoal do product owner via preview; CI de `main` verde no commit do merge; comportamento opt-out e destaque visual (`bg-brand-action/10`) confirmados presentes no bundle atual de produção) |
 | CART-001 | Meus jogos salvos: agrupado por dia (teto de 3 dias + "Carregar mais"), faixa de cor por modalidade, filtro por concurso, data real/estimada do sorteio, aviso de resultado pendente no dialog e painel "Detalhes" logo abaixo do cartão aberto (PR #20; a correção de posição foi incorporada ao mesmo item) | DONE — verificado em produção em 2026-09-26 (CI de `main` verde no commit do merge; bundle em produção = deploy do merge; UI confirmada: Detalhes abre logo abaixo do cartão clicado) |
 | BRAND-001 | Centralização óptica do trevo no símbolo/logo (micro-ajuste de translação, `translate(200,165)` → `translate(200,155.5)`); quebra de linha defensiva (`break-all`) no identificador técnico de estratégia em "Detalhes técnicos do resultado" (PR #24, merge `edfabe0`) | DONE — verificado em produção em 2026-09-29 (validação pessoal do product owner via preview antes do merge, `DEC-022`; CI de `main` verde no commit do merge; bundle em produção confirmado contendo `translate(200,155.5)` e nenhum resquício de `translate(200,165)`) |
+| RMS-201 | RMS v2.1: desempate multi-horizonte 20+50 nos pools da RMS (empates de frequência da janela de 20 na fronteira entre pools passam a ser desempatados pela frequência nos 50 concursos anteriores antes da seed; por determinismo/auditabilidade, **sem** ganho preditivo; `DEC-024`; estratégia `2.1.0` / `rms-v2.1.0`) (PR #31, merge `c52e4da`) | DONE — verificado em produção em 2026-10-17 (validação pessoal do product owner via preview antes do merge, `DEC-022`; CI de `main` verde no commit do merge; o deploy do Cloudflare Pages do próprio `c52e4da` falhou de forma transitória, mas foi superado pelos deploys seguintes dos commits de dados `7958cd7` e `be69808`; o bundle do worker de geração em produção contém `rms-v2.1.0` e `multi_horizon_20_50`) |
 
 ## Pesquisa
 
 ### RMS-201 — RMS v2.x, desempate multi-horizonte 20+50
-Status: **PR_OPEN** — implementação aprovada pelo product owner em 2026-10-16 (`DEC-024`), por determinismo/auditabilidade, **sem** alegação de ganho preditivo; aguardando validação de preview e autorização de merge (`DEC-022`). **Ainda não em produção.** Experimento exigido por `DEC-017`: [`../lotofacil/RMS_201_EXPERIMENT_RESULTS.md`](../lotofacil/RMS_201_EXPERIMENT_RESULTS.md).
+Status: **DONE** — implementado e em produção (PR #31, merge `c52e4da`, `DEC-024`); ver a linha RMS-201 em "Concluído / em produção". O texto de pesquisa abaixo é mantido como registro histórico. Experimento exigido por `DEC-017`: [`../lotofacil/RMS_201_EXPERIMENT_RESULTS.md`](../lotofacil/RMS_201_EXPERIMENT_RESULTS.md).
 
 Memorando de pesquisa com a análise exploratória reproduzida: [`../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md).
 
@@ -74,7 +75,7 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 | TECH-006 | Investigar o erro intermitente de teardown assíncrono "window is not defined" se reaparecer (visto uma vez em `carteirasResultChecking.test.tsx`; re-run passou) | DEFERRED |
 | REPO-001 | Limpeza opcional/baixa prioridade do repositório e de arquivos locais não versionados | DEFERRED |
 | AUTH-001 | Integração com Supabase para autenticação (login opcional) e possível sincronização de dados entre dispositivos | IDEA |
-| DATA-002 | Atualizador automático (`data-update.yml`) bloqueado: `servicebus2.caixa.gov.br` retorna HTTP 403 especificamente para as máquinas efêmeras do GitHub Actions desde 2026-09-29 07:30 UTC (confirmado: a mesma requisição, mesmos headers, funciona normalmente de uma rede não-Actions — indício de bloqueio por IP/ASN do lado da CAIXA, não um problema de header/token/código; nenhuma mudança de código no caminho do updater desde a última execução bem-sucedida). Correção definitiva exige uma decisão de infraestrutura (runner self-hosted, egress por proxy, ou outra saída de rede) fora do escopo de um fix mínimo de código — aguardando decisão do product owner. Catch-up manual dos dados feito em 2026-09-29/30 (commit `8312dfb`); o alerta de falha (issue #23, `data-update-failure`) permanece aberto de propósito até a causa raiz do próprio mecanismo automático ser resolvida. | RESEARCH |
+| DATA-002 | Atualizador automático (`data-update.yml`): `servicebus2.caixa.gov.br` retornou HTTP 403 às máquinas do GitHub Actions em 2026-09-29/30 e de novo em 2026-10-02 (a mesma requisição, com os mesmos headers, funcionava fora do Actions: indício de bloqueio intermitente por IP/ASN do lado da CAIXA, não de header/token/código). Os alertas de falha (`data-update-failure`, issues #23 e #28) abriram corretamente e foram fechados sozinhos pela execução bem-sucedida seguinte; todas as execuções agendadas de 2026-10-03 a 2026-10-17 tiveram sucesso. Catch-up manual dos dados feito em 2026-09-29/30 (commit `8312dfb`). Existe uma alternativa **em PR aberto, não mergeada**: PR #29 (Cloudflare Worker em `workers/lottery-data-updater/` como atualizador alternativo; o spike de fetch da CAIXA a partir da rede Cloudflare foi reportado com status 200 para a Lotofácil em 2026-10-02, Mega-Sena não testada isoladamente). Sem decisão sobre o PR #29; o bloqueio pode voltar. | RESEARCH |
 
 ### Ideias de produto (IDEA — sem aprovação)
 
