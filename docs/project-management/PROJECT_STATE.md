@@ -5,18 +5,18 @@
 
 | Campo | Valor |
 |---|---|
-| Última revisão | 2026-10-17 |
+| Última revisão | 2026-10-19 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `be69808112ecb6a3f1fd4542ae4b48236cb03d24` (commit automático de dataset, posterior aos merges dos PRs #30 e #31) |
-| Versão em `package.json` | `1.2.0` |
-| Última release estável com tag | `v1.2.0` (2026-09-23) |
+| `main` no momento da revisão | `f074529b9acd7b56b316a58b9b1cbe2e6e08f0aa` (tip antes do PR de release v1.3.0; o `main` real pode ter avançado por commits automáticos de dataset) |
+| Versão em `package.json` | `1.3.0` |
+| Última release estável com tag | `v1.3.0` (2026-10-19), tag anotada no commit de merge do PR de release |
 
 ## Release com tag ≠ estado atual de produção
 
-`v1.2.0` inclui a marca LotoAtlas, o FIX-001, o BET-001, a fundação de continuidade de projeto e a clareza do fluxo de salvar. Desde a tag, várias capacidades/ajustes visíveis ao usuário já foram mergeados e verificados em produção sem uma release própria: **MEGA-ROLL-001** (PR #15, 24/09), **BET-002** (PR #17, 24/09), **CART-001** (PR #20, 26/09), **BRAND-001** (PR #24, 29/09), a reorganização da tela de resultado (PR #30, 16/10) e a **RMS v2.1 / RMS-201** (PR #31, 16/10) — ver a tabela abaixo. Correções internas sem superfície de UI (PR #12, #13, #14) e um PR de pesquisa somente documentação (PR #25, 29/09, experimento RMS-201) também entraram no meio tempo.
+`v1.3.0` reúne o que foi entregue desde a `v1.2.0` (marca LotoAtlas, FIX-001, BET-001, fundação de continuidade e clareza do fluxo de salvar): **MEGA-ROLL-001** (PR #15), **BET-002** (PR #17), **CART-001** (PR #20), **BRAND-001** (PR #24), a reorganização da tela de resultado (PR #30), a **RMS v2.1 / RMS-201** (PR #31, desempate determinístico e auditável, sem alegação preditiva), a correção de concurso desatualizado e correções de copy — ver `CHANGELOG.md` e a tabela abaixo. Correções internas sem superfície de UI (PR #12, #13, #14, #33) e PRs somente de documentação/pesquisa (por exemplo PR #25) também entraram.
 
-**Observação (DEC-006):** `package.json` permanece em `1.2.0` e não há tag mais recente que `v1.2.0`, mas a produção já contém várias entregas de produto além do que essa tag descreve. Uma nova release com tag está **em atraso** frente ao que está de fato em produção — sinalizado aqui para o product owner decidir quando cortar a próxima tag; nenhuma tag/bump foi feito por esta revisão (`DEC-003`, fora do escopo de uma tarefa somente de documentação).
+**Observação (DEC-006):** tag e produção continuam sendo coisas separadas. Neste momento a tag `v1.3.0` aponta para o commit de merge do PR de release; a produção pode estar à frente dela apenas por commits automáticos de dataset (`data: update lottery datasets`) e por qualquer merge posterior — ambos devem ser verificados no GitHub, não assumidos. Mudanças ainda não mergeadas (por exemplo PR #29, Cloudflare Worker de contingência do atualizador) **não** fazem parte da release.
 
 ## Capacidades atualmente em produção
 
