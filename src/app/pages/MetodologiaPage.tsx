@@ -113,7 +113,9 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
               <h3 className="text-base font-semibold">RMS v2</h3>
               <p className="mt-1 text-sm text-brand-textMuted">
                 A RMS v2 organiza seis jogos usando pools A/B/C calculadas sobre os 20 concursos anteriores, com regras de exposição, interseção, paridade
-                e estrutura auditáveis. O histórico define rotação e pools, não dezenas "mais prováveis". A RMS não aumenta a chance de 15 acertos frente
+                e estrutura auditáveis. Quando duas ou mais dezenas empatam em frequência na fronteira entre pools, o desempate usa a frequência nos 50
+                concursos anteriores e, persistindo o empate, uma semente registrada; isso torna o desempate determinístico e verificável, sem alterar
+                a ordem definida pelos 20 concursos. O histórico define rotação e pools, não dezenas "mais prováveis". A RMS não aumenta a chance de 15 acertos frente
                 a outros seis jogos distintos quaisquer.
               </p>
             </section>

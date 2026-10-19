@@ -5,18 +5,18 @@
 
 | Campo | Valor |
 |---|---|
-| Última revisão | 2026-09-29 |
+| Última revisão | 2026-10-17 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `8312dfb750479346ee07dadbb64cf920506c8167` (catch-up manual de dados após o incidente DATA-002, ver abaixo) |
+| `main` no momento da revisão | `be69808112ecb6a3f1fd4542ae4b48236cb03d24` (commit automático de dataset, posterior aos merges dos PRs #30 e #31) |
 | Versão em `package.json` | `1.2.0` |
 | Última release estável com tag | `v1.2.0` (2026-09-23) |
 
 ## Release com tag ≠ estado atual de produção
 
-`v1.2.0` inclui a marca LotoAtlas, o FIX-001, o BET-001, a fundação de continuidade de projeto e a clareza do fluxo de salvar. Desde a tag, quatro capacidades/ajustes novos visíveis ao usuário já foram mergeados e verificados em produção sem uma release própria: **MEGA-ROLL-001** (PR #15, 24/09), **BET-002** (PR #17, 24/09), **CART-001** (PR #20, 26/09) e **BRAND-001** (PR #24, 29/09) — ver a tabela abaixo. Correções internas sem superfície de UI (PR #12, #13, #14) e um PR de pesquisa somente documentação (PR #25, 29/09, experimento RMS-201) também entraram no meio tempo.
+`v1.2.0` inclui a marca LotoAtlas, o FIX-001, o BET-001, a fundação de continuidade de projeto e a clareza do fluxo de salvar. Desde a tag, várias capacidades/ajustes visíveis ao usuário já foram mergeados e verificados em produção sem uma release própria: **MEGA-ROLL-001** (PR #15, 24/09), **BET-002** (PR #17, 24/09), **CART-001** (PR #20, 26/09), **BRAND-001** (PR #24, 29/09), a reorganização da tela de resultado (PR #30, 16/10) e a **RMS v2.1 / RMS-201** (PR #31, 16/10) — ver a tabela abaixo. Correções internas sem superfície de UI (PR #12, #13, #14) e um PR de pesquisa somente documentação (PR #25, 29/09, experimento RMS-201) também entraram no meio tempo.
 
-**Observação (DEC-006):** `package.json` permanece em `1.2.0` e não há tag mais recente que `v1.2.0`, mas a produção já contém três entregas de produto além do que essa tag descreve. Uma nova release com tag está **em atraso** frente ao que está de fato em produção — sinalizado aqui para o product owner decidir quando cortar a próxima tag; nenhuma tag/bump foi feito por esta revisão (`DEC-003`, fora do escopo de uma tarefa somente de documentação).
+**Observação (DEC-006):** `package.json` permanece em `1.2.0` e não há tag mais recente que `v1.2.0`, mas a produção já contém várias entregas de produto além do que essa tag descreve. Uma nova release com tag está **em atraso** frente ao que está de fato em produção — sinalizado aqui para o product owner decidir quando cortar a próxima tag; nenhuma tag/bump foi feito por esta revisão (`DEC-003`, fora do escopo de uma tarefa somente de documentação).
 
 ## Capacidades atualmente em produção
 
@@ -29,24 +29,26 @@
 - **MEGA-ROLL-001:** estratégia Mega-Sena "Organizar pelo histórico recente" (Rolling 20 Balanceada v2.1, `megasena.rolling_20_v2`) — agrupamento G1/G2/G3 pelos 20 concursos anteriores, alocação proporcional, filtros estruturais e otimizador de exposição/sobreposição; estritamente no-look-ahead, sem afirmação preditiva.
 - **CART-001:** "Meus jogos salvos" agrupado por dia de criação (Hoje/Ontem/data completa, teto de 3 dias com "Carregar mais"), faixa de cor por modalidade nos cartões, filtro rápido por concurso, data real (do dataset) ou estimada (pela periodicidade oficial CAIXA, sempre rotulada como estimativa) do sorteio em cada cartão, aviso de resultado ainda não divulgado dentro do diálogo de detalhes (não mais no topo da página), e o próprio painel de detalhes abrindo logo abaixo do cartão clicado.
 - **BRAND-001:** centralização óptica do trevo no símbolo/logo LotoAtlas (micro-ajuste de translação, `translate(200,165)` → `translate(200,155.5)`, mesmo trevo/tamanho, validado visualmente sobre os dois fundos escuros do app) e quebra de linha defensiva (`break-all`) no identificador técnico de estratégia em "Detalhes técnicos do resultado".
+- **Tela de resultado reorganizada (PR #30):** em "Seus jogos estão prontos" (Lotofácil e Mega-Sena) os botões de ação (salvar, copiar, gerar outra opção, exportar, limpar) ficam logo abaixo do resumo, seguidos dos jogos; os cartões de probabilidade e a comparação com jogos aleatórios equivalentes vêm depois (a comparação não repete mais "Seus jogos: X%"). Somente apresentação.
+- **RMS-201 / RMS v2.1 (PR #31, `DEC-024`):** na "Equilibrar meus 6 jogos (RMS)", empates de frequência na janela de 20 concursos na fronteira entre pools são desempatados pela frequência nos 50 concursos anteriores e, persistindo o empate, pela seed (estratégia `2.1.0`, `algorithmVersion` `rms-v2.1.0`; com menos de 50 concursos anteriores completos vale o comportamento v2.0, só seed, registrado como `rms-v2.0.0`). Decisão de determinismo/auditabilidade; o experimento não mostrou ganho em acertos e **não há alegação preditiva**.
 - Atualização automática de datasets a partir da API da CAIXA (workflow agendado, com alerta por issue `data-update-failure`).
 - Identidade visual LotoAtlas (dark-first, tokens `brand.*`).
 - Dados pessoais somente locais; nenhuma conta, nenhum backend.
 
-## Datasets (lidos de `public/data/status.json` em 2026-09-29, pós catch-up manual)
+## Datasets (lidos de `public/data/status.json` em 2026-10-17)
 
 | Modalidade | Último concurso | Data do sorteio | Status |
 |---|---|---|---|
-| Lotofácil | 3792 | 2026-09-29 | ok, 0 lacunas |
-| Mega-Sena | 3064 | 2026-09-29 | ok, 0 lacunas |
+| Lotofácil | 3806 | 2026-10-16 | ok, 0 lacunas |
+| Mega-Sena | 3070 | 2026-10-14 | ok, 0 lacunas |
 
 Estes números avançam sozinhos (commits `data: update lottery datasets` em `main`). **Sempre releia `public/data/status.json`.**
 
-**Incidente DATA-002 (2026-09-29):** o workflow agendado `data-update.yml` falhou em 3 execuções seguidas (07:30, 10:03, 16:18 UTC) com HTTP 403 de `servicebus2.caixa.gov.br`, deixando o app oferecer o concurso errado como próximo a jogar (produção presa em 3790/3063 enquanto os concursos reais já eram 3792/3064). Causa raiz confirmada: o bloqueio é específico das máquinas do GitHub Actions (a mesma chamada, headers idênticos, funciona normalmente fora dessa rede) — não é um problema de código, header ou token, e não foi causado pelos PRs #24/#25/#26 (confirmado via diff, nenhuma mudança no caminho do updater). Dataset corrigido manualmente (commit `8312dfb`, mesmo script idempotente `scripts/data/update-dataset.mjs`, rodado de uma rede não bloqueada) e confirmado ao vivo em produção oferecendo o concurso 3793 (Lotofácil) e 3065 (Mega-Sena) como próximos a jogar. O mecanismo automático em si **continua quebrado** até uma decisão de infraestrutura ser tomada — ver `DATA-002` em `ROADMAP.md` e a issue [#23](https://github.com/rod-rms/loterias/issues/23) (mantida aberta de propósito).
+**Incidente DATA-002 (2026-09-29, recorrente em 2026-10-02):** o workflow agendado `data-update.yml` falhou com HTTP 403 de `servicebus2.caixa.gov.br` em 2026-09-29/30 (7 execuções seguidas, uma delas disparo manual) e de novo em 2026-10-02 (3 execuções), deixando o app, na primeira ocorrência, oferecer o concurso errado como próximo a jogar. A mesma chamada funcionava de uma rede fora do GitHub Actions, o que indica bloqueio intermitente por IP do lado da CAIXA, não um problema de código, header ou token. Dataset corrigido manualmente na primeira ocorrência (commit `8312dfb`). Os alertas (issues #23 e #28) abriram e fecharam sozinhos; todas as execuções agendadas de 2026-10-03 a 2026-10-17 tiveram sucesso. O bloqueio pode voltar; uma alternativa existe em PR aberto, **não mergeado e sem decisão** (PR #29, Cloudflare Worker) — ver `DATA-002` em `ROADMAP.md`.
 
 ## PRs abertos
 
-Nenhum, no momento em que esta revisão foi escrita (verificado via `gh pr list`) — releia para confirmar, pois pode já ter avançado.
+Um: **PR #29** (`feat(data): Cloudflare Worker for dataset updates (DATA-002)`), aberto, não mergeado e sem decisão (verificado via `gh pr list` em 2026-10-17) — releia para confirmar, pois pode já ter avançado.
 
 ## Item de desenvolvimento em andamento
 
@@ -54,16 +56,16 @@ Nenhum.
 
 ## Próxima implementação aprovada
 
-Nenhuma no momento (MEGA-ROLL-001, BET-002, CART-001 e BRAND-001 já estão em produção — ver acima e `ROADMAP.md`).
+Nenhuma no momento (MEGA-ROLL-001, BET-002, CART-001, BRAND-001, a reorganização da tela de resultado e RMS-201 já estão em produção — ver acima e `ROADMAP.md`).
 
 ## Itens de pesquisa
 
-- **RMS-201** — RMS v2.x, desempate multi-horizonte 20+50: `RESEARCH`. Nada implementado. Base: [`docs/lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md).
+- **RMS-201** — concluído e em produção (RMS v2.1, PR #31, `DEC-024`); ver acima e `ROADMAP.md`. Base: [`docs/lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md) e [`docs/lotofacil/RMS_201_EXPERIMENT_RESULTS.md`](../lotofacil/RMS_201_EXPERIMENT_RESULTS.md).
 - **OBS-001** — Registro de Pesquisa Observacional: `RESEARCH / PLANNED`. Existe apenas a base de dados do BET-001; **não há painel/análise**.
 
 ## Dívida técnica conhecida, não bloqueante
 
-TECH-001 … TECH-006 (ver `ROADMAP.md`). BRAND-001 (centralização óptica do trevo/logo) foi resolvida — ver tabela acima. **DATA-002** (atualizador automático bloqueado por IP nos runners do GitHub Actions) é conhecida e **não bloqueante para o usuário** (dado corrigido manualmente), mas segue sem solução definitiva — ver `ROADMAP.md`.
+TECH-001 … TECH-006 (ver `ROADMAP.md`). BRAND-001 (centralização óptica do trevo/logo) foi resolvida — ver tabela acima. **DATA-002** (bloqueio intermitente da CAIXA a IPs do GitHub Actions) é conhecida e **não bloqueante hoje** (execuções com sucesso desde 2026-10-03), mas pode voltar e segue sem solução definitiva — ver `ROADMAP.md`.
 
 ## Observações
 
