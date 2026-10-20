@@ -1,117 +1,139 @@
-# lottery-data-updater (Cloudflare Worker)
+# lottery-data-updater (Cloudflare Worker) — contingência
 
-Substitui o cron do GitHub Actions para atualização dos datasets das loterias.
-CAIXA bloqueia IPs do GitHub Actions intermitentemente; Cloudflare (GRU) não é bloqueado.
+Atualizador **alternativo** dos datasets das loterias, para o caso de a CAIXA bloquear os IPs do GitHub Actions
+(`DATA-002`). O workflow `.github/workflows/data-update.yml` continua sendo o atualizador **principal** e não é
+alterado por este Worker. Cloudflare (colo GRU) **não foi bloqueado** quando testado em 2026-10-02 (status 200,
+153 ms, endpoint da Lotofácil; a Mega-Sena usa a mesma origem e não foi testada isoladamente).
 
-**Confirmado em 2026-10-02:** status 200, cfColo: GRU, 153ms.
+**Estado: mergeado no repositório, mas NÃO implantado.** Enquanto você não rodar o `wrangler deploy` abaixo,
+nada deste código executa em lugar nenhum.
 
 ## Estrutura
 
 ```
 workers/lottery-data-updater/
-├── worker.js        # Worker completo (ES modules)
-├── wrangler.toml    # 3 cron triggers + metadata
+├── worker.js        # Worker completo (ES modules, sem dependências)
+├── wrangler.toml    # 4 cron triggers + metadata
 └── README.md        # Este arquivo
 ```
 
-## Pré-requisitos
+## Antes de implantar (leia isto primeiro)
 
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) instalado: `npm install -g wrangler`
-- Conta Cloudflare autenticada: `wrangler login`
-- Fine-grained PAT do GitHub (veja abaixo)
+1. **Limite de CPU do plano Free (provável problema).** Segundo a documentação de limites da Cloudflare
+   (consultada em 2026-10-20), cada execução de Cron Trigger tem **10 ms de CPU no plano Free** e 30 s no plano Paid.
+   O Worker lê e converte em JSON os datasets completos (~1 MB a Lotofácil, ~0,5 MB a Mega-Sena) e, quando há commit,
+   serializa e codifica em base64 os arquivos alterados. Medição aproximada em Node neste repositório (não é a
+   medição real do Workers): só ler e fazer parse dos 3 arquivos ≈ **7 ms**; um commit com os dois datasets soma
+   ≈ **60 ms**, dominado pelo base64. **Em execuções com commit o plano Free provavelmente estoura o limite.**
+   Opções: usar o plano Paid; ou aprovar uma otimização do Worker (blob em UTF-8 sem base64, evitar reserializar
+   o arquivo inteiro). Para saber ao certo: depois do deploy use o botão **Test** do cron e procure no log
+   (Real-time Logs) por erro de limite de CPU.
+2. **Cron Triggers.** O plano Free permite **5 por conta** (documentação de limites). Este Worker usa 4. Se a conta
+   já tiver outros Workers com cron, ajuste a lista em `wrangler.toml`.
+3. **O PAT expira.** Defina a data de expiração ao criá-lo e crie um lembrete. Com o PAT vencido, o commit falha e o
+   próprio alerta por issue também falha (só aparece no log do Worker): o alerta de "sorteio atrasado" do
+   repositório (feito pelo workflow principal) continua sendo a rede de segurança.
 
-## 1. Criar o GitHub PAT
+## Passo a passo do deploy (você faz manualmente)
 
-1. Acesse: https://github.com/settings/tokens?type=beta
-2. **Generate new token (fine-grained)**
-3. Configurações:
-   - **Resource owner:** rod-rms
-   - **Repository access:** Only selected repositories → `rod-rms/loterias`
-   - **Permissions:**
-     - Contents: **Read and Write**
-     - Issues: **Read and Write**
-4. Copie o token gerado (começa com `github_pat_...`)
+1. **Criar o PAT** (GitHub → Settings → Developer settings → Fine-grained tokens → Generate new token):
+   - Resource owner: `rod-rms`; Repository access: **Only selected repositories → `rod-rms/loterias`**;
+   - Permissions: **Contents: Read and write** e **Issues: Read and write** (nada além disso);
+   - defina expiração. Copie o token (`github_pat_...`). Nunca o coloque em arquivo nem no repositório.
+2. **Instalar e autenticar o wrangler** (uma vez): `npm install -g wrangler` e `wrangler login`.
+3. **Guardar o PAT como secret do Worker:**
+   ```bash
+   cd workers/lottery-data-updater
+   wrangler secret put GITHUB_TOKEN
+   # cole o token quando solicitado
+   ```
+4. **Implantar:**
+   ```bash
+   cd workers/lottery-data-updater
+   wrangler deploy
+   ```
+5. **Conferir os cron triggers** (Cloudflare Dashboard → Workers & Pages → `lottery-data-updater` → Settings →
+   Triggers). Devem aparecer exatamente 4:
+   - `0 2 * * 1-6`
+   - `15 10 * * 1-6`
+   - `15 15,19 * * 1`
+   - `15 23 * * 0`
+6. **Testar:** no dashboard, Triggers → Cron Triggers → **Test** (prefira isto a chamar `/trigger`, que exige colar o
+   PAT em um `curl`). Nos logs devem aparecer `=== lottery-data-updater START ...`, as linhas
+   `latest endpoint response`/`latest payload`/`overdue check` e `=== ... END anyCheckFailed=false ...`.
+   Se a base já estiver atualizada: "Nothing to commit this run." (ou só um commit de `status.json` nos crons de
+   fallback final).
+7. **Acompanhar** pelo menos 2–3 execuções agendadas reais com sucesso (logs + commits `chore(data): update ...`
+   no repositório) antes de considerar remover qualquer cron do GitHub Actions. Isso é uma decisão separada.
 
-## 2. Adicionar o secret no Worker
+Se quiser desfazer: `wrangler delete` remove o Worker e os crons. O spike descartável
+(`caixa-spike-worker-DISPOSABLE`) pode ser apagado no dashboard.
 
-```bash
-cd workers/lottery-data-updater
-wrangler secret put GITHUB_TOKEN
-# Cole o token quando solicitado
-```
+## Cronograma
 
-## 3. Deploy
+Mesmos dias/horas do workflow principal, **+15 min de propósito** (para os dois sistemas não lerem e commitarem no
+mesmo minuto). Tudo é idempotente.
 
-```bash
-cd workers/lottery-data-updater
-wrangler deploy
-```
+| Cron (UTC) | BRT | Tipo | Equivalente no Actions |
+|------|-----|------|------|
+| `0 2 * * 1-6`     | 23:00 Dom–Sex | Intermediário | 01:45 e 03:30 UTC Seg–Sáb |
+| `15 10 * * 1-6`   | 07:15 Seg–Sáb | **Fallback final** | 10:00 UTC Seg–Sáb |
+| `15 15,19 * * 1`  | 12:15 e 16:15 Segunda | Intermediário | 15:00 e 19:00 UTC Segunda |
+| `15 23 * * 0`     | 20:15 Domingo | **Fallback final** | 23:00 UTC Domingo |
 
-## 4. Verificar os cron triggers
+O que se sabe: há sorteios também aos domingos e às segundas, e o calendário oficial pode mover um sorteio. O que
+**não** se sabe: a hora em que a CAIXA publica o resultado de domingo. O histórico do repositório (ROADMAP,
+`DATA-002`) mostra resultados de domingo nunca capturados durante o dia de domingo; por isso o cronograma não
+assume nada sobre isso e cobre a noite de domingo e a segunda inteira.
 
-No Cloudflare Dashboard → Workers & Pages → `lottery-data-updater` → Settings → Triggers.
-Devem aparecer 3 crons:
-- `0 2 * * 2-6`   — 23:00 BRT Seg-Sex (intermediário)
-- `15 10 * * 2-6` — 07:15 BRT Ter-Sáb (fallback final)
-- `15 23 * * 0`   — 20:15 BRT Domingo (fallback final)
+Crons de **fallback final** (`15 10 * * 1-6` e `15 23 * * 0`) sempre persistem `lastCheckedAt`; os intermediários
+não fazem commit de `status.json` quando nada mudou. Esta lista precisa ficar igual a `FINAL_FALLBACK_CRONS` em
+`worker.js` (um teste confere).
 
-Esses horários estão deslocados +15min dos crons equivalentes no GitHub Actions
-(`data-update.yml`) de propósito — veja a seção "GitHub Actions — período de
-transição" abaixo.
+## Alertas (GitHub Issues, label `data-update-failure`)
 
-## 5. Testar manualmente
+- **Falha** (fonte da CAIXA falhou para alguma modalidade, leitura do estado do repositório falhou, ou commit
+  falhou): abre ou comenta na issue. Uma execução limpa e sem atraso fecha a issue.
+- **Sorteio atrasado:** se a data do próximo sorteio informada pela fonte (`dataProximoConcurso`) já passou da
+  margem (dia seguinte às 14:00 BRT) e o último concurso não avançou, abre ou comenta na issue, **no máximo uma vez a
+  cada 12 h**. O texto diz que o resultado pode ainda não ter sido publicado, que o calendário oficial pode ter
+  movido o sorteio ou que pode haver problema no atualizador/fonte, e não afirma falha da CAIXA. A execução em si
+  não é tratada como falha, e uma execução atrasada **não** fecha a issue. A regra e o texto são cópias idênticas de
+  `scripts/data/overdue.mjs` e `scripts/data/overdue-alert.cjs` (blocos marcados; um teste falha se divergirem).
+- Se o próprio token estiver inválido, o alerta também não consegue ser criado (fica só no log do Worker).
 
-```bash
-# Disparo manual via Cloudflare dashboard:
-# Workers & Pages → lottery-data-updater → Triggers → Cron Triggers → Test
-```
+## Corrida com o GitHub Actions
 
-Ou via HTTP (requer o mesmo GITHUB_TOKEN como Authorization):
-```bash
-curl -H "Authorization: Bearer <GITHUB_TOKEN>" \
-  https://lottery-data-updater.<seu-subdominio>.workers.dev/trigger
-```
-
-## Lógica de schedule
-
-| Cron | BRT | Tipo | Comportamento |
-|------|-----|------|---------------|
-| `0 2 * * 2-6`   | 23:00 Seg-Sex | Intermediário | Não persiste `lastCheckedAt` se não houver novo concurso |
-| `15 10 * * 2-6` | 07:15 Ter-Sáb | **Fallback final** | Sempre persiste `lastCheckedAt` |
-| `15 23 * * 0`   | 20:15 Dom | **Fallback final** | Sempre persiste `lastCheckedAt` |
-
-## Alertas
-
-Abre (ou comenta em) uma GitHub Issue com label `data-update-failure` quando:
-- a verificação da fonte oficial (CAIXA) falha para alguma modalidade, OU
-- o commit das mudanças no GitHub falha (conflito de ref, token expirado, erro de API).
-
-Em qualquer um dos dois casos o alerta dispara — uma falha de commit não passa
-em branco silenciosamente. Sucesso fecha qualquer issue aberta com esse label.
+O commit usa a Git Data API e o update do ref **não é forçado**: se `main` mudou depois de o Worker ler o HEAD,
+o GitHub recusa (HTTP 422, "not a fast forward"), nada é gravado e **não é aberto incidente**. O Worker espera 5 s
+e refaz a verificação inteira uma vez com o estado novo (leitura com query string única para driblar o cache do
+`raw.githubusercontent.com`): se o outro atualizador já gravou os mesmos concursos, o Worker encontra "já
+atualizado" e termina sem commit redundante. Só se `main` mudar de novo na segunda tentativa é aberto um alerta.
+Erros 4xx determinísticos (por exemplo 422 ou 401) não são repetidos.
 
 ## Segurança contra leitura inconsistente do estado atual
 
-Antes de buscar qualquer dado novo na CAIXA, o Worker lê o estado atual
-(`results.json` de cada modalidade + `status.json`) via `raw.githubusercontent.com`.
-Se essa leitura falhar por qualquer motivo que não seja um 404 genuíno (erro 5xx,
-timeout, etc.), o Worker **aborta a execução sem escrever nada e sem consultar a
-CAIXA** — nunca assume "o arquivo não existe" quando na verdade só não conseguiu
-ler. Isso evita que uma instabilidade passageira do CDN do GitHub dispare uma
-reconstrução completa do histórico (milhares de requisições à CAIXA) ou sobrescreva
-um dataset bom com um incompleto.
+Antes de buscar qualquer dado na CAIXA, o Worker lê o estado atual (`results.json` de cada modalidade +
+`status.json`) via `raw.githubusercontent.com`. Se a leitura falhar por qualquer motivo que não seja um 404
+genuíno, o Worker **aborta sem escrever nada e sem consultar a CAIXA** e abre o alerta de falha. Isso evita
+reconstruir o histórico inteiro ou sobrescrever um dataset bom com um incompleto.
 
-## GitHub Actions — período de transição
+## Diagnóstico nos logs
 
-Os crons do `.github/workflows/data-update.yml` **permanecem ativos** como rede de
-segurança enquanto este Worker não tiver pelo menos 2-3 execuções agendadas reais
-com sucesso em produção (verificar logs no Cloudflare Dashboard + commits
-`chore(data): update ... [skip ci]` aparecendo no repositório).
+Cada execução registra, por modalidade, no mesmo formato do script do Actions: status, `Date`, `Age` e
+`Cache-Control` da resposta do endpoint "último concurso"; `numero`, `dataApuracao`, `dataProximoConcurso`,
+`numeroConcursoProximo`; a linha `overdue check`; e uma linha UTC `first seen` para cada concurso novo. Servem para
+medir o atraso real de publicação e comparar Actions × Worker. Nenhum cookie nem token é registrado.
 
-Os crons do Worker (acima) são deslocados +15min dos horários do GitHub Actions
-de propósito, para que os dois sistemas nunca leiam-e-commitem ao mesmo tempo
-durante essa validação. Isso pode ficar assim indefinidamente — uma vez que os
-crons do GitHub Actions forem removidos, não há mais nada para colidir.
+## Mensagens de commit
 
-Só depois dessa validação os crons do GitHub Actions devem ser removidos
-(mantendo apenas `workflow_dispatch` como fallback manual), em um commit
-separado, com aprovação explícita.
+`chore(data): update <modalidades> dataset` (sem `[skip ci]`). Atenção: o histórico do repositório mostra que a marca
+`[skip ci]` foi removida da mensagem do atualizador do Actions (`3c98599`), provavelmente porque ela também pode
+fazer o Cloudflare Pages pular o deploy que publica os dados. Como o commit do Worker usa um PAT, o CI do GitHub roda
+nesses commits (alguns minutos de Actions por commit); isso é inofensivo.
+
+## Relação com o workflow do GitHub Actions
+
+`.github/workflows/data-update.yml` permanece como atualizador principal, com seus crons, e **não é modificado**
+por este Worker. Remover crons do Actions só depois de o Worker ter várias execuções agendadas reais com sucesso,
+em commit separado e com aprovação explícita.

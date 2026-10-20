@@ -3,37 +3,52 @@ main            = "worker.js"
 compatibility_date = "2026-10-06"
 
 # ---------------------------------------------------------------------------
-# Cron Triggers (3 max on Cloudflare free plan)
+# Cron Triggers — 4 expressions. Cloudflare's Free plan allows 5 Cron Triggers
+# PER ACCOUNT (Workers limits docs), so this Worker leaves room for one more
+# on the same account; remove or merge expressions if the account already
+# has other scheduled Workers.
 #
-# UTC times — draws happen at ~20:00 BRT (UTC-3), ~21:00 BRT (BRST UTC-2)
+# UTC. BRT = UTC-3 (no DST since 2019).
+#
+# What is known about draws: they happen on Sunday and Monday as well as
+# Tue-Sat, and CAIXA's official calendar may move one (holidays/exceptions).
+# What is NOT known: when CAIXA publishes Sunday results. Repository history
+# (ROADMAP DATA-002) shows Sunday results were never captured during Sunday
+# daytime and usually only on Tuesday morning, so this schedule makes NO
+# assumption about the Sunday publication time: it covers Sunday night and
+# all of Monday, the same gap the Actions schedule now covers.
 #
 # OFFSET BY +15 MIN FROM THE GITHUB ACTIONS SCHEDULE ON PURPOSE.
-# .github/workflows/data-update.yml keeps its original crons
-# (45 1 * * 2-6, 0 10 * * 2-6, 0 23 * * 0, among others) as a safety net
-# during this Worker's validation period. Running both systems at the
-# exact same minute means both would read-then-commit to the same files
-# on `main` at roughly the same time, racing on the GitHub ref update —
-# and a ref-conflict there IS handled gracefully now (opens a GitHub
-# Issue instead of failing silently), but there's no reason to manufacture
-# that race on every single run. The 15-minute offset avoids it outright.
-# This offset can stay in place indefinitely — once the GitHub Actions
-# crons are removed (a later, separate decision), there's nothing left
-# to collide with, so there's no need to "undo" it.
+# .github/workflows/data-update.yml keeps its crons as the primary updater.
+# Running both at the exact same minute means both read-then-commit to the
+# same files on `main` at roughly the same time. A ref race is handled
+# gracefully (the Worker re-checks once instead of opening an incident),
+# but there is no reason to manufacture it on every run. The offset can stay
+# indefinitely.
 #
-#   0 2 * * 2-6    = 23:00 BRT (Mon-Fri)  → intermediate follow-up ~3h post-draw
-#   15 10 * * 2-6  = 07:15 BRT (Tue-Sat)  → final fallback, next morning
-#   15 23 * * 0    = 20:15 BRT (Sunday)   → final fallback for Sunday morning draws
+#   0 2 * * 1-6      = 23:00 BRT Sun-Fri   -> evening follow-up (intermediate)
+#                      (Actions: 01:45 and 03:30 UTC Mon-Sat)
+#   15 10 * * 1-6    = 07:15 BRT Mon-Sat   -> final fallback after the evening draws
+#                      (Actions: 10:00 UTC Mon-Sat)
+#   15 15,19 * * 1   = 12:15 and 16:15 BRT Monday -> extra follow-ups for a
+#                      Sunday result that appears during Monday daytime (intermediate)
+#                      (Actions: 15:00 and 19:00 UTC Monday)
+#   15 23 * * 0      = 20:15 BRT Sunday    -> Sunday final fallback
+#                      (Actions: 23:00 UTC Sunday)
 #
-# "Final fallback" crons (15 10 * * 2-6 and 15 23 * * 0) set
+# "Final fallback" crons (15 10 * * 1-6 and 15 23 * * 0) set
 # ALLOW_CHECKED_ONLY_STATUS_WRITE=true so a successful check with no new
 # contest still persists lastCheckedAt, keeping status.json fresh.
-# The intermediate cron (0 2 * * 2-6) skips the status commit when
-# nothing changed, to avoid noisy status-only commits in Git history.
+# Intermediate crons skip the status commit when nothing changed, to avoid
+# noisy status-only commits in Git history. These two lists MUST stay in sync
+# with FINAL_FALLBACK_CRONS in worker.js (tests/worker/lotteryDataUpdater.test.ts
+# checks it).
 # ---------------------------------------------------------------------------
 
 [triggers]
 crons = [
-  "0 2 * * 2-6",   # 23:00 BRT Mon-Fri — intermediate follow-up (+15min vs GH Actions' 22:45)
-  "15 10 * * 2-6", # 07:15 BRT Tue-Sat — final fallback (+15min vs GH Actions' 07:00)
-  "15 23 * * 0",   # 20:15 BRT Sunday  — final fallback for Sunday draws (+15min vs GH Actions' 20:00)
+  "0 2 * * 1-6",     # 23:00 BRT Sun-Fri — evening follow-up (intermediate)
+  "15 10 * * 1-6",   # 07:15 BRT Mon-Sat — final fallback
+  "15 15,19 * * 1",  # 12:15 + 16:15 BRT Monday — extra follow-ups (intermediate)
+  "15 23 * * 0",     # 20:15 BRT Sunday  — Sunday final fallback
 ]
