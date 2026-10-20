@@ -17,7 +17,12 @@
  *   - detects gaps and reports them without failing the whole run;
  *   - writes atomically (temp file + rename) only after validation;
  *   - never destroys a previously valid snapshot on failure;
- *   - does not commit; the caller (human or CI workflow) commits.
+ *   - does not commit; the caller (human or CI workflow) commits;
+ *   - logs diagnostics for the "latest" endpoint on every run (status, Date/Age/Cache-Control,
+ *     numero, dataApuracao, dataProximoConcurso) and a UTC "first seen" line per new contest;
+ *   - flags an OVERDUE draw (see ./overdue.mjs) without failing the run: the next-draw date in the
+ *     latest payload is past its margin and the latest contest has not advanced. It is logged and,
+ *     in the workflow, handed to the overdue-alert step. It does not change what is fetched.
  *
  * Also maintains public/data/status.json, a small data-source transparency
  * file distinguishing "last time we successfully verified the official
@@ -29,9 +34,10 @@
  */
 
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { appendFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { OVERDUE_MARGIN_NEXT_DAY_BRT_HOUR, evaluateOverdue } from "./overdue.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..", "..");
@@ -79,13 +85,16 @@ function toIsoDate(brDate) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-async function fetchJson(url) {
+// `onResponse` (optional) is called with every Response right after the request completes (before status
+// handling), purely so callers can log diagnostics. It never changes how the response is handled.
+async function fetchJson(url, onResponse) {
   for (let attempt = 1; attempt <= RETRIES; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
       const res = await fetch(url, { signal: controller.signal, headers: REQUEST_HEADERS });
       clearTimeout(timer);
+      if (onResponse) onResponse(res);
       if (res.status === 404) return null;
       if (res.status === 429) {
         const retryAfter = Number(res.headers.get("retry-after"));
@@ -162,11 +171,27 @@ function defaultModalityStatus(cfg) {
   };
 }
 
-async function fetchLatestContestNumber(cfg) {
-  const raw = await fetchJson(`${cfg.endpoint}/`);
+// Diagnostic values are logged as key="value" pairs; quotes are stripped so a line stays parseable.
+function logValue(value) {
+  return String(value ?? "-").replace(/["\r\n]/g, "");
+}
+
+// Logged on every attempt to the "latest" endpoint (no cookies or tokens): lets the real publication
+// time and any caching on the path to GitHub's runners be measured from a few weeks of logs.
+function logLatestResponse(modality, res) {
+  console.log(
+    `[${modality}] latest endpoint response: status=${res.status} date="${logValue(res.headers.get("date"))}" age="${logValue(res.headers.get("age"))}" cache-control="${logValue(res.headers.get("cache-control"))}" at=${new Date().toISOString()}`,
+  );
+}
+
+async function fetchLatestPayload(modality, cfg) {
+  const raw = await fetchJson(`${cfg.endpoint}/`, (res) => logLatestResponse(modality, res));
   const n = Number(raw?.numero);
   if (!Number.isInteger(n) || n <= 0) throw new Error("could not resolve latest contest number from official source");
-  return n;
+  console.log(
+    `[${modality}] latest payload: numero=${n} dataApuracao=${logValue(raw?.dataApuracao)} dataProximoConcurso=${logValue(raw?.dataProximoConcurso)} numeroConcursoProximo=${logValue(raw?.numeroConcursoProximo)}`,
+  );
+  return { latestContest: n, raw };
 }
 
 async function mapLimit(items, limit, fn) {
@@ -190,6 +215,34 @@ async function atomicWrite(filePath, data) {
 }
 
 /**
+ * "Is the next official result overdue?" (see ./overdue.mjs). Only called when the stored snapshot is
+ * already as new as the official latest contest. Always logs one diagnostic line; returns a report
+ * entry only when overdue. A failure in this diagnostic must never fail or alter the data update.
+ */
+function checkOverdue(modality, latestRaw, storedLatest, officialLatest) {
+  try {
+    const now = new Date();
+    const nextDrawDateBr = latestRaw?.dataProximoConcurso;
+    const verdict = evaluateOverdue({ now, nextDrawDateBr, storedLatest, officialLatest });
+    console.log(
+      `[${modality}] overdue check: ${verdict.reason} (nextDraw=${logValue(nextDrawDateBr)} deadline=${verdict.deadline ? verdict.deadline.toISOString() : "-"} margin=next-day ${OVERDUE_MARGIN_NEXT_DAY_BRT_HOUR}:00 BRT storedLatest=${storedLatest} officialLatest=${officialLatest})`,
+    );
+    if (!verdict.overdue) return null;
+    return {
+      modality,
+      storedLatest,
+      officialLatest,
+      nextDrawDateBr: String(nextDrawDateBr),
+      deadlineIso: verdict.deadline.toISOString(),
+      nowIso: now.toISOString(),
+    };
+  } catch (err) {
+    console.warn(`[${modality}] overdue check skipped (diagnostic only): ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
+/**
  * Performs the official-source check and (if needed) backfill for one
  * modality. Never throws for per-contest fetch/validation problems — those
  * are reported as failures/gaps. Only throws when the initial "what is the
@@ -201,7 +254,7 @@ async function updateModality(modality) {
   if (!cfg) throw new Error(`unknown modality: ${modality}`);
 
   console.log(`[${modality}] resolving latest official contest...`);
-  const latestContest = await fetchLatestContestNumber(cfg);
+  const { latestContest, raw: latestRaw } = await fetchLatestPayload(modality, cfg);
   console.log(`[${modality}] official latest contest: ${latestContest}`);
 
   const existing = await loadExistingDataset(modality, cfg);
@@ -214,7 +267,16 @@ async function updateModality(modality) {
   if (haveLatest >= latestContest && draws.size >= latestContest) {
     console.log(`[${modality}] snapshot already up to date (contest ${haveLatest}). No changes.`);
     const finalDraws = Array.from(draws.values()).sort((a, b) => a.contest - b.contest);
-    return { modality, checked: true, changed: false, latestContest, latestDrawDate: finalDraws.at(-1)?.drawDate ?? "", failures: [], gaps: [] };
+    return {
+      modality,
+      checked: true,
+      changed: false,
+      latestContest,
+      latestDrawDate: finalDraws.at(-1)?.drawDate ?? "",
+      failures: [],
+      gaps: [],
+      overdue: checkOverdue(modality, latestRaw, haveLatest, latestContest),
+    };
   }
 
   const missing = [];
@@ -225,6 +287,8 @@ async function updateModality(modality) {
 
   const failures = [];
   let fetchedCount = 0;
+  // UTC time each newly stored contest was first seen by this run (diagnostic: measures real publication lag).
+  const firstSeenAt = new Map();
 
   const persistProgress = async () => {
     const sortedDraws = Array.from(draws.values()).sort((a, b) => a.contest - b.contest);
@@ -249,6 +313,7 @@ async function updateModality(modality) {
         return;
       }
       draws.set(contest, validated.draw);
+      firstSeenAt.set(contest, new Date().toISOString());
       fetchedCount++;
       if (fetchedCount % SAVE_EVERY === 0) {
         await persistProgress();
@@ -261,6 +326,13 @@ async function updateModality(modality) {
 
   const changed = fetchedCount > 0;
   if (changed) await persistProgress();
+  if (changed) {
+    const seen = Array.from(firstSeenAt.keys()).sort((a, b) => a - b);
+    for (const contest of seen.slice(-5)) {
+      console.log(`[${modality}] first seen: contest ${contest} (draw ${draws.get(contest)?.drawDate ?? "?"}) at ${firstSeenAt.get(contest)} (UTC)`);
+    }
+    if (seen.length > 5) console.log(`[${modality}] first seen: ... and ${seen.length - 5} earlier contest(s) in this run`);
+  }
 
   const finalDraws = Array.from(draws.values()).sort((a, b) => a.contest - b.contest);
   const gaps = [];
@@ -332,6 +404,24 @@ async function updateStatusFile(results) {
   return merged;
 }
 
+/**
+ * Overdue draws never fail the run (the dataset is intact; the exit code is unchanged). They are logged,
+ * and, when running in the workflow (OVERDUE_REPORT_PATH + GITHUB_OUTPUT set), handed to the alert step.
+ */
+async function reportOverdue(entries) {
+  if (entries.length === 0) return;
+  for (const e of entries) {
+    console.warn(
+      `[${e.modality}] OVERDUE: stored/official latest ${e.storedLatest}/${e.officialLatest}, next draw per source ${e.nextDrawDateBr}, past ${e.deadlineIso}. The official result may not be published yet, the official calendar may have moved the draw, or there may be an updater/source problem.`,
+    );
+  }
+  const reportPath = process.env.OVERDUE_REPORT_PATH;
+  if (reportPath && process.env.GITHUB_OUTPUT) {
+    await writeFile(reportPath, JSON.stringify(entries, null, 2), "utf8");
+    appendFileSync(process.env.GITHUB_OUTPUT, "overdue=true\n");
+  }
+}
+
 async function main() {
   const arg = process.argv[2] ?? "all";
   const targets = arg === "all" ? Object.keys(MODALITIES) : [arg];
@@ -350,6 +440,7 @@ async function main() {
   }
 
   await updateStatusFile(results);
+  await reportOverdue(results.map((r) => r.overdue).filter(Boolean));
 
   console.log(
     "\nSummary:",
