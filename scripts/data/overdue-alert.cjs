@@ -4,38 +4,39 @@
  *
  * - Shares the label with the failure alert on purpose, so the existing "close incident on recovery"
  *   step closes it once data catches up (that step is skipped on runs that are themselves overdue).
- * - Never comments more than once per MIN_INTERVAL_MS on an already-open issue (no spam): the time of
- *   the last notice is read from the issue body / comments carrying MARKER.
+ * - Never comments more than once per OVERDUE_MIN_NOTICE_INTERVAL_MS on an already-open issue (no spam):
+ *   the time of the last notice is read from the issue body / comments carrying OVERDUE_MARKER.
  * - The text states a likely cause, never asserts a CAIXA fault, and mentions that the official
  *   calendar may have moved the draw (holidays/exceptions).
+ *
+ * The Cloudflare Worker (workers/lottery-data-updater/worker.js) is standalone and carries a byte-identical
+ * copy of the pure block between the BEGIN/END markers; tests/shared/overdueDraw.test.ts fails if they drift.
  */
 
-const LABEL = "data-update-failure";
-const MARKER = "<!-- data-update-overdue -->";
-const MIN_INTERVAL_MS = 12 * 60 * 60 * 1000;
-const TITLE = "[Data] Resultado oficial possivelmente ainda não publicado";
-const MODALITY_NAMES = { lotofacil: "Lotofácil", megasena: "Mega-Sena" };
-
-function pad(n) {
-  return String(n).padStart(2, "0");
-}
+// BEGIN overdue-message (keep byte-identical in scripts/data/overdue-alert.cjs and workers/lottery-data-updater/worker.js)
+const OVERDUE_ISSUE_LABEL = "data-update-failure";
+const OVERDUE_MARKER = "<!-- data-update-overdue -->";
+const OVERDUE_MIN_NOTICE_INTERVAL_MS = 12 * 60 * 60 * 1000;
+const OVERDUE_ISSUE_TITLE = "[Data] Resultado oficial possivelmente ainda não publicado";
+const OVERDUE_MODALITY_NAMES = { lotofacil: "Lotofácil", megasena: "Mega-Sena" };
 
 /** UTC ISO string -> "DD/MM/YYYY HH:MM" in BRT (UTC-3). */
-function formatBrt(iso) {
+function overdueFormatBrt(iso) {
+  const pad = (n) => String(n).padStart(2, "0");
   const t = new Date(iso);
   if (Number.isNaN(t.getTime())) return String(iso);
   const b = new Date(t.getTime() - 3 * 60 * 60 * 1000);
   return `${pad(b.getUTCDate())}/${pad(b.getUTCMonth() + 1)}/${b.getUTCFullYear()} ${pad(b.getUTCHours())}:${pad(b.getUTCMinutes())}`;
 }
 
-function buildBody({ entries, runUrl, nowIso }) {
+function overdueBuildBody({ entries, runUrl, nowIso }) {
   const lines = entries.map(
     (e) =>
-      `- **${MODALITY_NAMES[e.modality] ?? e.modality}**: último concurso na base e na fonte oficial: ${e.officialLatest}; ` +
-      `próximo sorteio informado pela fonte: ${e.nextDrawDateBr}; tolerância até ${formatBrt(e.deadlineIso)} (BRT).`,
+      `- **${OVERDUE_MODALITY_NAMES[e.modality] ?? e.modality}**: último concurso na base e na fonte oficial: ${e.officialLatest}; ` +
+      `próximo sorteio informado pela fonte: ${e.nextDrawDateBr}; tolerância até ${overdueFormatBrt(e.deadlineIso)} (BRT).`,
   );
   return [
-    MARKER,
+    OVERDUE_MARKER,
     "**O resultado oficial pode ainda não ter sido publicado, ou há um problema no atualizador ou na fonte.**",
     "",
     "Para a(s) modalidade(s) abaixo, a data do próximo sorteio informada pela fonte oficial já passou da margem de tolerância e o último concurso publicado continua sendo o que já estava na base:",
@@ -51,16 +52,29 @@ function buildBody({ entries, runUrl, nowIso }) {
   ].join("\n");
 }
 
+/** Latest overdue-notice time (ms) among an open issue's body and comments, or null when none carries the marker. */
+function overdueLastNoticeMs(issue, comments) {
+  const times = comments.filter((c) => typeof c.body === "string" && c.body.includes(OVERDUE_MARKER)).map((c) => new Date(c.created_at).getTime());
+  if (typeof issue.body === "string" && issue.body.includes(OVERDUE_MARKER)) times.push(new Date(issue.created_at).getTime());
+  return times.length ? Math.max(...times) : null;
+}
+
+/** No more than one notice per OVERDUE_MIN_NOTICE_INTERVAL_MS on an already-open issue. */
+function overdueNoticeAllowed(lastNoticeMs, nowMs) {
+  return lastNoticeMs === null || nowMs - lastNoticeMs >= OVERDUE_MIN_NOTICE_INTERVAL_MS;
+}
+// END overdue-message
+
 async function ensureLabelExists(github, owner, repo) {
   try {
-    await github.rest.issues.getLabel({ owner, repo, name: LABEL });
+    await github.rest.issues.getLabel({ owner, repo, name: OVERDUE_ISSUE_LABEL });
   } catch (getError) {
     if (getError.status !== 404) throw getError;
     try {
       await github.rest.issues.createLabel({
         owner,
         repo,
-        name: LABEL,
+        name: OVERDUE_ISSUE_LABEL,
         color: "d73a4a",
         description: "Falha automática na atualização dos dados das loterias (criada/gerenciada por data-update.yml)",
       });
@@ -75,13 +89,13 @@ async function overdueAlert({ github, context, entries, now = new Date() }) {
   if (!Array.isArray(entries) || entries.length === 0) return { action: "none" };
   const { owner, repo } = context.repo;
   const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
-  const body = buildBody({ entries, runUrl, nowIso: now.toISOString() });
+  const body = overdueBuildBody({ entries, runUrl, nowIso: now.toISOString() });
 
   await ensureLabelExists(github, owner, repo);
-  const { data: openIssues } = await github.rest.issues.listForRepo({ owner, repo, state: "open", labels: LABEL });
+  const { data: openIssues } = await github.rest.issues.listForRepo({ owner, repo, state: "open", labels: OVERDUE_ISSUE_LABEL });
 
   if (openIssues.length === 0) {
-    await github.rest.issues.create({ owner, repo, title: TITLE, body, labels: [LABEL] });
+    await github.rest.issues.create({ owner, repo, title: OVERDUE_ISSUE_TITLE, body, labels: [OVERDUE_ISSUE_LABEL] });
     return { action: "created" };
   }
 
@@ -90,18 +104,15 @@ async function overdueAlert({ github, context, entries, now = new Date() }) {
   const comments = typeof github.paginate === "function"
     ? await github.paginate(github.rest.issues.listComments, listArgs)
     : (await github.rest.issues.listComments(listArgs)).data;
-  const noticeTimes = comments.filter((c) => typeof c.body === "string" && c.body.includes(MARKER)).map((c) => new Date(c.created_at).getTime());
-  if (typeof issue.body === "string" && issue.body.includes(MARKER)) noticeTimes.push(new Date(issue.created_at).getTime());
-  const lastNotice = noticeTimes.length ? Math.max(...noticeTimes) : null;
-  if (lastNotice !== null && now.getTime() - lastNotice < MIN_INTERVAL_MS) return { action: "skipped-recent" };
+  if (!overdueNoticeAllowed(overdueLastNoticeMs(issue, comments), now.getTime())) return { action: "skipped-recent" };
 
   await github.rest.issues.createComment({ owner, repo, issue_number: issue.number, body });
   return { action: "commented" };
 }
 
 module.exports = overdueAlert;
-module.exports.MARKER = MARKER;
-module.exports.MIN_INTERVAL_MS = MIN_INTERVAL_MS;
-module.exports.LABEL = LABEL;
-module.exports.buildBody = buildBody;
-module.exports.formatBrt = formatBrt;
+module.exports.MARKER = OVERDUE_MARKER;
+module.exports.MIN_INTERVAL_MS = OVERDUE_MIN_NOTICE_INTERVAL_MS;
+module.exports.LABEL = OVERDUE_ISSUE_LABEL;
+module.exports.buildBody = overdueBuildBody;
+module.exports.formatBrt = overdueFormatBrt;
