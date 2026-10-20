@@ -154,6 +154,118 @@ describe("CarteirasPage — saved portfolio bet status", () => {
   });
 });
 
+describe("CarteirasPage — the bet editor opens right below the card whose button was clicked", () => {
+  // Newest first: C3 (createdAt :03) is the first card, C1 the last. We always pick by POSITION, never by first card.
+  async function seedThree(overrides: Array<Partial<SavedPortfolio>> = [{}, {}, {}]) {
+    for (let i = 0; i < 3; i += 1) {
+      await savePortfolio(makePortfolio(`c${i + 1}`, [11, 11, 11, 11, 11, 10], { createdAt: `2026-09-08T00:00:0${i + 1}.000Z`, ...overrides[i] }));
+    }
+  }
+  const cards = () => screen.getAllByTestId("saved-card");
+  const editorFor = () => screen.getByRole("dialog", { name: "Registrar jogos apostados" });
+  /** The element that wraps the dialog inside the per-card Fragment (a direct child of the grid, like the details wrapper). */
+  const editorWrapper = () => editorFor().parentElement!;
+
+  beforeEach(async () => {
+    await db.portfolios.clear();
+    datasetDraws = [DRAW];
+  });
+
+  it("'Registrar aposta' on a card in the middle/end of the list: the editor is the next sibling of THAT card, not of any other, and exists once", async () => {
+    await seedThree();
+    renderPage();
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    const target = cards()[2]!;
+    fireEvent.click(within(target).getByRole("button", { name: "Registrar aposta" }));
+
+    expect(screen.getAllByRole("dialog", { name: "Registrar jogos apostados" })).toHaveLength(1);
+    expect(target.nextElementSibling).toBe(editorWrapper());
+    expect(editorWrapper().parentElement).toBe(target.parentElement); // a direct grid child, like the details panel
+    expect(editorWrapper().className).toContain("md:col-span-2"); // spans the full row on md:grid-cols-2
+    // the other cards are NOT followed by the editor
+    expect(cards()[0]!.nextElementSibling).toBe(cards()[1]);
+    expect(cards()[1]!.nextElementSibling).toBe(cards()[2]);
+  });
+
+  it("'Editar jogos apostados' (card that already has a bet) uses the same placement", async () => {
+    await seedThree([{}, withBet([1, 2, 3]), {}]);
+    renderPage();
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    const target = cards()[1]!;
+    fireEvent.click(within(target).getByRole("button", { name: "Editar jogos apostados" }));
+
+    expect(screen.getAllByRole("dialog", { name: "Registrar jogos apostados" })).toHaveLength(1);
+    expect(target.nextElementSibling).toBe(editorWrapper());
+    expect(within(editorFor()).getByText("3 de 6 jogos marcados como apostados")).toBeInTheDocument();
+    expect(cards()[2]!.previousElementSibling).toBe(editorWrapper()); // the card after it is pushed below the editor
+  });
+
+  it("opening the editor on another card replaces the current one (single editor state)", async () => {
+    await seedThree();
+    renderPage();
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    fireEvent.click(within(cards()[0]!).getByRole("button", { name: "Registrar aposta" }));
+    expect(cards()[0]!.nextElementSibling).toBe(editorWrapper());
+
+    fireEvent.click(within(cards()[2]!).getByRole("button", { name: "Registrar aposta" }));
+    expect(screen.getAllByRole("dialog", { name: "Registrar jogos apostados" })).toHaveLength(1);
+    expect(cards()[2]!.nextElementSibling).toBe(editorWrapper());
+    expect(cards()[0]!.nextElementSibling).toBe(cards()[1]); // nothing left behind under the first card
+  });
+
+  it("both open on the same card: card, then the editor, then the details; details content/behaviour unchanged", async () => {
+    await seedThree();
+    renderPage();
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    const target = cards()[1]!;
+    fireEvent.click(within(target).getByRole("button", { name: "Abrir" }));
+    const details = screen.getByRole("dialog", { name: "Detalhes dos jogos salvos" });
+    expect(target.nextElementSibling).toBe(details.parentElement); // details alone: right below the card, as before
+
+    fireEvent.click(within(target).getByRole("button", { name: "Registrar aposta" }));
+    expect(target.nextElementSibling).toBe(editorWrapper()); // editor first...
+    expect(editorWrapper().nextElementSibling).toBe(details.parentElement); // ...then the details
+    expect(within(details).getByRole("button", { name: "Conferir resultado" })).toBeInTheDocument();
+  });
+
+  it("cancelling removes the editor; saving the record still works from its new place", async () => {
+    await seedThree();
+    renderPage();
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    fireEvent.click(within(cards()[1]!).getByRole("button", { name: "Registrar aposta" }));
+    fireEvent.click(within(editorFor()).getByRole("button", { name: "Cancelar" }));
+    expect(screen.queryByRole("dialog", { name: "Registrar jogos apostados" })).not.toBeInTheDocument();
+
+    fireEvent.click(within(cards()[1]!).getByRole("button", { name: "Registrar aposta" }));
+    fireEvent.click(within(editorFor()).getByRole("checkbox", { name: "J6 apostado" }));
+    fireEvent.click(within(editorFor()).getByRole("button", { name: "Salvar registro" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Registrar jogos apostados" })).not.toBeInTheDocument());
+    const saved = (await listPortfolios()).find((p) => p.id === "c2")!;
+    expect(saved.betSelection!.revisions.at(-1)!.selectedTicketNumbers).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it("opening the editor scrolls it into view if needed and moves focus to its heading", async () => {
+    const scrollIntoView = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollIntoView;
+    try {
+      await seedThree();
+      renderPage();
+      await waitFor(() => expect(cards()).toHaveLength(3));
+      fireEvent.click(within(cards()[2]!).getByRole("button", { name: "Registrar aposta" }));
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+      expect(scrollIntoView.mock.contexts[0]).toBe(editorWrapper());
+      expect(within(editorFor()).getByRole("heading", { name: "Jogos apostados" })).toHaveFocus();
+
+      // editing inside the editor must not re-scroll
+      fireEvent.click(within(editorFor()).getByRole("checkbox", { name: "J6 apostado" }));
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+});
+
 describe("CarteirasPage — result checking with bet vs non-bet tickets", () => {
   beforeEach(async () => {
     await db.portfolios.clear();
