@@ -47,7 +47,9 @@ describe("Rolling 20 Balanceada — search (spec §6)", () => {
     const groups = makeGroups(20, 10); // g2=10 -> every ticket is 2-1-3
     const { tickets } = generateRolling20Portfolio({ numberOfTickets: 30, groups, seed: "test-seed-3" });
     for (const t of tickets) expect(passesRolling20StructuralFilters(t)).toBe(true);
-  });
+    // CPU-bound search (30 tickets): ~2 s alone but ~4.9 s inside the full suite, right at vitest's default 5 s
+    // per-test timeout, so it failed intermittently under load. Explicit timeout; assertions unchanged.
+  }, 30_000);
 
   it("is deterministic: the same seed and inputs always produce the same tickets", () => {
     const groups = makeGroups(20, 7);

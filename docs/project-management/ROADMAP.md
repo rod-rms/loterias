@@ -1,6 +1,6 @@
 # LotoAtlas — Roadmap
 
-Última revisão: 2026-10-17. Estado de `main` no momento da revisão: `be69808` (ver `PROJECT_STATE.md`).
+Última revisão: 2026-10-19. Estado de `main` no momento da revisão: `f074529` (ver `PROJECT_STATE.md`). Última release com tag: `v1.3.0`.
 
 ## Status
 
@@ -27,7 +27,7 @@ Nada é `DONE` só porque o código existe numa branch. Implementado em branch �
 | CORE-003 | Conferência de resultado de carteiras salvas (v1.1.1) | DONE |
 | DATA-001 | Atualizador automático de datasets (CAIXA) com janelas de retry | DONE |
 | REL-001 | v1.1.2 — confiabilidade (Worker, Error Boundary, alerta `data-update-failure`, LF) — tag `v1.1.2` | DONE |
-| BRAND-000 | Integração da marca LotoAtlas (PR #5), sem tag própria | DONE (em produção; sem release com tag) |
+| BRAND-000 | Integração da marca LotoAtlas (PR #5), incluída na release `v1.2.0` | DONE (em produção; release `v1.2.0`) |
 | FIX-001 | Isolamento do estado de geração entre modalidades (PR #6) | DONE |
 | BET-001 | Registro de aposta por jogo + conferência da carteira completa (PR #7, merge `978d63d`) | DONE — verificado em produção em 2026-09-21 (CI de `main` verde, bundle em produção = deploy do merge, smoke Playwright 48/48 contra produção) |
 | MEGA-ROLL-001 | Mega-Sena Rolling 20 Balanceada v2.1 — "Organizar pelo histórico recente" (PR #15, merge `3e88e4d`) | DONE — verificado em produção em 2026-09-24 (CI de `main` verde no commit do merge; bundle em produção idêntico ao deploy do merge; UI em produção confirmada mostrando "Organizar pelo histórico recente" como primeiro card de estratégia da Mega-Sena e gerando normalmente para concurso histórico) |

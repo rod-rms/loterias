@@ -58,6 +58,8 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   const [importPreview, setImportPreview] = useState<{ count: number; raw: unknown } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [editingBet, setEditingBet] = useState<{ portfolio: SavedPortfolio; selected: number[] } | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const editorHeadingRef = useRef<HTMLHeadingElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Guards every setState that follows an `await` below against firing after
   // this component has unmounted (e.g. navigating away while a request is in
@@ -103,6 +105,16 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   useEffect(() => {
     setNoResultYet(false);
   }, [selected?.id]);
+
+  // When the bet editor opens (or moves to another card), bring it into view only if needed and move focus to its
+  // heading so keyboard and screen-reader users land on it. `scroll-mt-16` on the editor keeps it clear of the
+  // sticky day-group heading. Keyed by portfolio id so edits inside the editor never re-scroll.
+  const editingBetId = editingBet?.portfolio.id;
+  useEffect(() => {
+    if (!editingBetId) return;
+    editorRef.current?.scrollIntoView?.({ block: "nearest" });
+    editorHeadingRef.current?.focus({ preventScroll: true });
+  }, [editingBetId]);
 
   useEffect(() => {
     refresh();
@@ -297,6 +309,45 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                       if (confirm("Excluir este conjunto de jogos?")) deletePortfolio(p.id).then(refresh);
                     }}
                   />
+                  {/* Bet editor opens right below the card whose button was clicked, spanning the full grid row
+                      (same pattern as the details panel below). It sits before the details when both are open. */}
+                  {editingBet && editingBet.portfolio.id === p.id && (
+                    <div ref={editorRef} className="scroll-mt-16 md:col-span-2">
+                      <div role="dialog" aria-modal="true" aria-label="Registrar jogos apostados" className="space-y-3 rounded-xl border border-brand-border bg-brand-surface p-4">
+                        <h2 ref={editorHeadingRef} tabIndex={-1} className="font-semibold outline-none">Jogos apostados</h2>
+                        <p className="text-sm text-brand-textMuted">
+                          A carteira gerada continua completa ({editingBet.portfolio.tickets.length} jogos). Aqui você só registra quais deles foram realmente apostados.
+                        </p>
+                        <BetTicketPicker
+                          tickets={editingBet.portfolio.tickets}
+                          selected={editingBet.selected}
+                          onChange={(next) => setEditingBet((prev) => (prev ? { ...prev, selected: next } : prev))}
+                        />
+                        {editingBet.selected.length === 0 && (
+                          <p className="text-xs text-amber-300" role="alert">
+                            Selecione ao menos um jogo apostado ou use "Remover registro de aposta".
+                          </p>
+                        )}
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const { portfolio, selected: chosen } = editingBet;
+                              if (chosen.length === 0) return;
+                              recordBet(portfolio, chosen).then(() => setEditingBet(null));
+                            }}
+                            disabled={editingBet.selected.length === 0}
+                            className="rounded bg-brand-action px-3 py-1.5 text-sm text-brand-actionForeground disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Salvar registro
+                          </button>
+                          <button type="button" onClick={() => setEditingBet(null)} className="rounded border border-brand-border px-3 py-1.5 text-sm">
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {/* Details open right below the card that was opened, spanning the full grid row. */}
                   {selected && selected.id === p.id && (
                     <div key={`${p.id}-detail`} className="md:col-span-2">
@@ -388,42 +439,6 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               Carregar mais
             </button>
           )}
-        </div>
-      )}
-
-      {editingBet && (
-        <div role="dialog" aria-modal="true" aria-label="Registrar jogos apostados" className="space-y-3 rounded-xl border border-brand-border bg-brand-surface p-4">
-          <h2 className="font-semibold">Jogos apostados</h2>
-          <p className="text-sm text-brand-textMuted">
-            A carteira gerada continua completa ({editingBet.portfolio.tickets.length} jogos). Aqui você só registra quais deles foram realmente apostados.
-          </p>
-          <BetTicketPicker
-            tickets={editingBet.portfolio.tickets}
-            selected={editingBet.selected}
-            onChange={(next) => setEditingBet((prev) => (prev ? { ...prev, selected: next } : prev))}
-          />
-          {editingBet.selected.length === 0 && (
-            <p className="text-xs text-amber-300" role="alert">
-              Selecione ao menos um jogo apostado ou use "Remover registro de aposta".
-            </p>
-          )}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                const { portfolio, selected: chosen } = editingBet;
-                if (chosen.length === 0) return;
-                recordBet(portfolio, chosen).then(() => setEditingBet(null));
-              }}
-              disabled={editingBet.selected.length === 0}
-              className="rounded bg-brand-action px-3 py-1.5 text-sm text-brand-actionForeground disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Salvar registro
-            </button>
-            <button type="button" onClick={() => setEditingBet(null)} className="rounded border border-brand-border px-3 py-1.5 text-sm">
-              Cancelar
-            </button>
-          </div>
         </div>
       )}
     </div>
