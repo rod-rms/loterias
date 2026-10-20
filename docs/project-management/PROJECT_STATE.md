@@ -5,10 +5,10 @@
 
 | Campo | Valor |
 |---|---|
-| Última revisão | 2026-10-19 |
+| Última revisão | 2026-10-20 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `f074529b9acd7b56b316a58b9b1cbe2e6e08f0aa` (tip antes do PR de release v1.3.0; o `main` real pode ter avançado por commits automáticos de dataset) |
+| `main` no momento da revisão | `67fa91d37e7573e8afd3cdb002f110909d9d5140` (tip antes do PR #36; o `main` real pode ter avançado por commits automáticos de dataset) |
 | Versão em `package.json` | `1.3.0` |
 | Última release estável com tag | `v1.3.0` (2026-10-19), tag anotada no commit de merge do PR de release |
 
@@ -44,7 +44,7 @@
 
 Estes números avançam sozinhos (commits `data: update lottery datasets` em `main`). **Sempre releia `public/data/status.json`.**
 
-**Incidente DATA-002 (2026-09-29, recorrente em 2026-10-02):** o workflow agendado `data-update.yml` falhou com HTTP 403 de `servicebus2.caixa.gov.br` em 2026-09-29/30 (7 execuções seguidas, uma delas disparo manual) e de novo em 2026-10-02 (3 execuções), deixando o app, na primeira ocorrência, oferecer o concurso errado como próximo a jogar. A mesma chamada funcionava de uma rede fora do GitHub Actions, o que indica bloqueio intermitente por IP do lado da CAIXA, não um problema de código, header ou token. Dataset corrigido manualmente na primeira ocorrência (commit `8312dfb`). Os alertas (issues #23 e #28) abriram e fecharam sozinhos; todas as execuções agendadas de 2026-10-03 a 2026-10-17 tiveram sucesso. O bloqueio pode voltar; uma alternativa existe em PR aberto, **não mergeado e sem decisão** (PR #29, Cloudflare Worker) — ver `DATA-002` em `ROADMAP.md`.
+**Incidente DATA-002 (2026-09-29, recorrente em 2026-10-02; segunda causa em 2026-10-18/19):** (1) o workflow agendado `data-update.yml` falhou com HTTP 403 de `servicebus2.caixa.gov.br` em 2026-09-29/30 e de novo em 2026-10-02, deixando o app, na primeira ocorrência, oferecer o concurso errado como próximo a jogar; a mesma chamada funcionava fora do GitHub Actions (bloqueio intermitente por IP do lado da CAIXA; dataset corrigido manualmente, commit `8312dfb`; alertas #23 e #28 abriram e fecharam sozinhos; execuções com sucesso de 2026-10-03 em diante). (2) Em 2026-10-18/19 o app ficou em Lotofácil 3806 / Mega-Sena 3070 com a fonte já em 3807 / 3071, **sem falha e sem alerta**: as três execuções agendadas de domingo viram 3806/3070 no endpoint "último concurso" e o atualizador trata "ainda não publicado" como "base atualizada". Causa raiz: lacuna de agenda (nenhuma execução às segundas em UTC, execuções agendadas atrasadas 2 a 4 h pelo GitHub, e nenhum domingo observado capturado durante o dia). Dataset corrigido por execução manual (commit `bf941b8`). Correção no PR #36: cobertura de segunda-feira, aviso de sorteio atrasado e diagnóstico por run. O horário real de publicação dos resultados de domingo **não está confirmado**; os novos logs vão permitir medi-lo. Contingência em PR aberto, **não implantada** (PR #29, Cloudflare Worker) — ver `DATA-002` em `ROADMAP.md`.
 
 ## PRs abertos
 
