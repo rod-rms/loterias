@@ -61,3 +61,8 @@ export async function loadDataStatus(): Promise<DataStatus> {
   dataStatusCache = dataStatusSchema.parse(raw);
   return dataStatusCache;
 }
+
+/** Drops the cached datasets so the next `loadDataset` re-fetches (used by the offline backtest, which serves a different no-look-ahead view per simulated contest). */
+export function clearDatasetCache(): void {
+  datasetCache.clear();
+}

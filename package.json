@@ -22,7 +22,9 @@
     "data:update": "node scripts/data/update-dataset.mjs all",
     "data:validate": "node scripts/data/validate-dataset.mjs",
     "ledger:run": "node scripts/ledger/launch.mjs run",
-    "ledger:validate": "node scripts/ledger/launch.mjs validate"
+    "ledger:validate": "node scripts/ledger/launch.mjs validate",
+    "backtest": "node scripts/ledger/launch.mjs backtest",
+    "backtest:validate": "node scripts/ledger/launch.mjs backtest-validate"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
