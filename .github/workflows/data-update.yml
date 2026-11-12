@@ -48,6 +48,12 @@ on:
     - cron: "0 23 * * 0" # 20:00 BRT Sunday -> 23:00 UTC Sunday — Sunday follow-up 3 (final fallback)
   workflow_dispatch: {}
 
+# Shares one concurrency group with the prospective ledger workflow (ledger.yml) so the two never write to main at the
+# same time. Runs are queued, never cancelled, once started.
+concurrency:
+  group: main-data-writes
+  cancel-in-progress: false
+
 permissions:
   contents: write
   # Used only by the failure-alert/recovery steps below (GitHub Issues),
