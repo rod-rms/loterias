@@ -31,6 +31,7 @@ test.describe("Análise de resultados (360 px, real artifacts)", () => {
     await page.goto("/analise?modalidade=megasena");
     await expect(page.getByTestId("short-answer")).toContainText("Em 135 sorteios passados");
     await expect(page.getByTestId("short-answer")).toContainText("raros demais");
+    await expect(page.getByTestId("chance-row")).toContainText("0,35 0–3"); // real n = 810 tickets
     const card = page.getByTestId("chart-media");
     await card.getByRole("button", { name: /Ajuda sobre/ }).tap();
     const tip = card.getByRole("tooltip");

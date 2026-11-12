@@ -189,3 +189,25 @@ export function cumulativeDifference(values: readonly number[], reference: numbe
 
 /** Half-width of the variation funnel after k contests: z * sd * sqrt(k), where sd is the per-contest standard deviation under chance. */
 export const funnelHalfWidth = (k: number, perContestSd: number, z: number): number => z * perContestSd * Math.sqrt(k);
+
+/**
+ * Exact central range [low, high] of a Binomial(n, p) count that chance alone produces at two-sided coverage `level`:
+ * low = smallest k with P(X <= k) >= alpha/2, high = smallest k with P(X <= k) >= 1 - alpha/2 (so coverage is at least `level`).
+ * Used for the count tables of the lay view (DEC-025a). pmf by the stable recurrence from P(X = 0).
+ */
+export function binomialRange(n: number, p: number, level: number): { low: number; high: number } {
+  if (n <= 0 || p <= 0) return { low: 0, high: 0 };
+  if (p >= 1) return { low: n, high: n };
+  const alpha = 1 - level;
+  let pmf = Math.exp(n * Math.log1p(-p));
+  let cdf = pmf;
+  let low = cdf >= alpha / 2 ? 0 : -1;
+  let high = cdf >= 1 - alpha / 2 ? 0 : -1;
+  for (let k = 0; k < n && (low < 0 || high < 0); k += 1) {
+    pmf *= ((n - k) / (k + 1)) * (p / (1 - p));
+    cdf += pmf;
+    if (low < 0 && cdf >= alpha / 2) low = k + 1;
+    if (high < 0 && cdf >= 1 - alpha / 2) high = k + 1;
+  }
+  return { low: Math.max(0, low), high: high < 0 ? n : high };
+}

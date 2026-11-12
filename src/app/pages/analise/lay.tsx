@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { InfoHelp } from "../../../shared/components";
-import { normalQuantile } from "../../../shared/lib/analysisStats";
+import { binomialRange, normalQuantile } from "../../../shared/lib/analysisStats";
 import type { ModalityAnalysis } from "../../../shared/lib/backtestAnalysis";
 import type { LedgerSummary } from "../../../shared/lib/ledgerSummary";
 import type { Modality } from "../../../shared/types";
@@ -157,6 +157,7 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
   const chancePer100 = a.reference.prizeChance * 100;
   const z = normalQuantile(1 - (1 - a.chanceBand.level) / 2);
   const half = z * Math.sqrt((a.reference.prizeChance * (1 - a.reference.prizeChance)) / Math.max(1, tickets)) * 100;
+  const ranges = a.reference.prizeExpectedByLevel.map((p) => binomialRange(tickets, p, a.chanceBand.level));
   const hiAxis = 20;
   const x = scaleFor(0, hiAxis);
   return (
@@ -197,7 +198,10 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-xs">
           <caption className="mb-1 text-left text-brand-textMuted">
-            Quantidade de jogos por {lf ? "pontos" : "prêmio"}, em {nf(0).format(tickets)} jogos por estratégia
+            <span className="inline-flex items-center gap-1">
+              Quantidade de jogos por {lf ? "pontos" : "prêmio"}, em {nf(0).format(tickets)} jogos por estratégia
+              <InfoHelp title="Faixa normal do acaso" body="Contagens dentro da faixa normal do acaso são o que o acaso sozinho produz." label="Ajuda sobre a faixa normal do acaso na tabela" />
+            </span>
           </caption>
           <thead>
             <tr className="text-brand-textMuted">
@@ -210,11 +214,14 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
             </tr>
           </thead>
           <tbody>
-            <tr className="font-medium" style={{ color: CHANCE }}>
-              <td className="px-2 py-1">Esperado ao acaso</td>
+            <tr className="font-medium" style={{ color: CHANCE }} data-testid="chance-row">
+              <td className="px-2 py-1">Ao acaso: esperado (normal: de A a B)</td>
               {a.reference.prizeExpectedByLevel.map((p, i) => (
                 <td key={i} className="px-2 py-1 text-right font-mono tabular-nums">
-                  {countLabel(p * tickets)}
+                  {countLabel(p * tickets)}{" "}
+                  <span className="block whitespace-nowrap text-[11px] font-normal">
+                    {ranges[i]!.low}–{ranges[i]!.high}
+                  </span>
                 </td>
               ))}
             </tr>
@@ -224,6 +231,9 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
                 {s.prize.observed.map((c, i) => (
                   <td key={i} className="px-2 py-1 text-right font-mono tabular-nums">
                     {c}
+                    {(c < ranges[i]!.low || c > ranges[i]!.high) && (
+                      <span className="block text-[11px] font-normal text-amber-200">{c > ranges[i]!.high ? "acima" : "abaixo"}<span className="sr-only"> da variação normal do acaso</span></span>
+                    )}
                   </td>
                 ))}
               </tr>

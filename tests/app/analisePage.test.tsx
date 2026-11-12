@@ -203,7 +203,9 @@ describe("AnalisePage (lay view)", () => {
     expect(prizes).toHaveTextContent("Quadra");
     expect(prizes).toHaveTextContent("Quina");
     expect(prizes).toHaveTextContent("Sena");
-    expect(prizes).toHaveTextContent("Esperado ao acaso");
+    expect(prizes).toHaveTextContent("Ao acaso: esperado (normal: de A a B)");
+    expect(within(prizes).getByTestId("chance-row")).toHaveTextContent("0,15 0–2"); // fixture: n = 360 tickets, quadra p = 0.000429, 99% exact range
+    expect(within(prizes).getByRole("button", { name: /faixa normal do acaso na tabela/i })).toBeInTheDocument();
   });
 
   it("main view has no technical jargon (also in the open help balloons); the technical disclosure does", async () => {
@@ -214,7 +216,7 @@ describe("AnalisePage (lay view)", () => {
     const text = [main.textContent ?? "", screen.getByTestId("analysis-disclaimer").textContent ?? ""];
     for (const id of ["media", "premios", "melhor-pior"]) {
       const card = screen.getByTestId(`chart-${id}`);
-      await user.click(within(card).getByRole("button", { name: /^Ajuda sobre/ }));
+      await user.click(within(card).getAllByRole("button", { name: /^Ajuda sobre/ })[0]!);
       const tip = within(card).getByRole("tooltip");
       expect((tip.textContent?.match(/[.!?](\s|$)/g) ?? []).length).toBeLessThanOrEqual(3); // at most 3 short sentences
       text.push(tip.textContent ?? "");

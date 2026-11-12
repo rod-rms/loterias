@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  binomialRange,
   bonferroniLevel,
   bootstrapMeanInterval,
   cumulativeDifference,
@@ -99,5 +100,30 @@ describe("cumulative difference and funnel", () => {
     expect(excludesReference({ low: 8.9, high: 9.1 }, 9)).toBe(false);
     expect(excludesReference({ low: 9.1, high: 9.3 }, 9)).toBe(true);
     expect(excludesReference({ low: 8.5, high: 8.9 }, 9)).toBe(true);
+  });
+});
+
+describe("binomialRange (exact)", () => {
+  it("hand-computed: n=10, p=0.5, 95% -> [2, 8]", () => {
+    expect(binomialRange(10, 0.5, 0.95)).toEqual({ low: 2, high: 8 });
+  });
+  it("Mega-Sena quadra: n=810, p=C(6,4)C(54,2)/C(60,6) -> expected 0.35, 99% range 0 to 3", () => {
+    const p = hitsDistributionFor("megasena").pmf[4]!;
+    expect(810 * p).toBeCloseTo(0.347, 2);
+    expect(binomialRange(810, p, 0.99)).toEqual({ low: 0, high: 3 });
+  });
+  it("Lotofácil 11 points: n=2640, 99% range brackets the expectation, about +-2.576 sd", () => {
+    const p = hitsDistributionFor("lotofacil").pmf[11]!;
+    const r = binomialRange(2640, p, 0.99);
+    const mu = 2640 * p;
+    const sd = Math.sqrt(2640 * p * (1 - p));
+    expect(r.low).toBeLessThan(mu);
+    expect(r.high).toBeGreaterThan(mu);
+    expect(Math.abs(r.low - (mu - 2.576 * sd))).toBeLessThan(3);
+    expect(Math.abs(r.high - (mu + 2.576 * sd))).toBeLessThan(3);
+  });
+  it("degenerate probabilities", () => {
+    expect(binomialRange(100, 0, 0.99)).toEqual({ low: 0, high: 0 });
+    expect(binomialRange(100, 1, 0.99)).toEqual({ low: 100, high: 100 });
   });
 });
