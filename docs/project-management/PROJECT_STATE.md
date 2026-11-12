@@ -5,10 +5,10 @@
 
 | Campo | Valor |
 |---|---|
-| Última revisão | 2026-10-20 |
+| Última revisão | 2026-11-11 |
 | Repositório | https://github.com/rod-rms/loterias |
 | Produção | https://loterias-bkr.pages.dev/ |
-| `main` no momento da revisão | `67fa91d37e7573e8afd3cdb002f110909d9d5140` (tip antes do PR #36; o `main` real pode ter avançado por commits automáticos de dataset) |
+| `main` no momento da revisão | `db6d00196a79c0ffc81cea77f2be0812571e80ab` (tip antes do PR de protocolo ANL-001; o `main` real avança por commits automáticos de dataset) |
 | Versão em `package.json` | `1.3.0` |
 | Última release estável com tag | `v1.3.0` (2026-10-19), tag anotada no commit de merge do PR de release |
 
@@ -61,6 +61,7 @@ Nenhuma no momento (MEGA-ROLL-001, BET-002, CART-001, BRAND-001, a reorganizaç�
 ## Itens de pesquisa
 
 - **RMS-201** — concluído e em produção (RMS v2.1, PR #31, `DEC-024`); ver acima e `ROADMAP.md`. Base: [`docs/lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md) e [`docs/lotofacil/RMS_201_EXPERIMENT_RESULTS.md`](../lotofacil/RMS_201_EXPERIMENT_RESULTS.md).
+- **ANL-001 / ANL-002 / ANL-003** — análise de resultados (ledger prospectivo, backtest, página): decisões `DEC-025` e `DEC-026`, protocolo em [`docs/analysis/PROSPECTIVE_LEDGER_PROTOCOL.md`](../analysis/PROSPECTIVE_LEDGER_PROTOCOL.md); `APPROVED`, nada em produção ainda. Ver `ROADMAP.md`.
 - **OBS-001** — Registro de Pesquisa Observacional: `RESEARCH / PLANNED`. Existe apenas a base de dados do BET-001; **não há painel/análise**.
 
 ## Dívida técnica conhecida, não bloqueante
