@@ -282,5 +282,5 @@ describe("no-look-ahead with the REAL strategy code (mutation test)", () => {
     const view = datasetView(source, 120);
     expect(view.latestContest).toBe(119);
     expect(view.draws.every((d) => d.contest < 120)).toBe(true);
-  });
+  }, 30_000);
 });

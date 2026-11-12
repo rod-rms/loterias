@@ -4,7 +4,7 @@ import { binomialRange, normalQuantile } from "../../../shared/lib/analysisStats
 import type { ModalityAnalysis } from "../../../shared/lib/backtestAnalysis";
 import type { LedgerSummary } from "../../../shared/lib/ledgerSummary";
 import type { Modality } from "../../../shared/types";
-import { CHANCE, MUTED, NEUTRAL, countLabel, dateBr, fmt, nf, one, roundedRange, strategyLabel, type Period } from "./format";
+import { CHANCE, MUTED, NEUTRAL, countLabel, dateBr, fmt, nf, roundedRange, strategyLabel, type Period } from "./format";
 
 /** Lay-reader view of the backtest (sections 1-6 of the page). Simple wording; technical vocabulary lives only in the technical disclosure. */
 
@@ -177,9 +177,9 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
               <li key={s.strategyId}>
                 <div className="flex items-center justify-between gap-2 text-sm">
                   <span className="font-medium text-brand-text">{strategyLabel(s.strategyId)}</span>
-                  <span className="font-mono text-base font-semibold tabular-nums">{one(s.prize.per100)} <span className="text-xs font-normal text-brand-textMuted">em 100</span></span>
+                  <span className="font-mono text-base font-semibold tabular-nums">{fmt(s.prize.per100, 3)} <span className="text-xs font-normal text-brand-textMuted">em 100</span></span>
                 </div>
-                <Strip lo={0} hi={hiAxis} band={{ low: chancePer100 - half, high: chancePer100 + half }} line={chancePer100} label={`${strategyLabel(s.strategyId)}: ${one(s.prize.per100)} jogos premiados a cada 100; acaso ${one(chancePer100)}`}>
+                <Strip lo={0} hi={hiAxis} band={{ low: chancePer100 - half, high: chancePer100 + half }} line={chancePer100} label={`${strategyLabel(s.strategyId)}: ${fmt(s.prize.per100, 3)} jogos premiados a cada 100; acaso ${fmt(chancePer100, 3)}`}>
                   <circle cx={x(s.prize.per100)} cy={12} r={5} fill={NEUTRAL} stroke="#101729" strokeWidth={1.5} />
                 </Strip>
               </li>
@@ -187,7 +187,7 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
           </ul>
           <AxisLabels lo={0} mid={10} hi={hiAxis} format={(v) => String(v)} />
           <ChanceLegend>
-            Linha verde: acaso ({one(chancePer100)} a cada 100, ou seja, cerca de {countLabel(expectedTotal)} em {nf(0).format(tickets)} jogos). Faixa verde clara: variação normal do acaso.
+            Linha verde: acaso ({fmt(chancePer100, 3)} a cada 100, ou seja, cerca de {countLabel(expectedTotal)} em {nf(0).format(tickets)} jogos). Faixa verde clara: variação normal do acaso.
           </ChanceLegend>
         </>
       ) : (
@@ -265,10 +265,10 @@ export function SpreadChart({ a }: { a: ModalityAnalysis }) {
             <div className="flex flex-wrap items-baseline justify-between gap-x-2 text-sm">
               <span className="font-medium text-brand-text">{strategyLabel(s.strategyId)}</span>
               <span className="font-mono text-xs tabular-nums text-brand-textMuted">
-                pior {one(s.spread.worst)} · média {one(s.spread.mean)} · melhor {one(s.spread.best)}
+                pior {fmt(s.spread.worst, 3)} · média {fmt(s.spread.mean, 3)} · melhor {fmt(s.spread.best, 3)}
               </span>
             </div>
-            <Strip lo={ax.lo} hi={ax.hi} band={ref ? { low: ref.worst, high: ref.best } : null} label={`${strategyLabel(s.strategyId)}: pior jogo ${one(s.spread.worst)}, melhor jogo ${one(s.spread.best)}, média ${one(s.spread.mean)}`}>
+            <Strip lo={ax.lo} hi={ax.hi} band={ref ? { low: ref.worst, high: ref.best } : null} label={`${strategyLabel(s.strategyId)}: pior jogo ${fmt(s.spread.worst, 3)}, melhor jogo ${fmt(s.spread.best, 3)}, média ${fmt(s.spread.mean, 3)}`}>
               <line x1={x(s.spread.worst)} x2={x(s.spread.best)} y1={12} y2={12} stroke={NEUTRAL} strokeWidth={4} strokeLinecap="round" />
               <line x1={x(s.spread.mean)} x2={x(s.spread.mean)} y1={4} y2={20} stroke="#101729" strokeWidth={3} />
               <line x1={x(s.spread.mean)} x2={x(s.spread.mean)} y1={5} y2={19} stroke="#FFFFFF" strokeWidth={1.5} />
@@ -279,7 +279,7 @@ export function SpreadChart({ a }: { a: ModalityAnalysis }) {
       <AxisLabels lo={ax.lo} mid={ax.mid} hi={ax.hi} format={(v) => nf(v % 1 === 0 ? 0 : 1).format(v)} />
       {ref && (
         <ChanceLegend>
-          Faixa verde: uma carteira feita ao acaso neste mesmo teste (pior {one(ref.worst)}, melhor {one(ref.best)}).
+          Faixa verde: uma carteira feita ao acaso neste mesmo teste (pior {fmt(ref.worst, 3)}, melhor {fmt(ref.best, 3)}).
         </ChanceLegend>
       )}
       <p className="mt-2 text-sm text-brand-textMuted">
