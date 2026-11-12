@@ -17,3 +17,6 @@ npm-debug.log*
 docs/project-management/.scheduled-audit-state.md
 docs/project-management/drafts/
 docs/project-management/errors/
+
+# ANL-002: resume state of an interrupted backtest run
+public/data/backtest/*/backtest.partial.json

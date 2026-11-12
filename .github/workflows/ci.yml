@@ -50,6 +50,9 @@ jobs:
       - name: Prospective ledger validation (schema + append-only)
         run: npm run ledger:validate
 
+      - name: Backtest artifact validation (schema only; does not run the engine)
+        run: npm run backtest:validate
+
       - name: Build production bundle
         run: npm run build
 
