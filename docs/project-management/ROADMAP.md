@@ -1,6 +1,6 @@
 # LotoAtlas — Roadmap
 
-Última revisão: 2026-10-20. Estado de `main` no momento da revisão: `67fa91d` (ver `PROJECT_STATE.md`). Última release com tag: `v1.3.0`.
+Última revisão: 2026-11-11. Estado de `main` no momento da revisão: `db6d001` (ver `PROJECT_STATE.md`). Última release com tag: `v1.3.0`.
 
 ## Status
 
@@ -54,8 +54,15 @@ Objetivo: reduzir a resolução arbitrária, por seed, de empates na fronteira d
 
 Antes de qualquer implementação exige-se experimento histórico reprodutível comparando RMS-20 atual, RMS-50 puro e RMS 20+50 (desempate), com: mesmo conjunto histórico de alvos; no-look-ahead estrito; seeds controladas; carteiras completas de seis jogos; distribuição de 11/12/13/14/15 acertos; melhor jogo por carteira; comportamento estrutural J1–J6; estabilidade do pool; frequência de empates na fronteira; e baselines relevantes. O experimento deve ser documentado antes da decisão.
 
+### Análise de resultados (ANL-001 a ANL-003) — `DEC-025` / `DEC-026`
+Comparar as estratégias com três fontes: **A** backtest histórico (sem look-ahead), **B** carteiras reais salvas pelo usuário, **C** ledger prospectivo gerado pelo sistema antes de cada sorteio e pontuado depois. A fonte C é a única que o tempo não recupera, por isso começa primeiro. Estatística descritiva do desempenho observado é permitida; afirmações sobre sorteios futuros não são (`DEC-013`, `DEC-025`).
+
+- **ANL-001 — Ledger prospectivo** (esta fase; protocolo: [`../analysis/PROSPECTIVE_LEDGER_PROTOCOL.md`](../analysis/PROSPECTIVE_LEDGER_PROTOCOL.md), `DEC-026`). Status: **APPROVED** (protocolo e decisões registrados; o PR do gerador/pontuador/workflow passa a `PR_OPEN` quando abrir). Sem interface nesta fase.
+- **ANL-002 — Motor de backtest histórico** (fonte A; roda offline e grava um artefato JSON; CPU pesada não é feita no navegador). Status: **APPROVED**, não iniciado.
+- **ANL-003 — Página "Análise de resultados"** com 11 gráficos: distribuição vs teórica exata; média de acertos com intervalo; taxas ≥11 / ≥3; melhor jogo por carteira; diferença acumulada vs esperado dentro de um funil de variação; medidor de progresso da amostra; backtest vs prospectivo; comparação entre versões da estratégia; diversidade da carteira e cobertura de dezenas; calendário do ledger; exportação CSV/JSON. **Cada gráfico com um botão de informação que funciona por toque e teclado (hover é bônus)**, explicando o que mede, como ler e o que não afirma. Status: **APPROVED**, construída em dois incrementos, não iniciada. Absorve o OBS-001.
+
 ### OBS-001 — Registro de Pesquisa Observacional
-Status: **RESEARCH / PLANNED.** Não há painel nem análise implementados.
+Status: **RESEARCH / PLANNED**, absorvido pelo `ANL-003`. Não há painel nem análise implementados.
 
 Base criada pelo BET-001: carteira gerada ≠ seleção de aposta real; todos os jogos gerados continuam conferíveis.
 
@@ -74,7 +81,7 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 | TECH-005 | Aviso no upload do relatório do Playwright quando o diretório não existe | DEFERRED |
 | TECH-006 | Investigar o erro intermitente de teardown assíncrono "window is not defined" se reaparecer (visto uma vez em `carteirasResultChecking.test.tsx`; re-run passou) | DEFERRED |
 | REPO-001 | Limpeza opcional/baixa prioridade do repositório e de arquivos locais não versionados | DEFERRED |
-| AUTH-001 | Integração com Supabase para autenticação (login opcional) e possível sincronização de dados entre dispositivos | IDEA |
+| AUTH-001 | Integração com Supabase para autenticação (login opcional) e possível sincronização de dados entre dispositivos. No radar; só se o volume de dados do ledger justificar um backend | IDEA |
 | DATA-002 | Atualizador automático (`data-update.yml`). **(1) Bloqueio:** HTTP 403 da CAIXA a IPs do GitHub Actions em 2026-09-29/30 e de novo em 2026-10-02 (alertas #23 e #28 abriram e fecharam sozinhos; execuções com sucesso de 2026-10-03 em diante; catch-up manual `8312dfb`). **(2) Dados defasados em 2026-10-18/19:** o app ficou em Lotofácil 3806 / Mega-Sena 3070 enquanto a fonte já tinha 3807 / 3071; as três execuções agendadas de domingo consultaram o endpoint "último concurso", a fonte respondeu 3806/3070 (HTTP 200, sem falha e sem alerta) e o atualizador, por desenho, trata "ainda não publicado" como "base atualizada". Causa raiz (logs dos runs `39154137037`, `39165722023`, `39183410658` e histórico do git): **lacuna de agenda, não bloqueio** — os crons noturnos rodavam só de terça a sábado (UTC), então a segunda-feira UTC não tinha nenhuma execução; o GitHub atrasa as execuções agendadas em 2 a 4 h (mediana ~4 h); e dos 5 domingos com sorteio observados nenhum foi capturado durante o dia de domingo (4 só na terça de manhã, 1 na noite de domingo), o que contradiz a suposição antiga de sorteio de domingo às 11h BRT. O horário real de publicação dos resultados de domingo **não está confirmado** e nada foi assumido sobre ele. Cabeçalho `Cache-Control: no-cache` e ausência de `Age` não indicam cache de CDN (verificado em 2026-10-19; não há logs de cabeçalhos de 18/10). **Correção (PR #36):** crons noturnos de `2-6` para `1-6` + duas verificações extras só na segunda (12h e 16h BRT); aviso de sorteio atrasado (próximo sorteio informado pela fonte já passou da margem "dia seguinte 14h BRT", constante `OVERDUE_MARGIN_NEXT_DAY_BRT_HOUR`, sem avanço do último concurso → abre/comenta a issue `data-update-failure`, no máximo uma vez a cada 12 h, sem afirmar falha da CAIXA); diagnóstico em todo run (status, `Date`, `Age`, `Cache-Control`, `numero`, `dataApuracao`, `dataProximoConcurso`, linha UTC de "first seen") para medir o atraso real de publicação em algumas semanas. Contingência: Worker da Cloudflare em `workers/lottery-data-updater/` (PR #29, **mergeado e inerte: não implantado**; o product owner implanta manualmente, passos e ressalvas no README do Worker, incluindo o limite de CPU de 10 ms por execução agendada do plano Free). Ele não teria evitado o caso de 18/10, pois lê o mesmo endpoint e tinha a mesma lacuna de agenda; agora tem a mesma cobertura de segunda-feira, o mesmo aviso de sorteio atrasado e os mesmos logs, e uma corrida de ref com o Actions não abre incidente. | RESEARCH |
 
 ### Ideias de produto (IDEA — sem aprovação)
