@@ -27,6 +27,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Scope the freshness badges to the modality currently being viewed;
   // elsewhere (home, Meus jogos salvos, Sobre) show both, clearly labeled.
+  // The analysis page has its own modality toggle (the header switcher links to the generators, which would be confusing there).
+  const onAnalysis = location.pathname.startsWith("/analise");
   const showLotofacil = !location.pathname.startsWith("/megasena");
   const showMegasena = !location.pathname.startsWith("/lotofacil");
 
@@ -56,14 +58,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavLink to="/carteiras" className={compactNavLinkClass}>
                 Meus jogos salvos
               </NavLink>
+              <NavLink to="/analise" className={compactNavLinkClass}>
+                Análise
+              </NavLink>
               <NavLink to="/sobre" className={compactNavLinkClass}>
                 Sobre
               </NavLink>
             </nav>
           </div>
-          <div className="pb-3">
-            <GameSwitcher />
-          </div>
+          {!onAnalysis && (
+            <div className="pb-3">
+              <GameSwitcher />
+            </div>
+          )}
           <div className="flex flex-wrap gap-2 pb-3">{freshnessBadges}</div>
         </div>
 
@@ -72,10 +79,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/" className="flex shrink-0 items-center" aria-label="LotoAtlas, página inicial">
             <img src={lotoatlasLogoUi} alt="LotoAtlas" className="h-7 w-auto" width={96} height={28} />
           </Link>
-          <GameSwitcher />
+          {!onAnalysis && <GameSwitcher />}
           <nav aria-label="Navegação principal" className="ml-auto flex items-center gap-5">
             <NavLink to="/carteiras" className={navLinkClass}>
               Meus jogos salvos
+            </NavLink>
+            <NavLink to="/analise" className={navLinkClass}>
+              Análise de resultados
             </NavLink>
             <NavLink to="/sobre" className={navLinkClass}>
               Sobre
