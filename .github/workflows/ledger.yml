@@ -1,0 +1,84 @@
+name: Prospective ledger
+
+# ANL-001 / DEC-026 (docs/analysis/PROSPECTIVE_LEDGER_PROTOCOL.md).
+#
+# Before each draw, generates 6 tickets for each of the 5 strategies of each modality through the app's own strategy
+# code, appends them to public/data/ledger/** (append-only, never edited), and scores earlier entries once their
+# result is in the dataset. The job is IDEMPOTENT: a run that finds nothing new writes nothing and commits nothing,
+# so extra runs are harmless.
+#
+# Schedule (UTC, every day; each run is cheap): the data updater captures a result a few hours after the draw
+# (GitHub also delays scheduled runs 2-4 h), after which the next target exists. Entries must be created BEFORE the
+# estimated draw time minus 60 minutes (weekday draws ~21h BRT = 00:00Z, Sunday draws ~11h BRT = 14:00Z), so the
+# runs are spread to pick a new target up soon after its result lands and well before that cutoff, including
+# Monday, when a Sunday result may arrive only during the day:
+#   08:30, 12:30, 16:30, 19:30 and 22:15 UTC (05:30, 09:30, 13:30, 16:30 and 19:15 BRT).
+# A `workflow_run` trigger on "Update lottery datasets" would be more prompt, but it cannot be verified to fire for
+# that workflow's runs until this file is on the default branch, so it is deliberately NOT used yet; revisit after
+# observing a few runs.
+#
+# KILL SWITCH: set the repository variable LEDGER_ENABLED to 'false' (Settings > Secrets and variables > Actions >
+# Variables) and every run is skipped. Or disable this workflow in the Actions tab. Never hand-edit entries.
+#
+# Ledger runs never overlap each other (own concurrency group). The data updater is deliberately NOT part of that group:
+# GitHub keeps only ONE pending run per group, so a queued ledger run could silently replace a queued updater run, and
+# the updater is the critical path. Instead the push is a plain `git push` (no force) with a retry that re-applies this
+# job's single new commit on top of the latest main; that is conflict-free because this job only changes
+# public/data/ledger/**, which the updater never touches.
+on:
+  schedule:
+    - cron: "30 8,12,16,19 * * *"
+    - cron: "15 22 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ledger-writes
+  cancel-in-progress: false
+
+jobs:
+  ledger:
+    if: ${{ vars.LEDGER_ENABLED != 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and score ledger entries
+        run: npm run ledger:run
+
+      # Append-only integrity against the previous commit (the working tree is dirty at this point, so the
+      # baseline is HEAD, i.e. exactly what is on main now).
+      - name: Validate ledger
+        run: npm run ledger:validate
+
+      - name: Commit and push
+        run: |
+          git add public/data/ledger
+          if git diff --cached --quiet; then
+            echo "Nothing new to record."
+            exit 0
+          fi
+          git config user.name "loterias-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -m "data: prospective ledger update"
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "push rejected (attempt $attempt): main moved; re-applying this single new commit on top of it"
+            git pull --rebase origin main
+          done
+          echo "could not push after 3 attempts" >&2
+          exit 1

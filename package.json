@@ -20,7 +20,9 @@
     "test:mega:oracle": "node scripts/megasena/run-tests.mjs",
     "test:lotofacil:oracle": "vitest run tests/lotofacil --reporter=verbose",
     "data:update": "node scripts/data/update-dataset.mjs all",
-    "data:validate": "node scripts/data/validate-dataset.mjs"
+    "data:validate": "node scripts/data/validate-dataset.mjs",
+    "ledger:run": "node scripts/ledger/launch.mjs run",
+    "ledger:validate": "node scripts/ledger/launch.mjs validate"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
