@@ -61,7 +61,7 @@ Nenhuma no momento (MEGA-ROLL-001, BET-002, CART-001, BRAND-001, a reorganizaç�
 ## Itens de pesquisa
 
 - **RMS-201** — concluído e em produção (RMS v2.1, PR #31, `DEC-024`); ver acima e `ROADMAP.md`. Base: [`docs/lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md`](../lotofacil/RMS_MULTI_HORIZON_20_50_RESEARCH.md) e [`docs/lotofacil/RMS_201_EXPERIMENT_RESULTS.md`](../lotofacil/RMS_201_EXPERIMENT_RESULTS.md).
-- **ANL-001 / ANL-002 / ANL-003** — análise de resultados (ledger prospectivo, backtest, página): decisões `DEC-025` e `DEC-026`, protocolo em [`docs/analysis/PROSPECTIVE_LEDGER_PROTOCOL.md`](../analysis/PROSPECTIVE_LEDGER_PROTOCOL.md). `ANL-001`: `PR_OPEN` (PR #38); `ANL-002`: `DONE` (PR #40, artefatos servidos em produção); `ANL-003`: incremento 1 `PR_OPEN` (PR #42, aguardando validação de preview), incremento 2 não iniciado. Nada em produção ainda. Ver `ROADMAP.md`.
+- **ANL-001 / ANL-002 / ANL-003** — análise de resultados (ledger prospectivo, backtest, página): decisões `DEC-025` e `DEC-026`, protocolo em [`docs/analysis/PROSPECTIVE_LEDGER_PROTOCOL.md`](../analysis/PROSPECTIVE_LEDGER_PROTOCOL.md). `ANL-001`: `PR_OPEN` (PR #38); `ANL-002`: `DONE` (PR #40, artefatos servidos em produção); `ANL-003`: incremento 1 `DONE` (PR #42, em produção no build `3123c047a982`); incremento 2 `APPROVED`, não iniciado. Nada em produção ainda. Ver `ROADMAP.md`.
 - **OBS-001** — Registro de Pesquisa Observacional: `RESEARCH / PLANNED`. Existe apenas a base de dados do BET-001; **não há painel/análise**.
 
 ## Dívida técnica conhecida, não bloqueante
