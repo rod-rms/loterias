@@ -59,4 +59,4 @@ Limitação conhecida: o horário do sorteio vem de uma estimativa (o calendári
 
 ## 8. Operação
 
-Gerador e pontuador em `scripts/ledger/`; workflow `.github/workflows/ledger.yml` (idempotente, com chave de desligamento `LEDGER_ENABLED`, escrita em `main` serializada com o atualizador de dados). Falhas de tentativa não geram entradas: é preferível nenhuma entrada a uma entrada inválida disfarçada.
+Gerador e pontuador em `scripts/ledger/`; workflow `.github/workflows/ledger.yml` (idempotente, com chave de desligamento `LEDGER_ENABLED`, grupo de concorrência próprio, sem tocar no atualizador de dados: o `push` simples tenta de novo reaplicando o único commit novo sobre o `main` mais recente, sem conflito porque só `public/data/ledger/**` muda). Falhas de tentativa não geram entradas: é preferível nenhuma entrada a uma entrada inválida disfarçada.

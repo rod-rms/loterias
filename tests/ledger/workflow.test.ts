@@ -14,10 +14,20 @@ describe(".github/workflows/ledger.yml", () => {
     expect(wf.match(/^permissions:/gm)).toHaveLength(1);
   });
 
-  it("serializes writes to main with the SAME concurrency group as the data updater, never cancelling", () => {
-    const group = (text: string) => /concurrency:\n\s+group: (\S+)\n\s+cancel-in-progress: false/.exec(text)?.[1];
-    expect(group(wf)).toBe("main-data-writes");
-    expect(group(read(".github/workflows/data-update.yml"))).toBe("main-data-writes");
+  it("has its OWN concurrency group (ledger runs never overlap) and never cancels", () => {
+    expect(/concurrency:\n\s+group: ledger-writes\n\s+cancel-in-progress: false/.test(wf)).toBe(true);
+  });
+
+  it("the data updater is untouched by the ledger: no concurrency block at all, nothing ledger-related", () => {
+    const upd = read(".github/workflows/data-update.yml");
+    expect(upd).not.toMatch(/^concurrency:/m);
+    expect(upd).not.toMatch(/ledger|main-data-writes/i);
+  });
+
+  it("the push retry re-applies the single new commit with a rebase before each retry, staging only public/data/ledger", () => {
+    expect(wf).toContain("git pull --rebase origin main");
+    expect(wf).toMatch(/for attempt in 1 2 3/);
+    expect(wf).toContain("git add public/data/ledger");
   });
 
   it("has the LEDGER_ENABLED kill switch on the job", () => {

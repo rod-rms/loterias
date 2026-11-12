@@ -20,9 +20,11 @@ name: Prospective ledger
 # KILL SWITCH: set the repository variable LEDGER_ENABLED to 'false' (Settings > Secrets and variables > Actions >
 # Variables) and every run is skipped. Or disable this workflow in the Actions tab. Never hand-edit entries.
 #
-# Writes to main are serialized with the data updater through the shared `main-data-writes` concurrency group
-# (data-update.yml uses the same group), and the push is a plain `git push` (no force) with a short retry that only
-# re-applies this job's single new commit on top of the latest main.
+# Ledger runs never overlap each other (own concurrency group). The data updater is deliberately NOT part of that group:
+# GitHub keeps only ONE pending run per group, so a queued ledger run could silently replace a queued updater run, and
+# the updater is the critical path. Instead the push is a plain `git push` (no force) with a retry that re-applies this
+# job's single new commit on top of the latest main; that is conflict-free because this job only changes
+# public/data/ledger/**, which the updater never touches.
 on:
   schedule:
     - cron: "30 8,12,16,19 * * *"
@@ -33,7 +35,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: main-data-writes
+  group: ledger-writes
   cancel-in-progress: false
 
 jobs:
