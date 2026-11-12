@@ -4,7 +4,7 @@ import { normalQuantile } from "../../../shared/lib/analysisStats";
 import type { ModalityAnalysis } from "../../../shared/lib/backtestAnalysis";
 import type { LedgerSummary } from "../../../shared/lib/ledgerSummary";
 import type { Modality } from "../../../shared/types";
-import { CHANCE, MUTED, NEUTRAL, countLabel, dateBr, nf, one, roundedRange, strategyLabel, type Period } from "./format";
+import { CHANCE, MUTED, NEUTRAL, countLabel, dateBr, fmt, nf, one, roundedRange, strategyLabel, type Period } from "./format";
 
 /** Lay-reader view of the backtest (sections 1-6 of the page). Simple wording; technical vocabulary lives only in the technical disclosure. */
 
@@ -88,7 +88,7 @@ export function ShortAnswer({ a, period }: { a: ModalityAnalysis; period: Period
       {detectable.length === 0 ? (
         <>
           <p className="mt-2 text-brand-text">
-            Em {n} sorteios passados{when}, todas as estratégias fizeram em média {roundedRange(means)} {unit.plural} por jogo, o mesmo que jogos feitos ao acaso ({one(a.reference.meanHits)}).{" "}
+            Em {n} sorteios passados{when}, todas as estratégias fizeram em média {roundedRange(means, 3)} {unit.plural} por jogo; ao acaso, {fmt(a.reference.meanHits, 3)}.{" "}
             <strong>Nenhuma estratégia aumenta a chance de ganhar.</strong> O que elas mudam é como os seus 6 jogos se distribuem.
           </p>
         </>
@@ -127,11 +127,11 @@ export function AverageChart({ a }: { a: ModalityAnalysis }) {
             <div className="flex items-center justify-between gap-2 text-sm">
               <span className="min-w-0 font-medium text-brand-text">{strategyLabel(s.strategyId)}</span>
               <span className="flex shrink-0 items-center gap-2">
-                <span className="font-mono text-base font-semibold tabular-nums">{one(s.meanHits.mean)}</span>
+                <span className="font-mono text-base font-semibold tabular-nums">{fmt(s.meanHits.mean, 3)}</span>
                 <Badge kind={s.differenceVsReference} />
               </span>
             </div>
-            <Strip lo={ax.lo} hi={ax.hi} band={a.chanceBand} line={a.reference.meanHits} label={`${strategyLabel(s.strategyId)}: média de ${one(s.meanHits.mean)} ${unit.plural} por jogo; acaso ${one(a.reference.meanHits)}`}>
+            <Strip lo={ax.lo} hi={ax.hi} band={a.chanceBand} line={a.reference.meanHits} label={`${strategyLabel(s.strategyId)}: média de ${fmt(s.meanHits.mean, 3)} ${unit.plural} por jogo; acaso ${fmt(a.reference.meanHits, 3)}`}>
               <circle cx={x(s.meanHits.mean)} cy={12} r={5} fill={NEUTRAL} stroke="#101729" strokeWidth={1.5} />
             </Strip>
           </li>
@@ -139,7 +139,7 @@ export function AverageChart({ a }: { a: ModalityAnalysis }) {
       </ul>
       <AxisLabels lo={ax.lo} mid={ax.mid} hi={ax.hi} format={(v) => nf(v % 1 === 0 ? 0 : 1).format(v)} />
       <ChanceLegend>
-        Linha verde: acaso ({one(a.reference.meanHits)}). Faixa verde clara: variação normal do acaso para {a.meta.range.contestsCount} sorteios. A escala é fixa, para o ruído não parecer diferença.
+        Linha verde: acaso ({fmt(a.reference.meanHits, 3)}). Faixa verde clara: variação normal do acaso para {a.meta.range.contestsCount} sorteios. A escala é fixa, para o ruído não parecer diferença.
       </ChanceLegend>
     </Card>
   );
@@ -281,13 +281,27 @@ export function SpreadChart({ a }: { a: ModalityAnalysis }) {
 
 // ---- 6. Prospective test -----------------------------------------------------------------------------------------------
 
+/** Registered draws after which a first reading is planned (about 30). A progress marker only; no promise about the reading. */
+const LEDGER_READING_TARGET = 30;
+
 export function LedgerCard({ ledger }: { ledger: { lotofacil: LedgerSummary | "unavailable" | null; megasena: LedgerSummary | "unavailable" | null } }) {
-  const line = (label: string, s: LedgerSummary | "unavailable" | null, reading: string) => (
-    <li key={label}>
-      <strong className="text-brand-text">{label}:</strong>{" "}
-      {s === null ? "carregando…" : s === "unavailable" ? "contagem indisponível agora" : `${s.registeredDraws} ${s.registeredDraws === 1 ? "sorteio registrado" : "sorteios registrados"}`}. Primeira leitura: {reading}.
-    </li>
-  );
+  const line = (label: string, s: LedgerSummary | "unavailable" | null, reading: string) => {
+    const n = s !== null && s !== "unavailable" ? s.registeredDraws : null;
+    return (
+      <li key={label}>
+        <p>
+          <strong className="text-brand-text">{label}:</strong>{" "}
+          {s === null ? "carregando…" : n === null ? "contagem indisponível agora" : `${n} de ${LEDGER_READING_TARGET} sorteios registrados`}
+        </p>
+        {n !== null && (
+          <div role="progressbar" aria-label={`Sorteios registrados da ${label}`} aria-valuemin={0} aria-valuemax={LEDGER_READING_TARGET} aria-valuenow={Math.min(n, LEDGER_READING_TARGET)} className="mt-1 h-2 w-full overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-brand-actionText" style={{ width: `${Math.min(100, (n / LEDGER_READING_TARGET) * 100)}%` }} />
+          </div>
+        )}
+        <p className="mt-1 text-xs">Primeira leitura: {reading}.</p>
+      </li>
+    );
+  };
   const first = [ledger.lotofacil, ledger.megasena].flatMap((s) => (s && s !== "unavailable" && s.firstGeneratedAt ? [s.firstGeneratedAt] : [])).sort()[0];
   return (
     <section aria-label="Teste de verdade em andamento" className="rounded-xl border border-brand-border bg-brand-surface p-4" data-testid="ledger-card">
@@ -295,7 +309,7 @@ export function LedgerCard({ ledger }: { ledger: { lotofacil: LedgerSummary | "u
       <p className="mt-2 text-sm text-brand-textMuted">
         {dateBr(first) ? `Desde ${dateBr(first)}` : "Desde 12/11/2026"}, o app registra os jogos de cada estratégia antes de cada sorteio. Só depois do resultado eles são conferidos. É o único teste que não depende de ter olhado o passado.
       </p>
-      <ul className="mt-2 space-y-1 text-sm text-brand-textMuted">
+      <ul className="mt-2 space-y-3 text-sm text-brand-textMuted">
         {line("Lotofácil", ledger.lotofacil, "por volta do fim de dezembro de 2026 (cerca de 30 sorteios)")}
         {line("Mega-Sena", ledger.megasena, "por volta do fim de janeiro de 2027 (cerca de 30 sorteios)")}
       </ul>

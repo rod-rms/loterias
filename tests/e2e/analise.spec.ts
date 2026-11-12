@@ -20,7 +20,7 @@ test.describe("Análise de resultados (360 px, real artifacts)", () => {
     await expect(page.getByTestId("short-answer")).toContainText("Nenhuma estratégia aumenta a chance de ganhar");
     await expect(page.getByTestId("short-answer")).toContainText(/de \d{2}\/\d{2}\/\d{4} a \d{2}\/\d{2}\/\d{4}/);
     for (const id of ["media", "premios", "melhor-pior"]) await expect(page.getByTestId(`chart-${id}`)).toBeVisible();
-    await expect(page.getByTestId("ledger-card")).toContainText(/\d+ sorteios? registrados?/);
+    await expect(page.getByTestId("ledger-card")).toContainText(/\d+ de 30 sorteios registrados/);
     await expect(page.getByTestId("analysis-disclaimer")).toContainText("não garantem nem preveem sorteios futuros");
     await expect(page.getByTestId("audit-footer")).toContainText("bt-lotofacil-3388-3827");
     await expectNoHorizontalOverflow(page);

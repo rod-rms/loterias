@@ -175,7 +175,7 @@ describe("AnalisePage (lay view)", () => {
     const answer = await screen.findByTestId("short-answer");
     expect(answer).toHaveTextContent("Em 60 sorteios passados");
     expect(answer).toHaveTextContent(/de \d{2}\/\d{2}\/\d{4} a \d{2}\/\d{2}\/\d{4}/);
-    expect(answer).toHaveTextContent("o mesmo que jogos feitos ao acaso (9,0)");
+    expect(answer).toHaveTextContent(/em média (entre )?\d,\d{3}( e \d,\d{3})? pontos por jogo; ao acaso, 9,000/);
     expect(answer).toHaveTextContent("Nenhuma estratégia aumenta a chance de ganhar");
     const main = screen.getByTestId("main-view");
     expect(main.firstElementChild).toBe(answer);
@@ -186,7 +186,8 @@ describe("AnalisePage (lay view)", () => {
     expect(ledger).toHaveTextContent("fim de dezembro de 2026");
     expect(ledger).toHaveTextContent("fim de janeiro de 2027");
     expect(ledger).toHaveTextContent("otimista");
-    await waitFor(() => expect(ledger).toHaveTextContent(/\d+ sorteios? registrados?/));
+    await waitFor(() => expect(ledger).toHaveTextContent(/\d+ de 30 sorteios registrados/));
+    expect(within(ledger).getAllByRole("progressbar")).toHaveLength(2);
     expect(screen.getByTestId("analysis-disclaimer")).toHaveTextContent("não garantem nem preveem sorteios futuros");
     expect(screen.getByTestId("audit-footer")).toHaveTextContent("bt-lotofacil-51-110-abcdef012345");
   });
@@ -196,7 +197,7 @@ describe("AnalisePage (lay view)", () => {
     renderPage();
     await screen.findByTestId("short-answer");
     await user.click(screen.getByRole("button", { name: "Mega-Sena" }));
-    await waitFor(() => expect(screen.getByTestId("short-answer")).toHaveTextContent("o mesmo que jogos feitos ao acaso (0,6)"));
+    await waitFor(() => expect(screen.getByTestId("short-answer")).toHaveTextContent(/acertos por jogo; ao acaso, 0,600/));
     expect(screen.getByTestId("short-answer")).toHaveTextContent("raros demais");
     const prizes = screen.getByTestId("chart-premios");
     expect(prizes).toHaveTextContent("Quadra");
