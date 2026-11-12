@@ -1,4 +1,6 @@
-import { act, render, screen, waitFor, within } from "@testing-library/react";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -54,6 +56,14 @@ function makeFile(modality: Modality, opts: { contests?: number; override?: Reco
 const realFetch = globalThis.fetch;
 function serve(files: Partial<Record<Modality, unknown>>) {
   globalThis.fetch = vi.fn(async (input: Parameters<typeof fetch>[0]) => {
+    const url = String(input);
+    const ds = /data\/(lotofacil|megasena)\/results\.json/.exec(url)?.[1];
+    if (ds) return new Response(readFileSync(path.join(process.cwd(), `public/data/${ds}/results.json`), "utf8"), { status: 200 });
+    const lg = /ledger\/(lotofacil|megasena)\/entries-(\d{4}-\d{2})\.json/.exec(url);
+    if (lg) {
+      const f = path.join(process.cwd(), `public/data/ledger/${lg[1]}/entries-${lg[2]}.json`);
+      return existsSync(f) ? new Response(readFileSync(f, "utf8"), { status: 200 }) : new Response("nf", { status: 404 });
+    }
     const m = /backtest\/(\w+)\/backtest\.json/.exec(String(input))?.[1] as Modality | undefined;
     if (m && files[m] !== undefined) return new Response(JSON.stringify(files[m]), { status: 200 });
     return new Response("nf", { status: 404 });
@@ -116,62 +126,133 @@ describe("analyzeBacktest (hand-checked)", () => {
   });
 });
 
-describe("AnalisePage", () => {
-  it("renders the charts, n, the reference, the disclaimer and the audit footer; says no difference is detectable", async () => {
+describe("lay-view numbers (hand-checked)", () => {
+  it("worst/mean/best per portfolio and prize counts", () => {
+    const f = makeFile("lotofacil", { contests: 4 });
+    const id = "lotofacil.rms_v2";
+    const hits: number[][] = [
+      [9, 9, 9, 9, 9, 9],
+      [11, 10, 9, 9, 8, 7],
+      [12, 8, 8, 9, 9, 9],
+      [9, 9, 9, 9, 9, 9],
+    ];
+    f.rows.filter((r) => r.strategyId === id).forEach((r, i) => {
+      r.hitsPerTicket = hits[i]!;
+      r.bestHits = Math.max(...hits[i]!);
+    });
+    const a = analyzeBacktest(f);
+    const s = a.strategies.find((x) => x.strategyId === id)!;
+    expect(s.spread.worst).toBeCloseTo((9 + 7 + 8 + 9) / 4, 10);
+    expect(s.spread.best).toBeCloseTo((9 + 11 + 12 + 9) / 4, 10);
+    expect(s.prize.observed).toEqual([1, 1, 0, 0, 0]);
+    expect(s.prize.total).toBe(2);
+    expect(s.prize.per100).toBeCloseTo((2 / 24) * 100, 10);
+    expect(a.control?.strategyId).toBe("lotofacil.uniform_random");
+    // chance band: exact random mean +/- z(99%) * (sd/sqrt 6) / sqrt(n)
+    expect(a.chanceBand.low).toBeLessThan(9);
+    expect(a.chanceBand.high).toBeGreaterThan(9);
+    expect((a.chanceBand.high + a.chanceBand.low) / 2).toBeCloseTo(9, 10);
+  });
+  it("Mega-Sena prize levels are quadra, quina and sena", () => {
+    const a = analyzeBacktest(makeFile("megasena", { contests: 10 }));
+    expect(a.reference.prizeLevels).toEqual([4, 5, 6]);
+    expect(a.reference.prizeChance).toBeCloseTo(0.00043524, 7);
+  });
+  it("user-facing strategy names equal the registry definitions names", async () => {
+    const { LOTOFACIL_STRATEGIES } = await import("../../src/modules/lotofacil/strategies/definitions");
+    const { MEGASENA_STRATEGIES } = await import("../../src/modules/megasena/strategies/definitions");
+    const { STRATEGY_NAMES } = await import("../../src/app/pages/analise/format");
+    for (const d of [...LOTOFACIL_STRATEGIES, ...MEGASENA_STRATEGIES]) expect(STRATEGY_NAMES[d.id]).toBe(d.name);
+  });
+});
+
+const JARGON = [/intervalo de confiança/i, /\bIC\b/, /hipergeom/i, /bonferroni/i, /desvio/i, /funil/i, /p-valor/i, /significân/i, /amostra fina/i, /lotofacil\./, /megasena\./, /backtest/i];
+const FORBIDDEN_EVERYWHERE = ["melhor estratégia", "melhores estratégias", "recomend", "mais acertou", "ranking", "roi", "lucro garantido", "vai sair"];
+
+describe("AnalisePage (lay view)", () => {
+  it("shows the short answer first, with the period dates, the three charts and the prospective-test card", async () => {
     renderPage();
-    expect(await screen.findByTestId("analysis-no-difference")).toHaveTextContent("Nenhuma diferença detectável");
-    for (const id of ["distribuicao", "media", "taxa", "melhor-jogo", "acumulada"]) expect(screen.getByTestId(`chart-${id}`)).toBeInTheDocument();
+    const answer = await screen.findByTestId("short-answer");
+    expect(answer).toHaveTextContent("Em 60 sorteios passados");
+    expect(answer).toHaveTextContent(/de \d{2}\/\d{2}\/\d{4} a \d{2}\/\d{2}\/\d{4}/);
+    expect(answer).toHaveTextContent("o mesmo que jogos feitos ao acaso (9,0)");
+    expect(answer).toHaveTextContent("Nenhuma estratégia aumenta a chance de ganhar");
+    const main = screen.getByTestId("main-view");
+    expect(main.firstElementChild).toBe(answer);
+    for (const id of ["media", "premios", "melhor-pior"]) expect(screen.getByTestId(`chart-${id}`)).toBeInTheDocument();
+    expect(screen.getByTestId("chart-media")).toHaveTextContent("Aleatória distinta");
+    expect(screen.getAllByText("Igual ao acaso")).toHaveLength(5);
+    const ledger = screen.getByTestId("ledger-card");
+    expect(ledger).toHaveTextContent("fim de dezembro de 2026");
+    expect(ledger).toHaveTextContent("fim de janeiro de 2027");
+    expect(ledger).toHaveTextContent("otimista");
+    await waitFor(() => expect(ledger).toHaveTextContent(/\d+ sorteios? registrados?/));
     expect(screen.getByTestId("analysis-disclaimer")).toHaveTextContent("não garantem nem preveem sorteios futuros");
-    expect(screen.getByTestId("analysis-disclaimer")).toHaveTextContent("otimista");
     expect(screen.getByTestId("audit-footer")).toHaveTextContent("bt-lotofacil-51-110-abcdef012345");
-    expect(screen.getByTestId("audit-footer")).toHaveTextContent("a".repeat(64));
-    expect(screen.getByTestId("chart-media")).toHaveTextContent("n = 60 concursos");
-    expect(screen.getByTestId("chart-media")).toHaveTextContent("9,000"); // exact random reference
   });
 
-  it("switches to Mega-Sena and flags the thin sample of the rare-event rate", async () => {
+  it("Mega-Sena: the prize chart is a table of quadra/quina/sena with the too-rare message", async () => {
     const user = userEvent.setup();
     renderPage();
-    await screen.findByTestId("analysis-summary");
+    await screen.findByTestId("short-answer");
     await user.click(screen.getByRole("button", { name: "Mega-Sena" }));
-    await waitFor(() => expect(screen.getByTestId("chart-taxa")).toHaveTextContent("3 ou mais acertos"));
-    expect(screen.getByTestId("chart-taxa")).toHaveTextContent("amostra fina");
-    expect(screen.getByTestId("chart-media")).toHaveTextContent("0,600");
+    await waitFor(() => expect(screen.getByTestId("short-answer")).toHaveTextContent("o mesmo que jogos feitos ao acaso (0,6)"));
+    expect(screen.getByTestId("short-answer")).toHaveTextContent("raros demais");
+    const prizes = screen.getByTestId("chart-premios");
+    expect(prizes).toHaveTextContent("Quadra");
+    expect(prizes).toHaveTextContent("Quina");
+    expect(prizes).toHaveTextContent("Sena");
+    expect(prizes).toHaveTextContent("Esperado ao acaso");
   });
 
-  it("every chart has an info button that opens on click and closes with Escape, and works from the keyboard", async () => {
+  it("main view has no technical jargon (also in the open help balloons); the technical disclosure does", async () => {
     const user = userEvent.setup();
     renderPage();
-    await screen.findByTestId("analysis-summary");
-    for (const id of ["distribuicao", "media", "taxa", "melhor-jogo", "acumulada"]) {
+    await screen.findByTestId("short-answer");
+    const main = screen.getByTestId("main-view");
+    const text = [main.textContent ?? "", screen.getByTestId("analysis-disclaimer").textContent ?? ""];
+    for (const id of ["media", "premios", "melhor-pior"]) {
       const card = screen.getByTestId(`chart-${id}`);
-      const button = within(card).getByRole("button", { name: /^Ajuda sobre o gráfico/ });
-      await user.click(button);
+      await user.click(within(card).getByRole("button", { name: /^Ajuda sobre/ }));
       const tip = within(card).getByRole("tooltip");
-      expect(tip).toHaveTextContent("O que mede");
-      expect(tip).toHaveTextContent("Como ler");
-      expect(tip).toHaveTextContent("O que não afirma");
+      expect((tip.textContent?.match(/[.!?](\s|$)/g) ?? []).length).toBeLessThanOrEqual(3); // at most 3 short sentences
+      text.push(tip.textContent ?? "");
       await user.keyboard("{Escape}");
-      expect(within(card).queryByRole("tooltip")).toBeNull();
     }
-    const first = within(screen.getByTestId("chart-media")).getByRole("button", { name: /^Ajuda sobre o gráfico/ });
-    await user.tab(); // keyboard focus on some control; then focus the info button itself
-    act(() => first.focus());
-    await waitFor(() => expect(within(screen.getByTestId("chart-media")).getByRole("tooltip")).toBeInTheDocument());
+    for (const t of text) for (const re of JARGON) expect(re.test(t), `jargon ${re} in: ${t.slice(0, 80)}`).toBe(false);
+
+    expect(screen.queryByTestId("technical-details")).toBeNull(); // collapsed by default
+    await user.click(screen.getByRole("button", { name: /Detalhes técnicos/ }));
+    const tech = screen.getByTestId("technical-details");
+    expect(tech).toHaveTextContent("Bonferroni");
+    expect(tech).toHaveTextContent("hipergeométrica");
+    expect(within(tech).getByRole("button", { name: "Exportar" })).toBeInTheDocument();
   });
 
-  it("never uses ranking or recommendation wording", async () => {
+  it("never uses ranking or recommendation wording, even with the technical details open, and has no generation link", async () => {
     const user = userEvent.setup();
     const { container } = renderPage();
-    await screen.findByTestId("analysis-summary");
-    const lf = container.textContent ?? "";
-    await user.click(screen.getByRole("button", { name: "Mega-Sena" }));
-    await waitFor(() => expect(screen.getByTestId("chart-media")).toHaveTextContent("0,600"));
-    const all = `${lf} ${container.textContent ?? ""}`.toLowerCase();
-    for (const word of ["melhor estratégia", "melhores estratégias", "recomend", "mais acertou", "ranking", "roi", "lucro garantido", "vai sair"]) {
-      expect(all.includes(word), `forbidden wording: ${word}`).toBe(false);
-    }
+    await screen.findByTestId("short-answer");
+    await user.click(screen.getByRole("button", { name: /Detalhes técnicos/ }));
+    const all = (container.textContent ?? "").toLowerCase();
+    for (const w of FORBIDDEN_EVERYWHERE) expect(all.includes(w), `forbidden wording: ${w}`).toBe(false);
     expect(screen.queryByRole("link", { name: /gerar/i })).toBeNull();
+  });
+
+  it("uses a fixed, non-exaggerating axis for the average chart", async () => {
+    renderPage();
+    await screen.findByTestId("short-answer");
+    const axis = within(screen.getByTestId("chart-media")).getAllByText(/^(8|9|10)$/);
+    expect(axis.map((e) => e.textContent)).toEqual(["8", "9", "10"]);
+  });
+
+  it("flags a difference only under the adjusted rule, in plain words", async () => {
+    serve({ lotofacil: makeFile("lotofacil", { contests: 200, override: { "lotofacil.rms_v2": 12 } }) });
+    renderPage();
+    const answer = await screen.findByTestId("short-answer");
+    expect(answer).toHaveTextContent("RMS v2");
+    expect(answer).toHaveTextContent("acima da variação normal do acaso");
+    expect(screen.getByText("Acima do acaso")).toBeInTheDocument();
   });
 
   it("fails closed with a clear message when the artifact is missing, has another schema version or is inconsistent", async () => {
@@ -179,12 +260,10 @@ describe("AnalisePage", () => {
     const missing = renderPage();
     expect(await screen.findByRole("alert")).toHaveTextContent("Não foi possível mostrar a análise");
     missing.unmount();
-
     serve({ lotofacil: { ...makeFile("lotofacil"), backtestSchemaVersion: 2 } });
     const version = renderPage();
     expect(await screen.findByRole("alert")).toHaveTextContent("Versão do arquivo de backtest incompatível");
     version.unmount();
-
     const broken = makeFile("lotofacil");
     broken.rows.pop();
     serve({ lotofacil: broken });

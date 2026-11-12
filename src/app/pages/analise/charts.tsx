@@ -1,68 +1,9 @@
-import type { ReactNode } from "react";
 import { funnelHalfWidth, normalQuantile, bonferroniLevel } from "../../../shared/lib/analysisStats";
 import { ANALYSIS_LEVEL, FAMILY_SIZE, type BinStat, type Reference, type StrategyStats } from "../../../shared/lib/backtestAnalysis";
 
 /** Hand-rolled SVG charts (no chart library). Text is HTML wherever possible so it stays readable at 360 px. */
 
 import { MUTED, REF, seriesStyle } from "./format";
-
-// ---- dot-and-whisker rows ------------------------------------------------------------------------------------------
-
-export interface WhiskerRow {
-  id: string;
-  label: string;
-  mean: number;
-  low: number;
-  high: number;
-  note?: ReactNode;
-}
-
-/** One row per strategy: label and numbers in HTML, an SVG strip with the interval and the (shared) random reference. */
-export function WhiskerChart({ rows, reference, referenceLabel, format, ariaLabel, includeZero = false }: {
-  rows: WhiskerRow[];
-  reference: number;
-  referenceLabel: string;
-  format: (x: number) => string;
-  ariaLabel: string;
-  includeZero?: boolean;
-}) {
-  const lo0 = Math.min(reference, ...rows.map((r) => r.low), ...(includeZero ? [0] : []));
-  const hi0 = Math.max(reference, ...rows.map((r) => r.high));
-  const pad = (hi0 - lo0) * 0.08 || 0.01;
-  const lo = lo0 - pad;
-  const hi = hi0 + pad;
-  const W = 320;
-  const x = (v: number) => ((v - lo) / (hi - lo)) * W;
-  return (
-    <ul aria-label={ariaLabel} className="space-y-3">
-      {rows.map((r, i) => (
-        <li key={r.id}>
-          <p className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
-            <span className="font-medium text-brand-text">{r.label}</span>
-            <span className="font-mono text-xs tabular-nums text-brand-textMuted">
-              {format(r.mean)} · IC95% [{format(r.low)}; {format(r.high)}]
-            </span>
-          </p>
-          <svg viewBox={`0 0 ${W} 22`} className="mt-1 h-[22px] w-full" role="img" aria-label={`${r.label}: ${format(r.mean)}, intervalo de ${format(r.low)} a ${format(r.high)}; referência aleatória ${format(reference)}`}>
-            <line x1={0} x2={W} y1={11} y2={11} stroke={MUTED} strokeOpacity={0.2} />
-            <line x1={x(reference)} x2={x(reference)} y1={1} y2={21} stroke={REF} strokeWidth={2} />
-            <line x1={x(r.low)} x2={x(r.high)} y1={11} y2={11} stroke={seriesStyle(i).color} strokeWidth={3} strokeLinecap="round" />
-            <line x1={x(r.low)} x2={x(r.low)} y1={6} y2={16} stroke={seriesStyle(i).color} strokeWidth={2} />
-            <line x1={x(r.high)} x2={x(r.high)} y1={6} y2={16} stroke={seriesStyle(i).color} strokeWidth={2} />
-            <circle cx={x(r.mean)} cy={11} r={4} fill="#101729" stroke={seriesStyle(i).color} strokeWidth={2} />
-          </svg>
-          {r.note && <p className="text-xs text-brand-textMuted">{r.note}</p>}
-        </li>
-      ))}
-      <li className="flex items-center gap-2 text-xs text-brand-textMuted">
-        <svg viewBox="0 0 16 12" className="h-3 w-4" aria-hidden>
-          <line x1={8} x2={8} y1={0} y2={12} stroke={REF} strokeWidth={2} />
-        </svg>
-        Linha verde: {referenceLabel} ({format(reference)})
-      </li>
-    </ul>
-  );
-}
 
 // ---- distribution (observed share vs exact) --------------------------------------------------------------------
 

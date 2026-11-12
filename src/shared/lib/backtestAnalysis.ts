@@ -4,7 +4,7 @@
  * nothing here ranks, recommends or predicts.
  */
 import { BACKTEST_TICKETS_PER_STRATEGY, type BacktestFile } from "./backtestSchemas";
-import { bonferroniLevel, bootstrapMeanInterval, cumulativeDifference, excludesReference, expectedMaxOfK, meanInterval, mean, type Interval } from "./analysisStats";
+import { normalQuantile, bonferroniLevel, bootstrapMeanInterval, cumulativeDifference, excludesReference, expectedMaxOfK, meanInterval, mean, type Interval } from "./analysisStats";
 import { hitsDistributionFor } from "./hitsDistribution";
 import type { Modality } from "../types";
 
@@ -50,6 +50,9 @@ export interface BinStat {
   share: Interval;
 }
 
+/** Prize tiers shown in the main view (Mega-Sena: quadra, quina, sena; Lotofácil: 11 to 15 points). */
+export const PRIZE_LEVELS: Record<Modality, number[]> = { lotofacil: [11, 12, 13, 14, 15], megasena: [4, 5, 6] };
+
 export interface StrategyStats {
   strategyId: string;
   strategyVersion: string;
@@ -65,6 +68,10 @@ export interface StrategyStats {
   rate: { events: number; tickets: number; share: Interval; thin: boolean };
   bestHits: Interval;
   bins: BinStat[];
+  /** Prize tickets (lay view): observed counts per level and the total at or above the first prize level. */
+  prize: { levels: number[]; observed: number[]; total: number; per100: number };
+  /** Average worst / mean / best ticket of the portfolio over the contests (lay view). */
+  spread: { worst: number; mean: number; best: number };
   /** Cumulative (portfolio mean hits - random mean), one point per contest. */
   cumulative: number[];
 }
@@ -77,6 +84,10 @@ export interface Reference {
   rateThreshold: number;
   rateTheory: number;
   bestHitsMean: number;
+  /** First prize level (11 points / quadra) and its exact chance per ticket. */
+  prizeLevels: number[];
+  prizeChance: number;
+  prizeExpectedByLevel: number[];
 }
 
 export interface ModalityAnalysis {
@@ -86,6 +97,10 @@ export interface ModalityAnalysis {
   bins: DistributionBin[];
   /** True when at least one strategy's family-adjusted interval excludes the random mean. */
   anyDetectable: boolean;
+  /** Normal variation of chance for the average (Bonferroni-adjusted level), as a band around the exact random mean. */
+  chanceBand: { low: number; high: number; level: number };
+  /** Observed portfolio of the empirical random control (uniform_random) from the SAME backtest, or null. */
+  control: { strategyId: string; spread: StrategyStats["spread"]; prizePer100: number } | null;
   meta: { runId: string; datasetSha256: string; codeCommit: string; generatedAt: string; range: BacktestFile["range"]; caveats: string[]; seedTemplate: string };
 }
 
@@ -99,6 +114,9 @@ export function referenceFor(modality: Modality): Reference {
     rateThreshold: threshold,
     rateTheory: dist.pmf.reduce((s, p, h) => (h >= threshold ? s + p : s), 0),
     bestHitsMean: expectedMaxOfK(dist.pmf, BACKTEST_TICKETS_PER_STRATEGY),
+    prizeLevels: PRIZE_LEVELS[modality],
+    prizeChance: dist.pmf.reduce((sum, p, h) => (h >= PRIZE_LEVELS[modality][0]! ? sum + p : sum), 0),
+    prizeExpectedByLevel: PRIZE_LEVELS[modality].map((h) => dist.pmf[h]!),
   };
 }
 
@@ -134,6 +152,18 @@ export function analyzeBacktest(file: BacktestFile): ModalityAnalysis {
         thin: events < THIN_EVENTS,
       },
       bestHits: meanInterval(rows.map((r) => r.bestHits), ANALYSIS_LEVEL),
+      prize: (() => {
+        const levels = PRIZE_LEVELS[modality];
+        const all = rows.flatMap((r) => r.hitsPerTicket);
+        const observed = levels.map((lv) => all.filter((h) => h === lv).length);
+        const total = all.filter((h) => h >= levels[0]!).length;
+        return { levels, observed, total, per100: all.length ? (total / all.length) * 100 : 0 };
+      })(),
+      spread: {
+        worst: mean(rows.map((r) => Math.min(...r.hitsPerTicket))),
+        mean: mean(portfolioMeans),
+        best: mean(rows.map((r) => r.bestHits)),
+      },
       bins: bins.map((bin) => ({
         label: bin.label,
         theory: bin.theory,
@@ -143,10 +173,16 @@ export function analyzeBacktest(file: BacktestFile): ModalityAnalysis {
     };
   });
 
+  const zFam = normalQuantile(1 - (1 - familyLevel) / 2);
+  const nContests = file.range.contestsCount;
+  const bandHalf = (zFam * reference.portfolioSd) / Math.sqrt(nContests);
+  const controlStats = strategies.find((x) => x.strategyId === `${modality}.uniform_random`);
   return {
     modality,
     reference,
     strategies,
+    chanceBand: { low: reference.meanHits - bandHalf, high: reference.meanHits + bandHalf, level: familyLevel },
+    control: controlStats ? { strategyId: controlStats.strategyId, spread: controlStats.spread, prizePer100: controlStats.prize.per100 } : null,
     bins,
     anyDetectable: strategies.some((s) => s.differenceVsReference !== "none"),
     meta: { runId: file.runId, datasetSha256: file.datasetSha256, codeCommit: file.codeCommit, generatedAt: file.generatedAt, range: file.range, caveats: file.caveats, seedTemplate: file.parameters.seedTemplate },
