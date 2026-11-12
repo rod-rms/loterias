@@ -5,3 +5,6 @@
  * version string.
  */
 export const APP_VERSION = __APP_VERSION__;
+
+/** Short commit SHA of the build ("local" outside CI/Cloudflare); shown in the audit footer of the analysis page. */
+export const BUILD_COMMIT = __BUILD_COMMIT__;

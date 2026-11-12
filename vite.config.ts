@@ -22,6 +22,8 @@ export default defineConfig({
   // Never hard-code a version string in a component; import __APP_VERSION__.
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    // Audit metadata for the preview/production build (Cloudflare Pages or GitHub Actions provide the SHA at build time).
+    __BUILD_COMMIT__: JSON.stringify((process.env.CF_PAGES_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local").slice(0, 12)),
   },
   test: {
     environment: "jsdom",

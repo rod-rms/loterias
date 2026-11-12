@@ -56,6 +56,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavLink to="/carteiras" className={compactNavLinkClass}>
                 Meus jogos salvos
               </NavLink>
+              <NavLink to="/analise" className={compactNavLinkClass}>
+                Análise
+              </NavLink>
               <NavLink to="/sobre" className={compactNavLinkClass}>
                 Sobre
               </NavLink>
@@ -76,6 +79,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav aria-label="Navegação principal" className="ml-auto flex items-center gap-5">
             <NavLink to="/carteiras" className={navLinkClass}>
               Meus jogos salvos
+            </NavLink>
+            <NavLink to="/analise" className={navLinkClass}>
+              Análise de resultados
             </NavLink>
             <NavLink to="/sobre" className={navLinkClass}>
               Sobre

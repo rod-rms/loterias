@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppShell } from "../layout/AppShell";
 import { Home } from "../pages/Home";
@@ -5,6 +6,9 @@ import { GerarPage } from "../pages/GerarPage";
 import { CarteirasPage } from "../pages/CarteirasPage";
 import { MetodologiaPage } from "../pages/MetodologiaPage";
 import { SobrePage } from "../pages/SobrePage";
+
+// Lazy: the analysis page and its statistics code are only downloaded when this route is opened.
+const AnalisePage = lazy(() => import("../pages/AnalisePage").then((m) => ({ default: m.AnalisePage })));
 
 function withShell(children: React.ReactNode) {
   return <AppShell>{children}</AppShell>;
@@ -34,5 +38,13 @@ export const router = createBrowserRouter([
   { path: "/megasena/carteiras", element: withShell(<CarteirasPage modality="megasena" />) },
   { path: "/megasena/metodologia", element: withShell(<MetodologiaPage modality="megasena" />) },
   { path: "/carteiras", element: withShell(<CarteirasPage />) },
+  {
+    path: "/analise",
+    element: withShell(
+      <Suspense fallback={<p role="status" className="text-sm text-brand-textMuted">Carregando…</p>}>
+        <AnalisePage />
+      </Suspense>,
+    ),
+  },
   { path: "/sobre", element: withShell(<SobrePage />) },
 ]);
