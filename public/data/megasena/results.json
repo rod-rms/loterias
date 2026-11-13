@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "modality": "megasena",
   "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena",
-  "importedAt": "2026-11-11T08:23:40.924Z",
-  "latestContest": 3084,
+  "importedAt": "2026-11-13T08:45:40.059Z",
+  "latestContest": 3085,
   "draws": [
     {
       "contest": 1,
@@ -37011,6 +37011,18 @@
         30,
         31,
         37
+      ]
+    },
+    {
+      "contest": 3085,
+      "drawDate": "2026-11-12",
+      "numbers": [
+        10,
+        27,
+        29,
+        37,
+        39,
+        59
       ]
     }
   ]
