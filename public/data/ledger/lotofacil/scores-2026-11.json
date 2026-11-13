@@ -1,0 +1,92 @@
+{
+  "ledgerSchemaVersion": 1,
+  "modality": "lotofacil",
+  "month": "2026-11",
+  "scores": [
+    {
+      "targetContest": 3828,
+      "strategyId": "lotofacil.rms_v2",
+      "strategyVersion": "2.1.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        9,
+        8,
+        9,
+        10,
+        7,
+        10
+      ],
+      "bestHits": 10,
+      "resultNumbersSha256": "6f2732905743a507516ea1d0dbfe1d5536e40707c59aee1ba0957de2620b523f"
+    },
+    {
+      "targetContest": 3828,
+      "strategyId": "lotofacil.max_diversification",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        7,
+        9,
+        9,
+        10,
+        9,
+        8
+      ],
+      "bestHits": 10,
+      "resultNumbersSha256": "6f2732905743a507516ea1d0dbfe1d5536e40707c59aee1ba0957de2620b523f"
+    },
+    {
+      "targetContest": 3828,
+      "strategyId": "lotofacil.max_coverage_11",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        10,
+        8,
+        7,
+        10,
+        9,
+        9
+      ],
+      "bestHits": 10,
+      "resultNumbersSha256": "6f2732905743a507516ea1d0dbfe1d5536e40707c59aee1ba0957de2620b523f"
+    },
+    {
+      "targetContest": 3828,
+      "strategyId": "lotofacil.max_coverage_12",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        10,
+        8,
+        9,
+        8,
+        10,
+        8
+      ],
+      "bestHits": 10,
+      "resultNumbersSha256": "6f2732905743a507516ea1d0dbfe1d5536e40707c59aee1ba0957de2620b523f"
+    },
+    {
+      "targetContest": 3828,
+      "strategyId": "lotofacil.uniform_random",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        9,
+        8,
+        9,
+        9,
+        8,
+        10
+      ],
+      "bestHits": 10,
+      "resultNumbersSha256": "6f2732905743a507516ea1d0dbfe1d5536e40707c59aee1ba0957de2620b523f"
+    }
+  ]
+}

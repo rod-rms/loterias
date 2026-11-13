@@ -1,0 +1,92 @@
+{
+  "ledgerSchemaVersion": 1,
+  "modality": "megasena",
+  "month": "2026-11",
+  "scores": [
+    {
+      "targetContest": 3085,
+      "strategyId": "megasena.rolling_20_v2",
+      "strategyVersion": "2.1.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "bestHits": 1,
+      "resultNumbersSha256": "ff2aecf978871b29312eb6a5823c8258385a50ebdfa06bcc0415a06e8435d80f"
+    },
+    {
+      "targetContest": 3085,
+      "strategyId": "megasena.max_f4",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        1,
+        2,
+        1,
+        0,
+        1,
+        0
+      ],
+      "bestHits": 2,
+      "resultNumbersSha256": "ff2aecf978871b29312eb6a5823c8258385a50ebdfa06bcc0415a06e8435d80f"
+    },
+    {
+      "targetContest": 3085,
+      "strategyId": "megasena.max_f5",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        0,
+        2,
+        1,
+        0,
+        1,
+        0
+      ],
+      "bestHits": 2,
+      "resultNumbersSha256": "ff2aecf978871b29312eb6a5823c8258385a50ebdfa06bcc0415a06e8435d80f"
+    },
+    {
+      "targetContest": 3085,
+      "strategyId": "megasena.max_diversification",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "bestHits": 1,
+      "resultNumbersSha256": "ff2aecf978871b29312eb6a5823c8258385a50ebdfa06bcc0415a06e8435d80f"
+    },
+    {
+      "targetContest": 3085,
+      "strategyId": "megasena.uniform_random",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-13T16:39:54.994Z",
+      "valid": true,
+      "hitsPerTicket": [
+        1,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "bestHits": 1,
+      "resultNumbersSha256": "ff2aecf978871b29312eb6a5823c8258385a50ebdfa06bcc0415a06e8435d80f"
+    }
+  ]
+}
