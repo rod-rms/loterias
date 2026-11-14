@@ -125,7 +125,7 @@ describe("GerarPage — two-snapshot generation state", () => {
     fireEvent.change(quantityInput, { target: { value: "3" } });
 
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     // Edit the form AFTER generating, without regenerating.
     fireEvent.change(quantityInput, { target: { value: "8" } });
@@ -157,7 +157,7 @@ describe("GerarPage — two-snapshot generation state", () => {
     const quantityInput = await screen.findByRole("spinbutton", { name: /Quantidade de jogos/ });
     fireEvent.change(quantityInput, { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     fireEvent.change(quantityInput, { target: { value: "8" } });
     await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
@@ -166,7 +166,7 @@ describe("GerarPage — two-snapshot generation state", () => {
 
     await waitFor(() => expect(screen.queryByText(/Você alterou a configuração depois de gerar estes jogos/)).not.toBeInTheDocument());
     expect((quantityInput as HTMLInputElement).value).toBe("3");
-    expect(screen.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Jogos gerados" })).toBeInTheDocument();
   });
 
   it("'Limpar configuração' preserves the displayed result, the resolved snapshot, and creates stale state", async () => {
@@ -180,13 +180,13 @@ describe("GerarPage — two-snapshot generation state", () => {
     const quantityInput = await screen.findByRole("spinbutton", { name: /Quantidade de jogos/ });
     fireEvent.change(quantityInput, { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
     const ticketsBefore = screen.getByRole("list", { name: /Lista de \d+ jogos/ }).innerHTML;
 
     fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
 
     // The result stays visible, unchanged, and is now marked stale.
-    expect(screen.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Jogos gerados" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: /Lista de \d+ jogos/ }).innerHTML).toBe(ticketsBefore);
     await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
 
@@ -209,7 +209,7 @@ describe("GerarPage — two-snapshot generation state", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
     await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
@@ -237,7 +237,7 @@ describe("GerarPage — two-snapshot generation state", () => {
     const quantityInput = await screen.findByRole("spinbutton", { name: /Quantidade de jogos/ });
     fireEvent.change(quantityInput, { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
     const ticketsBefore = screen.getByRole("list", { name: /Lista de \d+ jogos/ }).innerHTML;
 
     fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
@@ -261,14 +261,14 @@ describe("GerarPage — two-snapshot generation state", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     fireEvent.click(screen.getByRole("button", { name: "Limpar configuração" }));
     await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
 
     fireEvent.click(screen.getByRole("button", { name: "Descartar resultado anterior" }));
 
-    expect(screen.queryByRole("heading", { name: "Seus jogos estão prontos" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Jogos gerados" })).not.toBeInTheDocument();
     expect(screen.queryByText(/Você alterou a configuração depois de gerar estes jogos/)).not.toBeInTheDocument();
   });
 });

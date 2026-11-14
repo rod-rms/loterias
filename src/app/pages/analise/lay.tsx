@@ -15,7 +15,7 @@ const UNIT: Record<Modality, { plural: string; singular: string }> = {
 
 function Card({ id, title, help, children }: { id: string; title: string; help: string; children: ReactNode }) {
   return (
-    <section aria-labelledby={`${id}-title`} className="rounded-xl border border-ink-500 bg-ink-700 p-4" data-testid={`chart-${id}`}>
+    <section aria-labelledby={`${id}-title`} className="border-t border-ink-500 pt-4" data-testid={`chart-${id}`}>
       <h2 id={`${id}-title`} className="flex items-center gap-1.5 text-base font-semibold text-ink-100">
         {title}
         <InfoHelp title={title} body={help} label={`Ajuda sobre: ${title}`} />
@@ -83,7 +83,7 @@ export function ShortAnswer({ a, period }: { a: ModalityAnalysis; period: Period
   const prizeName = a.modality === "lotofacil" ? "Jogos premiados (11 pontos ou mais)" : "Jogos com quadra ou mais";
   const detectable = a.strategies.filter((s) => s.differenceVsReference !== "none");
   return (
-    <section aria-label="Resposta curta" className="rounded-xl border border-ink-300 bg-ink-600 p-4" data-testid="short-answer">
+    <section aria-label="Resposta curta" className="border-l-2 border-mod-accent pl-4" data-testid="short-answer">
       <h2 className="text-lg font-semibold text-ink-100">Resposta curta</h2>
       {detectable.length === 0 ? (
         <>
@@ -314,7 +314,7 @@ export function LedgerCard({ ledger }: { ledger: { lotofacil: LedgerSummary | "u
   };
   const first = [ledger.lotofacil, ledger.megasena].flatMap((s) => (s && s !== "unavailable" && s.firstGeneratedAt ? [s.firstGeneratedAt] : [])).sort()[0];
   return (
-    <section aria-label="Teste de verdade em andamento" className="rounded-xl border border-ink-500 bg-ink-700 p-4" data-testid="ledger-card">
+    <section aria-label="Teste de verdade em andamento" className="border-t border-ink-500 pt-4" data-testid="ledger-card">
       <h2 className="text-base font-semibold text-ink-100">Teste de verdade em andamento</h2>
       <p className="mt-2 text-sm text-ink-200">
         {dateBr(first) ? `Desde ${dateBr(first)}` : "Desde 12/11/2026"}, o app registra os jogos de cada estratégia antes de cada sorteio. Só depois do resultado eles são conferidos. É o único teste que não depende de ter olhado o passado.

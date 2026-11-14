@@ -20,7 +20,8 @@ import {
   summarizeBetSelectionResult,
 } from "../../shared/lib/betSelection";
 import { formatDrawNumbers } from "../../shared/utils/numberFormat";
-import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, BackLink, InfoHelp, BetTicketPicker } from "../../shared/components";
+import { SavedPortfolioCard, EmptyState, PortfolioTicketList, ErrorState, InfoHelp, BetTicketPicker } from "../../shared/components";
+import { findModalityById, modalityCssVars, useModalities } from "../../shared/lib/modalityRegistry";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import { groupPortfoliosByDay } from "../../shared/lib/portfolioGrouping";
 import type { LotteryDataset, Modality, SavedPortfolio } from "../../shared/types";
@@ -44,6 +45,8 @@ function buildBetBadges(portfolio: SavedPortfolio): Record<number, { label: stri
 }
 
 export function CarteirasPage({ modality }: { modality?: Modality }) {
+  const modalityEntries = useModalities();
+  const varsFor = (m: Modality) => modalityCssVars(findModalityById(modalityEntries, m)) as React.CSSProperties;
   const [portfolios, setPortfolios] = useState<SavedPortfolio[]>([]);
   const [filterModality, setFilterModality] = useState<Modality | "all">(modality ?? "all");
   const [filterBet, setFilterBet] = useState<"all" | "yes" | "no">("all");
@@ -201,8 +204,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
 
   return (
     <div className="space-y-6">
-      <BackLink to={modality ? `/${modality}/gerar` : "/"} label={modality ? `Voltar para ${MODALITY_LABEL[modality]}` : "Voltar ao início"} />
-      <h1 className="text-2xl font-semibold">Meus jogos salvos</h1>
+      <h1 className="text-2xl font-semibold">{modality ? `Meus jogos salvos: ${MODALITY_LABEL[modality]}` : "Meus jogos salvos"}</h1>
 
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm">
@@ -290,8 +292,8 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
         <div className="space-y-6">
           {dayGroups.slice(0, visibleDayGroups).map((group) => (
             <section key={group.dayKey} aria-label={group.label} className="space-y-3">
-              <h2 className="sticky top-0 z-10 border-b border-ink-500 bg-ink-900/95 py-1 text-sm font-semibold text-ink-200">{group.label}</h2>
-              <div className="grid gap-3 md:grid-cols-2">
+              <h2 className="sticky top-0 z-10 border-b border-ink-500 bg-ink-900/95 py-1 text-xs font-medium uppercase tracking-wide text-ink-300 lg:top-0">{group.label}</h2>
+              <div className="grid gap-px bg-ink-500 md:grid-cols-2">
                 {group.portfolios.map((p) => (
                   <Fragment key={p.id}>
                   <SavedPortfolioCard
@@ -312,8 +314,8 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   {/* Bet editor opens right below the card whose button was clicked, spanning the full grid row
                       (same pattern as the details panel below). It sits before the details when both are open. */}
                   {editingBet && editingBet.portfolio.id === p.id && (
-                    <div ref={editorRef} className="scroll-mt-16 md:col-span-2">
-                      <div role="dialog" aria-modal="true" aria-label="Registrar jogos apostados" className="space-y-3 rounded-xl border border-ink-500 bg-ink-700 p-4">
+                    <div ref={editorRef} style={varsFor(p.modality)} className="scroll-mt-16 md:col-span-2">
+                      <div role="dialog" aria-modal="true" aria-label="Registrar jogos apostados" className="space-y-3 rounded border border-ink-400 bg-ink-700 p-4 shadow-overlay">
                         <h2 ref={editorHeadingRef} tabIndex={-1} className="font-semibold outline-none">Jogos apostados</h2>
                         <p className="text-sm text-ink-200">
                           A carteira gerada continua completa ({editingBet.portfolio.tickets.length} jogos). Aqui você só registra quais deles foram realmente apostados.
@@ -350,8 +352,8 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   )}
                   {/* Details open right below the card that was opened, spanning the full grid row. */}
                   {selected && selected.id === p.id && (
-                    <div key={`${p.id}-detail`} className="md:col-span-2">
-              <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-ink-500 bg-ink-700 p-4">
+                    <div key={`${p.id}-detail`} style={varsFor(p.modality)} className="md:col-span-2">
+              <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded border border-ink-400 bg-ink-700 p-4 shadow-overlay">
                 <div className="mb-3 flex items-center justify-between">
                   <h2 className="font-semibold">Detalhes: {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
                   <button type="button" onClick={() => setSelected(null)} className="rounded border border-ink-500 px-2 py-1 text-sm">
@@ -380,7 +382,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   const comparison = describeBetComparison(betSummary);
                   return (
                     <>
-                      <div className="mb-3 space-y-2 rounded-lg border border-ink-500 bg-ink-600 p-3 text-sm">
+                      <div className="mb-3 space-y-2 border-b border-ink-500 pb-3 text-sm">
                         <div>
                           <p className="text-xs font-medium uppercase tracking-wide text-ink-200">Resultado oficial, concurso {checkedResult.contest}</p>
                           <p className="mt-0.5 font-mono text-base text-ink-100">{formatDrawNumbers(checkedResult.numbers)}</p>

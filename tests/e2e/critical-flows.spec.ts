@@ -8,7 +8,7 @@ async function selectStrategy(page: Page, name: string) {
 
 async function generateAndWait(page: Page) {
   await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+  await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
 }
 
 interface DatasetSnapshot {
@@ -436,7 +436,7 @@ test.describe("LotoAtlas — critical flows", () => {
       page.getByText("Você alterou a configuração depois de gerar estes jogos. Os jogos abaixo ainda correspondem à configuração anterior."),
     ).toBeVisible();
     // The previous result must still be shown, unchanged, not silently regenerated.
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible();
     const stillSameTickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
     expect(stillSameTickets).toBe(firstTickets);
   });
@@ -490,7 +490,7 @@ test.describe("LotoAtlas — critical flows", () => {
 
     // The form was reset (no strategy selected), but the result stays visible and unchanged.
     await expect(page.getByText("Escolha uma opção acima para continuar.")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible();
     const ticketsAfterClear = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
     expect(ticketsAfterClear).toBe(firstTickets);
 
@@ -525,7 +525,7 @@ test.describe("LotoAtlas — critical flows", () => {
     // Now clear again and use the explicit discard action.
     await page.getByRole("button", { name: "Limpar configuração" }).click();
     await page.getByRole("button", { name: "Descartar resultado anterior" }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
     await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toHaveCount(0);
   });
 
@@ -577,7 +577,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await expect(page.getByText(new RegExp(`próximo concurso disponível é o ${ds.nextContest}`))).toBeVisible();
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
     await expect(page.getByRole("alert").first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
   });
 
   test("41. Lotofácil: fluxo histórico equivalente com rótulos de 11 a 15 acertos", async ({ page }) => {

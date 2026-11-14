@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import { loadDataset, loadGameConfig, suggestNextContest } from "../../shared/lib/dataLoaders";
 import { useGenerationWorker } from "../../shared/lib/useGenerationWorker";
@@ -23,7 +22,6 @@ import {
   ResponsibleGamingNotice,
   Disclosure,
   ExportMenu,
-  BackLink,
   BetTicketPicker,
   HistoricalContestNotice,
   NextContestNotice,
@@ -482,25 +480,13 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
   return (
     <div className="space-y-8">
-      <BackLink to="/" label="Voltar ao início" />
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
-        <nav aria-label="Outras páginas desta modalidade" className="flex gap-4 text-sm font-medium text-ink-200">
-          <Link to={`/${modality}/carteiras`} className="underline-offset-2 hover:text-ink-100 hover:underline">
-            Meus jogos salvos
-          </Link>
-          <Link to={`/${modality}/metodologia`} className="underline-offset-2 hover:text-ink-100 hover:underline">
-            Metodologia
-          </Link>
-        </nav>
-      </div>
+      <h1 className="text-2xl font-semibold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
 
       <section aria-labelledby="step-strategy">
-        <h2 id="step-strategy" className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-200">
+        <h2 id="step-strategy" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
           1. O que você quer priorizar?
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="border-t border-ink-500 lg:grid lg:grid-cols-2 lg:gap-x-8">
           {strategies.map((s) => (
             <StrategyCard key={s.id} strategy={s} selected={s.id === selectedStrategyId} onSelect={() => setSelectedStrategyId(s.id)} />
           ))}
@@ -510,8 +496,8 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
       {strategy && gameConfig && (
         <>
-          <section aria-labelledby="step-quantity">
-            <h2 id="step-quantity" className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-200">
+          <section aria-labelledby="step-quantity" className="border-t border-ink-500 pt-6">
+            <h2 id="step-quantity" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
               2. Quantos jogos você quer gerar?
             </h2>
             <QuantityBudgetInput
@@ -526,8 +512,8 @@ export function GerarPage({ modality }: { modality: Modality }) {
             />
           </section>
 
-          <section aria-labelledby="step-contest" className="space-y-5">
-            <h2 id="step-contest" className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-200">
+          <section aria-labelledby="step-contest" className="space-y-5 border-t border-ink-500 pt-6">
+            <h2 id="step-contest" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
               {supportsNumberCustomization ? "3. Concurso e personalização" : "3. Concurso"}
             </h2>
 
@@ -598,8 +584,8 @@ export function GerarPage({ modality }: { modality: Modality }) {
             )}
           </section>
 
-          <section aria-labelledby="step-summary" className="rounded-xl border border-ink-500 bg-ink-700 p-4">
-            <h2 id="step-summary" className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-200">
+          <section aria-labelledby="step-summary" className="border-t border-ink-500 pt-6">
+            <h2 id="step-summary" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
               4. Revisar e gerar
             </h2>
             <p className="text-base text-ink-100">{summarySentence}</p>
@@ -642,7 +628,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
               disabled={!canGenerateNow}
               title={canGenerateNow ? undefined : "Escolha uma opção e preencha a configuração antes de gerar."}
               onClick={() => handleGenerate()}
-              className="rounded-md bg-amber-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-amber-600"
+              className="rounded bg-amber-500 px-3 py-1.5 text-sm font-medium text-ink-950 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-amber-500"
             >
               Gerar com a nova configuração
             </button>
@@ -660,9 +646,9 @@ export function GerarPage({ modality }: { modality: Modality }) {
       )}
 
       {activeResult && (
-        <section aria-labelledby="step-result" className="space-y-4 rounded-xl border border-ink-500 bg-ink-700 p-4">
+        <section aria-labelledby="step-result" className="space-y-4 border-t-2 border-mod-accent pt-6">
           <h2 id="step-result" className="text-xl font-semibold text-ink-100">
-            Seus jogos estão prontos
+            Jogos gerados
           </h2>
           <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
             <div>
@@ -719,7 +705,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
               </p>
             )}
             {saveOpen && (
-              <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded-lg border border-ink-300 bg-ink-600 p-4">
+              <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded border border-ink-400 bg-ink-600 p-4 shadow-overlay">
                 <h3 className="text-sm font-semibold text-ink-100">Salvar carteira</h3>
                 <p className="text-sm text-ink-200">
                   {activeResult.tickets.length === 1 ? "O jogo gerado será salvo." : `Todos os ${activeResult.tickets.length} jogos gerados serão salvos.`}
@@ -762,7 +748,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
           <PortfolioTicketList tickets={activeResult.tickets} onCopyTicket={(t) => navigator.clipboard?.writeText(t.join(", "))} />
 
           {probability && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
               {primaryKeys
                 .filter((k) => probability[k])
                 .map((key) => {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { DataStatus, Modality, ModalityDataStatus } from "../../shared/types";
-import { ResponsibleGamingNotice, Disclosure, BackLink } from "../../shared/components";
+import { ResponsibleGamingNotice, Disclosure } from "../../shared/components";
 import { loadDataStatus } from "../../shared/lib/dataLoaders";
 import { CAIXA_LOTOFACIL_URL, CAIXA_MEGASENA_URL } from "../../shared/lib/externalLinks";
 
@@ -30,10 +30,9 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
 
   return (
     <div className="max-w-none space-y-8">
-      <BackLink to={`/${modality}/gerar`} label={`Voltar para ${MODALITY_LABEL[modality]}`} />
       <h1 className="text-2xl font-semibold">Metodologia: {MODALITY_LABEL[modality]}</h1>
 
-      <section className="space-y-4 rounded-xl border border-ink-500 bg-ink-700 p-5">
+      <section className="space-y-4 border-t border-ink-500 pt-6">
         <h2 className="text-lg font-semibold text-ink-100">Como este aplicativo funciona</h2>
         <p className="text-ink-200">
           Todas as combinações possíveis de dezenas têm exatamente a mesma chance de serem sorteadas. Nenhuma das opções deste aplicativo prevê quais
@@ -155,7 +154,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
         </div>
       </Disclosure>
 
-      <section className="space-y-3 rounded-xl border border-ink-500 bg-ink-700 p-5" aria-labelledby="dados-atualizacoes">
+      <section className="space-y-3 border-t border-ink-500 pt-6" aria-labelledby="dados-atualizacoes">
         <h2 id="dados-atualizacoes" className="text-lg font-semibold text-ink-100">
           Dados e atualizações
         </h2>

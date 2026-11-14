@@ -56,7 +56,7 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
   }
 
   return (
-    <div className="rounded-lg border border-ink-500 bg-ink-700 p-4">
+    <div className="border-t border-ink-500 pt-4">
       <h3 className="text-sm font-semibold text-ink-100">Comparar com outra opção</h3>
       <p className="mt-1 text-xs text-ink-200">
         Mesma quantidade de jogos ({numberOfTickets}) e as mesmas dezenas obrigatórias/não usadas. Só aparecem abaixo as opções compatíveis. Nenhuma é

@@ -2,7 +2,7 @@ import { ResponsibleGamingNotice } from "../../shared/components";
 
 export function SobrePage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <h1 className="text-2xl font-semibold">Sobre</h1>
       <p className="max-w-2xl text-ink-200">
         LotoAtlas é uma aplicação para construir, comparar, explicar e acompanhar carteiras de Lotofácil e Mega-Sena sob equiprobabilidade, com estratégias

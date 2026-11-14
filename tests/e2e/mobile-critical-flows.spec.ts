@@ -41,7 +41,7 @@ test.describe("LotoAtlas — mobile critical flows (iPhone 13 viewport)", () => 
     await expectNoHorizontalOverflow(page);
 
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
     await expectNoHorizontalOverflow(page);
 
     // Number chips (lottery numbers) must stay legible and the ticket rows must not clip.

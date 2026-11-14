@@ -16,6 +16,7 @@ vi.mock("../../src/shared/lib/dataLoaders", async () => {
 });
 
 import { CarteirasPage } from "../../src/app/pages/CarteirasPage";
+import { withRegistry } from "./fixtures/registry";
 
 function daysAgo(n: number): string {
   const now = new Date();
@@ -29,7 +30,7 @@ function make(id: string, modality: Modality, contest: number, createdAt: string
     tickets: [Array.from({ length: size }, (_, i) => i + 1)], metrics: {}, audit: {}, markedAsBet: false,
   };
 }
-const renderPage = () => render(<MemoryRouter><CarteirasPage /></MemoryRouter>);
+const renderPage = () => render(withRegistry(<MemoryRouter><CarteirasPage /></MemoryRouter>));
 
 beforeEach(async () => {
   await db.portfolios.clear();

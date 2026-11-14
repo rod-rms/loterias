@@ -81,7 +81,7 @@ export function AnalisePage({ modality }: { modality: Modality }) {
         </div>
       )}
 
-      <aside aria-label="Aviso sobre estes resultados" className="rounded-lg border border-ink-500 bg-ink-600 p-4 text-sm text-ink-200" data-testid="analysis-disclaimer">
+      <aside aria-label="Aviso sobre estes resultados" className="border-t border-ink-500 pt-4 text-sm text-ink-200" data-testid="analysis-disclaimer">
         <p>
           <strong className="text-ink-100">Isto descreve o passado.</strong> Os resultados não garantem nem preveem sorteios futuros e não indicam como jogar.
         </p>
@@ -101,7 +101,7 @@ export function AnalisePage({ modality }: { modality: Modality }) {
       )}
 
       {analysis && (
-        <footer aria-label="Metadados de auditoria" className="rounded-lg border border-ink-500 bg-ink-600 p-3 text-xs text-ink-200" data-testid="audit-footer">
+        <footer aria-label="Metadados de auditoria" className="border-t border-ink-500 pt-3 text-xs text-ink-200" data-testid="audit-footer">
           <p className="font-medium text-ink-100">Metadados de auditoria</p>
           <dl className="mt-1 grid gap-x-4 gap-y-0.5 sm:grid-cols-[auto_1fr]">
             <dt>Execução (runId)</dt>
