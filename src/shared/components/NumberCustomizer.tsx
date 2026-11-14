@@ -47,7 +47,7 @@ export function NumberCustomizer({
           className="h-4 w-4 rounded border-brand-border"
         />
         Quer personalizar suas dezenas?
-        <span className="rounded-full bg-brand-surfaceElevated px-2 py-0.5 text-[11px] font-normal text-brand-textMuted">Opcional</span>
+        <span className="rounded-full bg-brand-surfaceElevated px-2 py-0.5 text-xs font-normal text-brand-textMuted">Opcional</span>
       </label>
 
       {enabled && (

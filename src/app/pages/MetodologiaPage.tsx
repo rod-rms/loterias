@@ -31,7 +31,7 @@ export function MetodologiaPage({ modality }: { modality: Modality }) {
   return (
     <div className="max-w-none space-y-8">
       <BackLink to={`/${modality}/gerar`} label={`Voltar para ${MODALITY_LABEL[modality]}`} />
-      <h1 className="text-2xl font-bold">Metodologia: {MODALITY_LABEL[modality]}</h1>
+      <h1 className="text-2xl font-semibold">Metodologia: {MODALITY_LABEL[modality]}</h1>
 
       <section className="space-y-4 rounded-xl border border-brand-border bg-brand-surface p-5">
         <h2 className="text-lg font-semibold text-brand-text">Como este aplicativo funciona</h2>

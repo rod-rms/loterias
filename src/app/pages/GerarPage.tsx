@@ -485,7 +485,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
       <BackLink to="/" label="Voltar ao início" />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
+        <h1 className="text-2xl font-semibold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
         <nav aria-label="Outras páginas desta modalidade" className="flex gap-4 text-sm font-medium text-brand-textMuted">
           <Link to={`/${modality}/carteiras`} className="underline-offset-2 hover:text-brand-text hover:underline">
             Meus jogos salvos
@@ -661,7 +661,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
       {activeResult && (
         <section aria-labelledby="step-result" className="space-y-4 rounded-xl border border-brand-border bg-brand-surface p-4">
-          <h2 id="step-result" className="text-xl font-bold text-brand-text">
+          <h2 id="step-result" className="text-xl font-semibold text-brand-text">
             Seus jogos estão prontos
           </h2>
           <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">

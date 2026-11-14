@@ -43,7 +43,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-bg text-brand-text">
         <div role="alert" className="mx-auto flex max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
-          <h1 className="text-xl font-bold text-brand-text">Algo deu errado</h1>
+          <h1 className="text-xl font-semibold text-brand-text">Algo deu errado</h1>
           <p className="text-sm text-brand-textMuted">Não foi possível carregar esta tela. Seus jogos salvos continuam armazenados neste navegador.</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button type="button" onClick={this.handleRetry} className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground">

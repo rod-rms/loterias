@@ -68,7 +68,7 @@ export function AnalisePage() {
   return (
     <div className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold">Análise de resultados</h1>
+        <h1 className="text-2xl font-semibold">Análise de resultados</h1>
         <nav aria-label="Escolher modalidade da análise" className="flex w-fit gap-1 rounded-lg bg-brand-surfaceElevated p-1">
           {MODALITIES.map((m) => (
             <button

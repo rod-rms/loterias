@@ -202,7 +202,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
   return (
     <div className="space-y-6">
       <BackLink to={modality ? `/${modality}/gerar` : "/"} label={modality ? `Voltar para ${MODALITY_LABEL[modality]}` : "Voltar ao início"} />
-      <h1 className="text-2xl font-bold">Meus jogos salvos</h1>
+      <h1 className="text-2xl font-semibold">Meus jogos salvos</h1>
 
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm">

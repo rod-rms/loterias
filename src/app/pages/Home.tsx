@@ -5,7 +5,7 @@ export function Home() {
   return (
     <div className="space-y-8">
       <section className="rounded-2xl border border-brand-border bg-brand-surface p-8">
-        <h1 className="text-2xl font-bold text-brand-text">Monte seus jogos com estratégia e transparência</h1>
+        <h1 className="text-2xl font-semibold text-brand-text">Monte seus jogos com estratégia e transparência</h1>
         <p className="mt-2 max-w-2xl text-brand-textMuted">
           Escolha como organizar seus jogos da Lotofácil ou Mega-Sena, compare diferentes abordagens e veja as probabilidades do conjunto. Nenhuma opção
           prevê o sorteio: toda combinação válida continua tendo a mesma chance de ser sorteada.

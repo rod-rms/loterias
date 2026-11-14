@@ -33,7 +33,7 @@ export function Disclosure({ title, subtitle, defaultOpen = false, children, ope
       >
         <span className="inline-flex items-center gap-2">
           {title}
-          {subtitle && <span className="rounded-full bg-brand-surfaceElevated px-2 py-0.5 text-[11px] font-normal text-brand-textMuted">{subtitle}</span>}
+          {subtitle && <span className="rounded-full bg-brand-surfaceElevated px-2 py-0.5 text-xs font-normal text-brand-textMuted">{subtitle}</span>}
         </span>
         <ChevronDown aria-hidden className={`h-4 w-4 shrink-0 text-brand-textMuted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>

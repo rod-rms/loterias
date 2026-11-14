@@ -24,7 +24,7 @@ export function QualityPresetSelector({ value, onChange }: { value: QualityPrese
             >
               {LABELS[preset]}
               {preset === "balanced" && (
-                <span className={`rounded-full px-1.5 py-0 text-[10px] ${value === preset ? "bg-white/20 text-white" : "bg-brand-surfaceElevated text-brand-textMuted"}`}>Padrão</span>
+                <span className={`rounded-full px-1.5 py-0 text-xs ${value === preset ? "bg-white/20 text-white" : "bg-brand-surfaceElevated text-brand-textMuted"}`}>Padrão</span>
               )}
             </button>
             <InfoHelp title={LABELS[preset]} body={HELP[preset]} />

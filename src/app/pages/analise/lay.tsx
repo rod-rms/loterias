@@ -28,7 +28,7 @@ function Card({ id, title, help, children }: { id: string; title: string; help: 
 function Badge({ kind }: { kind: "none" | "above" | "below" }) {
   const text = kind === "none" ? "Igual ao acaso" : kind === "above" ? "Acima do acaso" : "Abaixo do acaso";
   return (
-    <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium ${kind === "none" ? "bg-white/10 text-brand-textMuted" : "bg-amber-400/20 text-amber-200"}`}>{text}</span>
+    <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${kind === "none" ? "bg-white/10 text-brand-textMuted" : "bg-amber-400/20 text-amber-200"}`}>{text}</span>
   );
 }
 
@@ -50,7 +50,7 @@ const scaleFor = (lo: number, hi: number) => (v: number) => ((Math.min(hi, Math.
 
 function AxisLabels({ lo, hi, mid, format }: { lo: number; hi: number; mid?: number; format: (v: number) => string }) {
   return (
-    <div className="flex justify-between text-[11px] text-brand-textMuted" aria-hidden>
+    <div className="flex justify-between text-xs text-brand-textMuted" aria-hidden>
       <span>{format(lo)}</span>
       {mid !== undefined && <span>{format(mid)}</span>}
       <span>{format(hi)}</span>
@@ -84,7 +84,7 @@ export function ShortAnswer({ a, period }: { a: ModalityAnalysis; period: Period
   const detectable = a.strategies.filter((s) => s.differenceVsReference !== "none");
   return (
     <section aria-label="Resposta curta" className="rounded-xl border border-brand-borderStrong bg-brand-surfaceElevated p-4" data-testid="short-answer">
-      <h2 className="text-lg font-bold text-brand-text">Resposta curta</h2>
+      <h2 className="text-lg font-semibold text-brand-text">Resposta curta</h2>
       {detectable.length === 0 ? (
         <>
           <p className="mt-2 text-brand-text">
@@ -219,7 +219,7 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
               {a.reference.prizeExpectedByLevel.map((p, i) => (
                 <td key={i} className="px-2 py-1 text-right font-mono tabular-nums">
                   {countLabel(p * tickets)}{" "}
-                  <span className="block whitespace-nowrap text-[11px] font-normal">
+                  <span className="block whitespace-nowrap text-xs font-normal">
                     {ranges[i]!.low}–{ranges[i]!.high}
                   </span>
                 </td>
@@ -232,7 +232,7 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
                   <td key={i} className="px-2 py-1 text-right font-mono tabular-nums">
                     {c}
                     {(c < ranges[i]!.low || c > ranges[i]!.high) && (
-                      <span className="block text-[11px] font-normal text-amber-200">{c > ranges[i]!.high ? "acima" : "abaixo"}<span className="sr-only"> da variação normal do acaso</span></span>
+                      <span className="block text-xs font-normal text-amber-200">{c > ranges[i]!.high ? "acima" : "abaixo"}<span className="sr-only"> da variação normal do acaso</span></span>
                     )}
                   </td>
                 ))}

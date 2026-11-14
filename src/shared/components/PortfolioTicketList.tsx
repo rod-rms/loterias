@@ -42,14 +42,14 @@ export function PortfolioTicketList({ tickets, pageSize = 10, highlightNumbers, 
               {hits !== undefined && <span className="text-xs font-medium text-brand-textMuted">{formatHits ? formatHits(hits) : `${hits} ${hits === 1 ? "acerto" : "acertos"}`}</span>}
               {ticketBadges?.[ticketNumber] && (
                 <span
-                  className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${ticketBadges[ticketNumber]!.tone === "muted" ? "border-brand-border text-brand-textMuted" : "border-brand-borderStrong text-brand-text"}`}
+                  className={`rounded-full border px-2 py-0.5 text-xs font-medium ${ticketBadges[ticketNumber]!.tone === "muted" ? "border-brand-border text-brand-textMuted" : "border-brand-borderStrong text-brand-text"}`}
                   data-testid={`ticket-badge-J${ticketNumber}`}
                 >
                   {ticketBadges[ticketNumber]!.label}
                 </span>
               )}
               {isBest && (
-                <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white" data-testid={`best-ticket-badge-J${ticketNumber}`}>
+                <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white" data-testid={`best-ticket-badge-J${ticketNumber}`}>
                   Melhor
                 </span>
               )}

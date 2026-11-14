@@ -13,7 +13,7 @@ const CLASS: Record<ProbabilityStatus, string> = {
 export function MetricStatusBadge({ status }: { status: ProbabilityStatus }) {
   const presentation = getStatusPresentation(status);
   return (
-    <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium ${CLASS[status]}`}>
+    <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-medium ${CLASS[status]}`}>
       {presentation.label}
       <InfoHelp title={presentation.helpTitle} body={presentation.helpBody} />
     </span>

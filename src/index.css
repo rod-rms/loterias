@@ -6,6 +6,12 @@
 
 :root {
   color-scheme: dark;
+  /* UI-001: modality identity defaults (overridden by the shell from the modality registry). */
+  --mod-accent: #8a96b2;
+  --mod-accent-strong: #4a5878;
+  --mod-soft: #1d2740;
+  --mod-on-accent: #ffffff;
+  --mod-text: #e6ebf7;
 }
 
 html,
@@ -15,6 +21,8 @@ body {
 
 body {
   font-family: var(--la-font-sans);
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .font-mono,
@@ -27,10 +35,18 @@ body {
   outline-offset: 2px;
 }
 
+/* UI-001: motion is short (150 ms max) and respects the user's preference. */
+*,
+*::before,
+*::after {
+  transition-duration: 150ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }

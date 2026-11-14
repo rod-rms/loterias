@@ -15,7 +15,7 @@ export function ExposureSummary({ exposure }: { exposure: Record<number, number>
         {numbers.map((n) => (
           <div key={n} className="flex flex-col items-center gap-0.5">
             <NumberChip value={n} size="sm" />
-            <span className="text-[10px] text-brand-textMuted">{exposure[n]}</span>
+            <span className="text-xs text-brand-textMuted">{exposure[n]}</span>
           </div>
         ))}
       </div>
