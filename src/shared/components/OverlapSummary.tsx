@@ -11,20 +11,20 @@ interface OverlapSummaryProps {
 export function OverlapSummary({ min, max, mean, histogram }: OverlapSummaryProps) {
   const entries = Object.entries(histogram).sort((a, b) => Number(a[0]) - Number(b[0]));
   return (
-    <div className="rounded-lg border border-brand-border bg-brand-surface p-3">
-      <h4 className="flex items-center gap-1.5 text-sm font-semibold text-brand-text">
+    <div className="border-t border-ink-500 pt-3">
+      <h4 className="flex items-center gap-1.5 text-sm font-semibold text-ink-100">
         Quanto os jogos repetem dezenas entre si
         <InfoHelp
           title="Quanto os jogos repetem dezenas entre si"
           body="Mostra quantas dezenas dois jogos têm em comum. Menos repetição significa jogos mais diferentes entre si; isso não torna nenhuma dezena individualmente mais provável."
         />
       </h4>
-      <p className="mt-1 text-xs text-brand-textMuted">
+      <p className="mt-1 text-xs text-ink-200">
         Resumo: mínimo {min}, média {formatDecimalPtBR(mean, 2)}, máximo {max} dezenas em comum por par de jogos.
       </p>
-      <ul className="mt-2 flex flex-wrap gap-2 text-xs text-brand-textMuted">
+      <ul className="mt-2 flex flex-wrap gap-2 text-xs text-ink-200">
         {entries.map(([value, count]) => (
-          <li key={value} className="rounded border border-brand-border bg-brand-surfaceElevated px-2 py-1">
+          <li key={value} className="rounded border border-ink-500 bg-ink-600 px-2 py-1">
             {value} dezenas em comum: {count} par(es)
           </li>
         ))}

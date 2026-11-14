@@ -65,7 +65,7 @@ export function AnalisePage({ modality }: { modality: Modality }) {
       </header>
 
       {state.status === "loading" && (
-        <p role="status" className="text-sm text-brand-textMuted">
+        <p role="status" className="text-sm text-ink-200">
           Carregando…
         </p>
       )}
@@ -81,9 +81,9 @@ export function AnalisePage({ modality }: { modality: Modality }) {
         </div>
       )}
 
-      <aside aria-label="Aviso sobre estes resultados" className="rounded-lg border border-brand-border bg-brand-surfaceElevated p-4 text-sm text-brand-textMuted" data-testid="analysis-disclaimer">
+      <aside aria-label="Aviso sobre estes resultados" className="rounded-lg border border-ink-500 bg-ink-600 p-4 text-sm text-ink-200" data-testid="analysis-disclaimer">
         <p>
-          <strong className="text-brand-text">Isto descreve o passado.</strong> Os resultados não garantem nem preveem sorteios futuros e não indicam como jogar.
+          <strong className="text-ink-100">Isto descreve o passado.</strong> Os resultados não garantem nem preveem sorteios futuros e não indicam como jogar.
         </p>
         <p className="mt-2">
           O teste com sorteios passados é otimista: as estratégias foram desenhadas e ajustadas por pessoas que já conheciam esse histórico. Ele serve como triagem, não como prova.
@@ -101,8 +101,8 @@ export function AnalisePage({ modality }: { modality: Modality }) {
       )}
 
       {analysis && (
-        <footer aria-label="Metadados de auditoria" className="rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-xs text-brand-textMuted" data-testid="audit-footer">
-          <p className="font-medium text-brand-text">Metadados de auditoria</p>
+        <footer aria-label="Metadados de auditoria" className="rounded-lg border border-ink-500 bg-ink-600 p-3 text-xs text-ink-200" data-testid="audit-footer">
+          <p className="font-medium text-ink-100">Metadados de auditoria</p>
           <dl className="mt-1 grid gap-x-4 gap-y-0.5 sm:grid-cols-[auto_1fr]">
             <dt>Execução (runId)</dt>
             <dd className="break-all font-mono">{analysis.meta.runId}</dd>

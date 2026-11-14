@@ -6,8 +6,8 @@ export function ExposureSummary({ exposure }: { exposure: Record<number, number>
     .map(Number)
     .sort((a, b) => a - b);
   return (
-    <div className="rounded-lg border border-brand-border bg-brand-surface p-3">
-      <h4 className="flex items-center gap-1.5 text-sm font-semibold text-brand-text">
+    <div className="border-t border-ink-500 pt-3">
+      <h4 className="flex items-center gap-1.5 text-sm font-semibold text-ink-100">
         Quantas vezes cada dezena aparece
         <InfoHelp title="Quantas vezes cada dezena aparece" body="Mostra em quantos jogos do conjunto cada dezena foi utilizada." />
       </h4>
@@ -15,7 +15,7 @@ export function ExposureSummary({ exposure }: { exposure: Record<number, number>
         {numbers.map((n) => (
           <div key={n} className="flex flex-col items-center gap-0.5">
             <NumberChip value={n} size="sm" />
-            <span className="text-xs text-brand-textMuted">{exposure[n]}</span>
+            <span className="text-xs text-ink-200">{exposure[n]}</span>
           </div>
         ))}
       </div>

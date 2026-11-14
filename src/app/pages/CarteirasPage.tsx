@@ -207,7 +207,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm">
           Modalidade:{" "}
-          <select value={filterModality} onChange={(e) => setFilterModality(e.target.value as Modality | "all")} className="rounded border border-brand-border px-2 py-1">
+          <select value={filterModality} onChange={(e) => setFilterModality(e.target.value as Modality | "all")} className="rounded border border-ink-500 px-2 py-1">
             <option value="all">Todas</option>
             <option value="lotofacil">Lotofácil</option>
             <option value="megasena">Mega-Sena</option>
@@ -225,22 +225,22 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
               setVisibleDayGroups(INITIAL_DAY_GROUPS);
             }}
             placeholder="nº"
-            className="w-24 rounded border border-brand-border bg-transparent px-2 py-1"
+            className="w-24 rounded border border-ink-500 bg-transparent px-2 py-1"
           />
         </label>
         <label className="text-sm">
           Com aposta registrada:{" "}
-          <select value={filterBet} onChange={(e) => setFilterBet(e.target.value as "all" | "yes" | "no")} className="rounded border border-brand-border px-2 py-1">
+          <select value={filterBet} onChange={(e) => setFilterBet(e.target.value as "all" | "yes" | "no")} className="rounded border border-ink-500 px-2 py-1">
             <option value="all">Todas</option>
             <option value="yes">Sim</option>
             <option value="no">Não</option>
           </select>
         </label>
         <div className="ml-auto flex gap-2">
-          <button type="button" onClick={handleExport} className="rounded border border-brand-border px-3 py-1.5 text-sm">
+          <button type="button" onClick={handleExport} className="rounded border border-ink-500 px-3 py-1.5 text-sm">
             Exportar backup
           </button>
-          <label className="cursor-pointer rounded border border-brand-border px-3 py-1.5 text-sm">
+          <label className="cursor-pointer rounded border border-ink-500 px-3 py-1.5 text-sm">
             Importar backup
             <input ref={fileInputRef} type="file" accept="application/json" onChange={handleFileSelected} className="hidden" />
           </label>
@@ -258,7 +258,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
         </div>
       </div>
 
-      <p className="flex items-center gap-1 text-xs text-brand-textMuted">
+      <p className="flex items-center gap-1 text-xs text-ink-200">
         Seus jogos ficam salvos somente neste navegador.
         <InfoHelp
           title="Onde seus jogos ficam salvos"
@@ -274,13 +274,13 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
             <button type="button" onClick={confirmImport} className="rounded bg-brand-action px-3 py-1.5 text-sm text-brand-actionForeground">
               Confirmar
             </button>
-            <button type="button" onClick={() => setImportPreview(null)} className="rounded border border-brand-border px-3 py-1.5 text-sm">
+            <button type="button" onClick={() => setImportPreview(null)} className="rounded border border-ink-500 px-3 py-1.5 text-sm">
               Cancelar
             </button>
           </div>
         </div>
       )}
-      {message && <p role="status" className="text-sm text-brand-textMuted">{message}</p>}
+      {message && <p role="status" className="text-sm text-ink-200">{message}</p>}
 
       {portfolios.length === 0 ? (
         <EmptyState title="Nenhum jogo salvo ainda" description="Gere um conjunto de jogos e salve para vê-lo aqui." />
@@ -290,7 +290,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
         <div className="space-y-6">
           {dayGroups.slice(0, visibleDayGroups).map((group) => (
             <section key={group.dayKey} aria-label={group.label} className="space-y-3">
-              <h2 className="sticky top-0 z-10 border-b border-brand-border bg-brand-bg/95 py-1 text-sm font-semibold text-brand-textMuted">{group.label}</h2>
+              <h2 className="sticky top-0 z-10 border-b border-ink-500 bg-ink-900/95 py-1 text-sm font-semibold text-ink-200">{group.label}</h2>
               <div className="grid gap-3 md:grid-cols-2">
                 {group.portfolios.map((p) => (
                   <Fragment key={p.id}>
@@ -313,9 +313,9 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                       (same pattern as the details panel below). It sits before the details when both are open. */}
                   {editingBet && editingBet.portfolio.id === p.id && (
                     <div ref={editorRef} className="scroll-mt-16 md:col-span-2">
-                      <div role="dialog" aria-modal="true" aria-label="Registrar jogos apostados" className="space-y-3 rounded-xl border border-brand-border bg-brand-surface p-4">
+                      <div role="dialog" aria-modal="true" aria-label="Registrar jogos apostados" className="space-y-3 rounded-xl border border-ink-500 bg-ink-700 p-4">
                         <h2 ref={editorHeadingRef} tabIndex={-1} className="font-semibold outline-none">Jogos apostados</h2>
-                        <p className="text-sm text-brand-textMuted">
+                        <p className="text-sm text-ink-200">
                           A carteira gerada continua completa ({editingBet.portfolio.tickets.length} jogos). Aqui você só registra quais deles foram realmente apostados.
                         </p>
                         <BetTicketPicker
@@ -341,7 +341,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                           >
                             Salvar registro
                           </button>
-                          <button type="button" onClick={() => setEditingBet(null)} className="rounded border border-brand-border px-3 py-1.5 text-sm">
+                          <button type="button" onClick={() => setEditingBet(null)} className="rounded border border-ink-500 px-3 py-1.5 text-sm">
                             Cancelar
                           </button>
                         </div>
@@ -351,10 +351,10 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   {/* Details open right below the card that was opened, spanning the full grid row. */}
                   {selected && selected.id === p.id && (
                     <div key={`${p.id}-detail`} className="md:col-span-2">
-              <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-brand-border bg-brand-surface p-4">
+              <div role="dialog" aria-modal="true" aria-label="Detalhes dos jogos salvos" className="rounded-xl border border-ink-500 bg-ink-700 p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <h2 className="font-semibold">Detalhes: {strategyRegistry.get(selected.strategyId)?.ux.title ?? selected.strategyId}</h2>
-                  <button type="button" onClick={() => setSelected(null)} className="rounded border border-brand-border px-2 py-1 text-sm">
+                  <button type="button" onClick={() => setSelected(null)} className="rounded border border-ink-500 px-2 py-1 text-sm">
                     Fechar
                   </button>
                 </div>
@@ -369,7 +369,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                           </div>
                         )}
                         <PortfolioTicketList tickets={selected.tickets} ticketBadges={buildBetBadges(selected)} />
-                        <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-brand-border px-3 py-1.5 text-sm">
+                        <button type="button" onClick={() => handleCheck(selected)} className="mt-3 rounded border border-ink-500 px-3 py-1.5 text-sm">
                           Conferir resultado
                         </button>
                       </>
@@ -380,36 +380,36 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
                   const comparison = describeBetComparison(betSummary);
                   return (
                     <>
-                      <div className="mb-3 space-y-2 rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-sm">
+                      <div className="mb-3 space-y-2 rounded-lg border border-ink-500 bg-ink-600 p-3 text-sm">
                         <div>
-                          <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Resultado oficial, concurso {checkedResult.contest}</p>
-                          <p className="mt-0.5 font-mono text-base text-brand-text">{formatDrawNumbers(checkedResult.numbers)}</p>
+                          <p className="text-xs font-medium uppercase tracking-wide text-ink-200">Resultado oficial, concurso {checkedResult.contest}</p>
+                          <p className="mt-0.5 font-mono text-base text-ink-100">{formatDrawNumbers(checkedResult.numbers)}</p>
                         </div>
                         {summary.sentence && (
                           <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">{betSummary.hasSelection ? "Melhor da carteira gerada" : "Melhor resultado"}</p>
-                            <p className="mt-0.5 text-brand-text">{summary.sentence}</p>
-                            {betSummary.overallBestWasNotBet && <p className="mt-0.5 text-xs text-brand-textMuted">O melhor jogo da carteira não foi marcado como apostado.</p>}
+                            <p className="text-xs font-medium uppercase tracking-wide text-ink-200">{betSummary.hasSelection ? "Melhor da carteira gerada" : "Melhor resultado"}</p>
+                            <p className="mt-0.5 text-ink-100">{summary.sentence}</p>
+                            {betSummary.overallBestWasNotBet && <p className="mt-0.5 text-xs text-ink-200">O melhor jogo da carteira não foi marcado como apostado.</p>}
                           </div>
                         )}
                         {betSummary.hasSelection && (
                           <div data-testid="bet-comparison" className="space-y-1">
                             {betSummary.bestBet && (
                               <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os apostados</p>
-                                <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestBet)}</p>
+                                <p className="text-xs font-medium uppercase tracking-wide text-ink-200">Melhor entre os apostados</p>
+                                <p className="mt-0.5 text-ink-100">{formatTicketGroupBest(betSummary.bestBet)}</p>
                               </div>
                             )}
                             {betSummary.bestNonBet && (
                               <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-brand-textMuted">Melhor entre os não apostados</p>
-                                <p className="mt-0.5 text-brand-text">{formatTicketGroupBest(betSummary.bestNonBet)}</p>
+                                <p className="text-xs font-medium uppercase tracking-wide text-ink-200">Melhor entre os não apostados</p>
+                                <p className="mt-0.5 text-ink-100">{formatTicketGroupBest(betSummary.bestNonBet)}</p>
                               </div>
                             )}
-                            {comparison && <p className="text-sm text-brand-text">{comparison}</p>}
+                            {comparison && <p className="text-sm text-ink-100">{comparison}</p>}
                           </div>
                         )}
-                        <p className="text-xs text-brand-textMuted">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
+                        <p className="text-xs text-ink-200">Conferido em {new Date(checkedResult.checkedAt).toLocaleString("pt-BR")}</p>
                       </div>
                       <PortfolioTicketList
                         tickets={selected.tickets}
@@ -434,7 +434,7 @@ export function CarteirasPage({ modality }: { modality?: Modality }) {
             <button
               type="button"
               onClick={() => setVisibleDayGroups((n) => n + DAY_GROUPS_PER_PAGE)}
-              className="rounded border border-brand-border px-4 py-2 text-sm hover:bg-white/5"
+              className="rounded border border-ink-500 px-4 py-2 text-sm hover:bg-ink-600"
             >
               Carregar mais
             </button>

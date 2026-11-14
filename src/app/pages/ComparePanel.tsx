@@ -49,16 +49,16 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
 
   if (!active) {
     return (
-      <button type="button" onClick={() => setActive(true)} className="rounded border border-brand-border px-3 py-1.5 text-sm">
+      <button type="button" onClick={() => setActive(true)} className="rounded border border-ink-500 px-3 py-1.5 text-sm">
         Comparar com outra opção
       </button>
     );
   }
 
   return (
-    <div className="rounded-lg border border-brand-border bg-brand-surface p-4">
-      <h3 className="text-sm font-semibold text-brand-text">Comparar com outra opção</h3>
-      <p className="mt-1 text-xs text-brand-textMuted">
+    <div className="rounded-lg border border-ink-500 bg-ink-700 p-4">
+      <h3 className="text-sm font-semibold text-ink-100">Comparar com outra opção</h3>
+      <p className="mt-1 text-xs text-ink-200">
         Mesma quantidade de jogos ({numberOfTickets}) e as mesmas dezenas obrigatórias/não usadas. Só aparecem abaixo as opções compatíveis. Nenhuma é
         declarada vencedora.
       </p>
@@ -66,7 +66,7 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
         <p className="mt-2 text-sm text-amber-300">Nenhuma outra opção é compatível com {numberOfTickets} jogos e as restrições atuais.</p>
       ) : (
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <select value={compareStrategyId} onChange={(e) => setCompareStrategyId(e.target.value)} className="rounded border border-brand-border px-2 py-1.5 text-sm">
+          <select value={compareStrategyId} onChange={(e) => setCompareStrategyId(e.target.value)} className="rounded border border-ink-500 px-2 py-1.5 text-sm">
             <option value="">Selecione...</option>
             {candidates.map((s) => (
               <option key={s.id} value={s.id}>
@@ -84,7 +84,7 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[480px] text-left text-sm">
             <thead>
-              <tr className="text-xs text-brand-textMuted">
+              <tr className="text-xs text-ink-200">
                 <th scope="col" className="py-1 pr-2">
                   Métrica
                 </th>
@@ -97,7 +97,7 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-brand-border">
+              <tr className="border-t border-ink-500">
                 <td className="py-1 pr-2 font-medium">Custo total</td>
                 <td className="py-1 pr-2">{formatBRL(currentResult.costBRL)}</td>
                 <td className="py-1 pr-2">{formatBRL(result.costBRL)}</td>
@@ -110,7 +110,7 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
               const keys = PRIMARY_METRIC_ORDER[modality];
               return (
                 <div key={r.id} className="space-y-2">
-                  <p className="text-xs font-semibold text-brand-textMuted">{strategyTitle(r.strategyId)}</p>
+                  <p className="text-xs font-semibold text-ink-200">{strategyTitle(r.strategyId)}</p>
                   <div className="grid grid-cols-2 gap-2">
                     {metrics.probability &&
                       keys
@@ -128,12 +128,12 @@ export function ComparePanel({ modality, currentStrategyId, numberOfTickets, fix
                           );
                         })}
                   </div>
-                  {metrics.overlap && <p className="text-xs text-brand-textMuted">Repetição média entre jogos: {formatDecimalPtBR(metrics.overlap.mean, 2)} dezenas.</p>}
+                  {metrics.overlap && <p className="text-xs text-ink-200">Repetição média entre jogos: {formatDecimalPtBR(metrics.overlap.mean, 2)} dezenas.</p>}
                 </div>
               );
             })}
           </div>
-          <p className="mt-3 text-xs text-brand-textMuted">
+          <p className="mt-3 text-xs text-ink-200">
             Diferenças refletem métodos distintos, não um "conjunto vencedor". Ambas as opções usam {numberOfTickets} jogos e o mesmo preço por jogo.
           </p>
         </div>

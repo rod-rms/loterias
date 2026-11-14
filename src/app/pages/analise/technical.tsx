@@ -12,7 +12,7 @@ const td = "px-2 py-1 font-mono tabular-nums";
 function Block({ title, help, children }: { title: string; help: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-brand-text">
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink-100">
         {title}
         <InfoHelp title={title} body={help} label={`Ajuda sobre: ${title}`} />
       </h3>
@@ -28,7 +28,7 @@ export function TechnicalDetails({ a, onExportCsv, onExportJson }: { a: Modality
   const n = a.strategies[0]!.nContests;
   const thr = a.reference.rateThreshold;
   return (
-    <div className="space-y-6 text-xs text-brand-textMuted" data-testid="technical-details">
+    <div className="space-y-6 text-xs text-ink-200" data-testid="technical-details">
       <p>
         Unidade independente: o concurso (média dos 6 jogos da carteira). Intervalos de {pct(ANALYSIS_LEVEL, 0)} agrupados por concurso; marcador de diferença só com o intervalo ajustado por Bonferroni para {FAMILY_SIZE} comparações ({pct(a.chanceBand.level, 0)}) excluindo
         a média aleatória exata. n = {n} concursos.
@@ -42,7 +42,7 @@ export function TechnicalDetails({ a, onExportCsv, onExportJson }: { a: Modality
           <legend className="mb-1">Estratégia exibida</legend>
           <div className="flex flex-wrap gap-2">
             {a.strategies.map((s, i) => (
-              <label key={s.strategyId} className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-brand-border px-2 py-1 has-[:checked]:bg-white/10">
+              <label key={s.strategyId} className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-ink-500 px-2 py-1 has-[:checked]:bg-ink-600">
                 <input type="radio" name={`dist-${a.modality}`} className="accent-brand-action" checked={s.strategyId === sel.strategyId} onChange={() => setSelected(s.strategyId)} />
                 <span style={{ color: seriesStyle(i).color }} aria-hidden>
                   ●

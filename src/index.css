@@ -50,3 +50,14 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* UI-001: form controls sit on the page background, so they need their own surface. */
+@layer base {
+  input[type="number"],
+  input[type="text"],
+  input[type="search"],
+  select,
+  textarea {
+    @apply rounded border border-ink-500 bg-ink-800 text-ink-100 placeholder:text-ink-300;
+  }
+}

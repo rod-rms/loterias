@@ -99,8 +99,8 @@ export function InfoHelp({ title, body, label, triggerContent, className }: Info
         }}
         className={
           triggerContent
-            ? "inline-flex items-center gap-1 rounded text-brand-textMuted hover:text-brand-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
-            : "inline-flex h-5 w-5 items-center justify-center rounded-full text-brand-textMuted hover:text-brand-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
+            ? "inline-flex items-center gap-1 rounded text-ink-200 hover:text-ink-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
+            : "inline-flex h-5 w-5 items-center justify-center rounded-full text-ink-200 hover:text-ink-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
         }
       >
         {triggerContent ?? <CircleHelp aria-hidden className="h-4 w-4" />}
@@ -109,9 +109,9 @@ export function InfoHelp({ title, body, label, triggerContent, className }: Info
         <span
           id={popoverId}
           role="tooltip"
-          className={`absolute top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border border-brand-border bg-brand-surface p-3 text-left text-xs text-brand-text shadow-lg ${ALIGN_CLASS[align]}`}
+          className={`absolute top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border border-ink-500 bg-ink-600 p-3 text-left text-xs text-ink-100 shadow-overlay ${ALIGN_CLASS[align]}`}
         >
-          <span className="mb-1 block font-semibold text-brand-text">{title}</span>
+          <span className="mb-1 block font-semibold text-ink-100">{title}</span>
           <span className="block leading-relaxed">{body}</span>
         </span>
       )}

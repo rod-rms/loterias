@@ -15,8 +15,8 @@ const UNIT: Record<Modality, { plural: string; singular: string }> = {
 
 function Card({ id, title, help, children }: { id: string; title: string; help: string; children: ReactNode }) {
   return (
-    <section aria-labelledby={`${id}-title`} className="rounded-xl border border-brand-border bg-brand-surface p-4" data-testid={`chart-${id}`}>
-      <h2 id={`${id}-title`} className="flex items-center gap-1.5 text-base font-semibold text-brand-text">
+    <section aria-labelledby={`${id}-title`} className="rounded-xl border border-ink-500 bg-ink-700 p-4" data-testid={`chart-${id}`}>
+      <h2 id={`${id}-title`} className="flex items-center gap-1.5 text-base font-semibold text-ink-100">
         {title}
         <InfoHelp title={title} body={help} label={`Ajuda sobre: ${title}`} />
       </h2>
@@ -28,7 +28,7 @@ function Card({ id, title, help, children }: { id: string; title: string; help: 
 function Badge({ kind }: { kind: "none" | "above" | "below" }) {
   const text = kind === "none" ? "Igual ao acaso" : kind === "above" ? "Acima do acaso" : "Abaixo do acaso";
   return (
-    <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${kind === "none" ? "bg-white/10 text-brand-textMuted" : "bg-amber-400/20 text-amber-200"}`}>{text}</span>
+    <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${kind === "none" ? "bg-ink-600 text-ink-200" : "bg-amber-400/20 text-amber-200"}`}>{text}</span>
   );
 }
 
@@ -50,7 +50,7 @@ const scaleFor = (lo: number, hi: number) => (v: number) => ((Math.min(hi, Math.
 
 function AxisLabels({ lo, hi, mid, format }: { lo: number; hi: number; mid?: number; format: (v: number) => string }) {
   return (
-    <div className="flex justify-between text-xs text-brand-textMuted" aria-hidden>
+    <div className="flex justify-between text-xs text-ink-200" aria-hidden>
       <span>{format(lo)}</span>
       {mid !== undefined && <span>{format(mid)}</span>}
       <span>{format(hi)}</span>
@@ -60,7 +60,7 @@ function AxisLabels({ lo, hi, mid, format }: { lo: number; hi: number; mid?: num
 
 function ChanceLegend({ children }: { children: ReactNode }) {
   return (
-    <p className="mt-2 flex items-start gap-2 text-xs text-brand-textMuted">
+    <p className="mt-2 flex items-start gap-2 text-xs text-ink-200">
       <svg viewBox="0 0 22 12" className="mt-0.5 h-3 w-5 shrink-0" aria-hidden>
         <rect x={0} y={0} width={22} height={12} fill={CHANCE} fillOpacity={0.2} />
         <line x1={11} x2={11} y1={0} y2={12} stroke={CHANCE} strokeWidth={2} />
@@ -83,23 +83,23 @@ export function ShortAnswer({ a, period }: { a: ModalityAnalysis; period: Period
   const prizeName = a.modality === "lotofacil" ? "Jogos premiados (11 pontos ou mais)" : "Jogos com quadra ou mais";
   const detectable = a.strategies.filter((s) => s.differenceVsReference !== "none");
   return (
-    <section aria-label="Resposta curta" className="rounded-xl border border-brand-borderStrong bg-brand-surfaceElevated p-4" data-testid="short-answer">
-      <h2 className="text-lg font-semibold text-brand-text">Resposta curta</h2>
+    <section aria-label="Resposta curta" className="rounded-xl border border-ink-300 bg-ink-600 p-4" data-testid="short-answer">
+      <h2 className="text-lg font-semibold text-ink-100">Resposta curta</h2>
       {detectable.length === 0 ? (
         <>
-          <p className="mt-2 text-brand-text">
+          <p className="mt-2 text-ink-100">
             Em {n} sorteios passados{when}, todas as estratégias fizeram em média {roundedRange(means, 3)} {unit.plural} por jogo; ao acaso, {fmt(a.reference.meanHits, 3)}.{" "}
             <strong>Nenhuma estratégia aumenta a chance de ganhar.</strong> O que elas mudam é como os seus 6 jogos se distribuem.
           </p>
         </>
       ) : (
-        <p className="mt-2 text-brand-text">
+        <p className="mt-2 text-ink-100">
           Em {n} sorteios passados{when}, a média de {unit.plural} por jogo de {detectable.map((s) => strategyLabel(s.strategyId)).join(", ")} ficou{" "}
           {detectable.every((s) => s.differenceVsReference === "above") ? "acima" : detectable.every((s) => s.differenceVsReference === "below") ? "abaixo" : "fora"} da variação normal do acaso. É uma
           descrição do passado, que não indica o que vai acontecer, e as demais ficaram iguais ao acaso.
         </p>
       )}
-      <p className="mt-2 text-sm text-brand-textMuted">
+      <p className="mt-2 text-sm text-ink-200">
         {prizeName}: de {nf(0).format(Math.min(...totals))} a {nf(0).format(Math.max(...totals))} em {nf(0).format(tickets)} jogos por estratégia; ao acaso, esperam-se cerca de{" "}
         {countLabel(expectedPrize)}.{a.modality === "megasena" ? " Prêmios assim são raros demais neste período para comparar estratégias." : ""}
       </p>
@@ -125,7 +125,7 @@ export function AverageChart({ a }: { a: ModalityAnalysis }) {
         {a.strategies.map((s) => (
           <li key={s.strategyId}>
             <div className="flex items-center justify-between gap-2 text-sm">
-              <span className="min-w-0 font-medium text-brand-text">{strategyLabel(s.strategyId)}</span>
+              <span className="min-w-0 font-medium text-ink-100">{strategyLabel(s.strategyId)}</span>
               <span className="flex shrink-0 items-center gap-2">
                 <span className="font-mono text-base font-semibold tabular-nums">{fmt(s.meanHits.mean, 3)}</span>
                 <Badge kind={s.differenceVsReference} />
@@ -176,8 +176,8 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
             {a.strategies.map((s) => (
               <li key={s.strategyId}>
                 <div className="flex items-center justify-between gap-2 text-sm">
-                  <span className="font-medium text-brand-text">{strategyLabel(s.strategyId)}</span>
-                  <span className="font-mono text-base font-semibold tabular-nums">{fmt(s.prize.per100, 3)} <span className="text-xs font-normal text-brand-textMuted">em 100</span></span>
+                  <span className="font-medium text-ink-100">{strategyLabel(s.strategyId)}</span>
+                  <span className="font-mono text-base font-semibold tabular-nums">{fmt(s.prize.per100, 3)} <span className="text-xs font-normal text-ink-200">em 100</span></span>
                 </div>
                 <Strip lo={0} hi={hiAxis} band={{ low: chancePer100 - half, high: chancePer100 + half }} line={chancePer100} label={`${strategyLabel(s.strategyId)}: ${fmt(s.prize.per100, 3)} jogos premiados a cada 100; acaso ${fmt(chancePer100, 3)}`}>
                   <circle cx={x(s.prize.per100)} cy={12} r={5} fill={NEUTRAL} stroke="#101729" strokeWidth={1.5} />
@@ -191,20 +191,20 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
           </ChanceLegend>
         </>
       ) : (
-        <p className="text-sm text-brand-text">
+        <p className="text-sm text-ink-100">
           Prêmios assim são raros: ao acaso, esperam-se cerca de {countLabel(expectedTotal)} jogos com quadra ou mais em {nf(0).format(tickets)}. Por isso este período é pequeno demais para comparar estratégias por prêmios.
         </p>
       )}
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-xs">
-          <caption className="mb-1 text-left text-brand-textMuted">
+          <caption className="mb-1 text-left text-ink-200">
             <span className="inline-flex items-center gap-1">
               Quantidade de jogos por {lf ? "pontos" : "prêmio"}, em {nf(0).format(tickets)} jogos por estratégia
               <InfoHelp title="Faixa normal do acaso" body="Contagens dentro da faixa normal do acaso são o que o acaso sozinho produz." label="Ajuda sobre a faixa normal do acaso na tabela" />
             </span>
           </caption>
           <thead>
-            <tr className="text-brand-textMuted">
+            <tr className="text-ink-200">
               <th className="px-2 py-1 text-left font-medium">Estratégia</th>
               {a.reference.prizeLevels.map((lv) => (
                 <th key={lv} className="px-2 py-1 text-right font-medium">
@@ -226,7 +226,7 @@ export function PrizeChart({ a }: { a: ModalityAnalysis }) {
               ))}
             </tr>
             {a.strategies.map((s) => (
-              <tr key={s.strategyId} className="border-t border-brand-border">
+              <tr key={s.strategyId} className="border-t border-ink-500">
                 <td className="px-2 py-1">{strategyLabel(s.strategyId)}</td>
                 {s.prize.observed.map((c, i) => (
                   <td key={i} className="px-2 py-1 text-right font-mono tabular-nums">
@@ -263,8 +263,8 @@ export function SpreadChart({ a }: { a: ModalityAnalysis }) {
         {a.strategies.map((s) => (
           <li key={s.strategyId}>
             <div className="flex flex-wrap items-baseline justify-between gap-x-2 text-sm">
-              <span className="font-medium text-brand-text">{strategyLabel(s.strategyId)}</span>
-              <span className="font-mono text-xs tabular-nums text-brand-textMuted">
+              <span className="font-medium text-ink-100">{strategyLabel(s.strategyId)}</span>
+              <span className="font-mono text-xs tabular-nums text-ink-200">
                 pior {fmt(s.spread.worst, 3)} · média {fmt(s.spread.mean, 3)} · melhor {fmt(s.spread.best, 3)}
               </span>
             </div>
@@ -282,7 +282,7 @@ export function SpreadChart({ a }: { a: ModalityAnalysis }) {
           Faixa verde: uma carteira feita ao acaso neste mesmo teste (pior {fmt(ref.worst, 3)}, melhor {fmt(ref.best, 3)}).
         </ChanceLegend>
       )}
-      <p className="mt-2 text-sm text-brand-textMuted">
+      <p className="mt-2 text-sm text-ink-200">
         Diversificar espalha os resultados para os dois lados: o melhor jogo da carteira pode ficar um pouco mais alto e o pior um pouco mais baixo. A média quase não muda.
       </p>
     </Card>
@@ -300,12 +300,12 @@ export function LedgerCard({ ledger }: { ledger: { lotofacil: LedgerSummary | "u
     return (
       <li key={label}>
         <p>
-          <strong className="text-brand-text">{label}:</strong>{" "}
+          <strong className="text-ink-100">{label}:</strong>{" "}
           {s === null ? "carregando…" : n === null ? "contagem indisponível agora" : `${n} de ${LEDGER_READING_TARGET} sorteios registrados`}
         </p>
         {n !== null && (
-          <div role="progressbar" aria-label={`Sorteios registrados da ${label}`} aria-valuemin={0} aria-valuemax={LEDGER_READING_TARGET} aria-valuenow={Math.min(n, LEDGER_READING_TARGET)} className="mt-1 h-2 w-full overflow-hidden rounded-full bg-white/10">
-            <div className="h-full rounded-full bg-brand-actionText" style={{ width: `${Math.min(100, (n / LEDGER_READING_TARGET) * 100)}%` }} />
+          <div role="progressbar" aria-label={`Sorteios registrados da ${label}`} aria-valuemin={0} aria-valuemax={LEDGER_READING_TARGET} aria-valuenow={Math.min(n, LEDGER_READING_TARGET)} className="mt-1 h-2 w-full overflow-hidden rounded-full bg-ink-600">
+            <div className="h-full rounded-full bg-ink-300" style={{ width: `${Math.min(100, (n / LEDGER_READING_TARGET) * 100)}%` }} />
           </div>
         )}
         <p className="mt-1 text-xs">Primeira leitura: {reading}.</p>
@@ -314,16 +314,16 @@ export function LedgerCard({ ledger }: { ledger: { lotofacil: LedgerSummary | "u
   };
   const first = [ledger.lotofacil, ledger.megasena].flatMap((s) => (s && s !== "unavailable" && s.firstGeneratedAt ? [s.firstGeneratedAt] : [])).sort()[0];
   return (
-    <section aria-label="Teste de verdade em andamento" className="rounded-xl border border-brand-border bg-brand-surface p-4" data-testid="ledger-card">
-      <h2 className="text-base font-semibold text-brand-text">Teste de verdade em andamento</h2>
-      <p className="mt-2 text-sm text-brand-textMuted">
+    <section aria-label="Teste de verdade em andamento" className="rounded-xl border border-ink-500 bg-ink-700 p-4" data-testid="ledger-card">
+      <h2 className="text-base font-semibold text-ink-100">Teste de verdade em andamento</h2>
+      <p className="mt-2 text-sm text-ink-200">
         {dateBr(first) ? `Desde ${dateBr(first)}` : "Desde 12/11/2026"}, o app registra os jogos de cada estratégia antes de cada sorteio. Só depois do resultado eles são conferidos. É o único teste que não depende de ter olhado o passado.
       </p>
-      <ul className="mt-2 space-y-3 text-sm text-brand-textMuted">
+      <ul className="mt-2 space-y-3 text-sm text-ink-200">
         {line("Lotofácil", ledger.lotofacil, "por volta do fim de dezembro de 2026 (cerca de 30 sorteios)")}
         {line("Mega-Sena", ledger.megasena, "por volta do fim de janeiro de 2027 (cerca de 30 sorteios)")}
       </ul>
-      <p className="mt-2 text-sm text-brand-textMuted">
+      <p className="mt-2 text-sm text-ink-200">
         O teste com sorteios passados, mostrado acima, é otimista: as estratégias foram desenhadas conhecendo esse histórico. Ele serve para dar uma ideia inicial, não como prova.
       </p>
     </section>

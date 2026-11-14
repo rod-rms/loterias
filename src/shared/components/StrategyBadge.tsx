@@ -1,7 +1,7 @@
 /** Plain-language badge (e.g. "Mais diversidade", "6 jogos fixos"). Technical evidence classification lives in "Detalhes técnicos" only. */
 export function StrategyBadge({ label }: { label: string }) {
   return (
-    <span className="shrink-0 rounded-full border border-brand-border bg-brand-surfaceElevated px-2 py-0.5 text-xs font-medium text-brand-textMuted">
+    <span className="shrink-0 rounded-full border border-ink-500 bg-ink-600 px-2 py-0.5 text-xs font-medium text-ink-200">
       {label}
     </span>
   );

@@ -23,9 +23,9 @@ export function BetTicketPicker({ tickets, selected, onChange }: BetTicketPicker
           const n = idx + 1;
           return (
             <li key={n}>
-              <label className="flex cursor-pointer flex-wrap items-center gap-2 rounded border border-brand-border px-2 py-1.5 text-sm">
+              <label className="flex cursor-pointer flex-wrap items-center gap-2 rounded border border-ink-500 px-2 py-1.5 text-sm">
                 <input type="checkbox" checked={set.has(n)} onChange={() => toggle(n)} aria-label={`J${n} apostado`} className="h-4 w-4" />
-                <span className="w-8 shrink-0 text-xs font-medium text-brand-textMuted">J{n}</span>
+                <span className="w-8 shrink-0 text-xs font-medium text-ink-200">J{n}</span>
                 <span className="flex flex-wrap gap-1">
                   {ticket.map((num) => (
                     <NumberChip key={num} value={num} size="sm" />
@@ -36,7 +36,7 @@ export function BetTicketPicker({ tickets, selected, onChange }: BetTicketPicker
           );
         })}
       </ul>
-      <p className="text-xs text-brand-textMuted" role="status">
+      <p className="text-xs text-ink-200" role="status">
         {selected.length} de {tickets.length} {tickets.length === 1 ? "jogo marcado" : "jogos marcados"} como {selected.length === 1 ? "apostado" : "apostados"}
       </p>
     </div>
