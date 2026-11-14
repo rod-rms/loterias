@@ -72,7 +72,7 @@ Ressalvas: `resultAvailability` descreve se o LotoAtlas já tinha o resultado no
 
 ### Interface — redesenho visual e navegação (UI-001)
 
-- **UI-001 — Redesenho visual e shell de navegação** (apenas apresentação e navegação; sem mudança de domínio, estratégias, dados, estatística ou alegações). Barra lateral recolhível no desktop (≥ 1024 px), barra superior + abas inferiores + gaveta "Mais" no celular; rotas canônicas `/:modalidade/{gerar,carteiras,analise,metodologia}` com todas as URLs antigas preservadas; registro de modalidades em `game-config.json` (ponto de extensão documentado em `ARCHITECTURE_V1.md` §23); Início como painel; tokens (escala neutra `ink`, cor de modalidade por variável CSS, IBM Plex Sans/Mono auto-hospedadas, escala tipográfica 12/14/16/20/28, raio ≤ 6 px). Status: **PR_OPEN** (PR #PRNUM; aguarda validação de preview do product owner, `DEC-022`; o merge só vale para o SHA exato validado).
+- **UI-001 — Redesenho visual e shell de navegação** (apenas apresentação e navegação; sem mudança de domínio, estratégias, dados, estatística ou alegações). Barra lateral recolhível no desktop (≥ 1024 px), barra superior + abas inferiores + gaveta "Mais" no celular; rotas canônicas `/:modalidade/{gerar,carteiras,analise,metodologia}` com todas as URLs antigas preservadas; registro de modalidades em `game-config.json` (ponto de extensão documentado em `ARCHITECTURE_V1.md` §23); Início como painel; tokens (escala neutra `ink`, cor de modalidade por variável CSS, IBM Plex Sans/Mono auto-hospedadas, escala tipográfica 12/14/16/20/28, raio ≤ 6 px). Status: **PR_OPEN** (PR #45; aguarda validação de preview do product owner, `DEC-022`; o merge só vale para o SHA exato validado).
 
 ## Backlog / adiado
 
