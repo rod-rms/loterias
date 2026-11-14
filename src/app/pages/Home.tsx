@@ -34,7 +34,7 @@ function ModalityBlock({ entry, dataset, status }: { entry: ModalityRegistryEntr
         </Link>
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+      <dl className="mt-4 grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
         <div>
           <dt className="text-xs text-ink-300">Próximo concurso</dt>
           <dd className="font-mono text-lg tabular-nums text-ink-100">{dataset === "error" ? "—" : next ?? "…"}</dd>
@@ -46,13 +46,13 @@ function ModalityBlock({ entry, dataset, status }: { entry: ModalityRegistryEntr
           </dt>
           <dd className="font-mono tabular-nums text-ink-100">{estimate ? `${formatShortDatePtBR(estimate.isoDate)} · ${estimate.weekdayName} · ${estimate.approxHour}` : dataset === "error" ? "—" : "…"}</dd>
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <dt className="text-xs text-ink-300">{last ? `Último resultado · concurso ${last.contest} · ${formatDatePtBR(last.drawDate)}` : "Último resultado"}</dt>
           <dd className="mt-1 flex flex-wrap gap-1">
             {last ? last.numbers.map((n) => <NumberChip key={n} value={n} size="sm" />) : <span className="text-ink-300">{dataset === "error" ? "Dados indisponíveis." : "…"}</span>}
           </dd>
         </div>
-        <div className="col-span-2">
+        <div className="sm:col-span-2">
           <dt className="text-xs text-ink-300">Dados</dt>
           <dd className="text-xs text-ink-200">
             {status === null ? "verificando…" : st ? `atualizados até ${formatDatePtBR(st.latestDrawDate)} · última verificação ${new Date(st.lastCheckedAt).toLocaleString("pt-BR")}` : "situação indisponível"}

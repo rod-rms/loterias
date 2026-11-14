@@ -19,7 +19,7 @@ async function expectNoHorizontalOverflow(page: import("@playwright/test").Page)
 test.describe("LotoAtlas — mobile critical flows (iPhone 13 viewport)", () => {
   test("home: loads, shows the LotoAtlas brand, and has no page-level horizontal overflow", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Monte seus jogos com estratégia e transparência" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Início" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
@@ -30,8 +30,9 @@ test.describe("LotoAtlas — mobile critical flows (iPhone 13 viewport)", () => 
     await expect(page).toHaveURL(/\/megasena\/gerar$/);
     await expectNoHorizontalOverflow(page);
 
-    await page.getByRole("link", { name: "Meus jogos salvos" }).first().click();
-    await expect(page).toHaveURL(/\/carteiras$/);
+    // UI-001: the bottom tab "Meus jogos" opens the saved games of the current modality.
+    await page.getByRole("navigation", { name: "Navegação principal" }).getByRole("link", { name: "Meus jogos" }).click();
+    await expect(page).toHaveURL(/\/megasena\/carteiras$/);
     await expectNoHorizontalOverflow(page);
   });
 
@@ -54,26 +55,18 @@ test.describe("LotoAtlas — mobile critical flows (iPhone 13 viewport)", () => 
     await expectNoHorizontalOverflow(page);
   });
 
-  test("header: brand, navigation, and modality switcher are all reachable in their own rows, with no overlap", async ({ page }) => {
+  test("chrome: top bar (logo + modality pill) and bottom tabs are reachable without overlap", async ({ page }) => {
     await page.goto("/");
-    const header = page.locator("header");
+    const header = page.locator("header").first();
     await expect(header.getByRole("link", { name: "LotoAtlas, página inicial" })).toBeVisible();
-    await expect(header.getByRole("link", { name: "Meus jogos salvos" })).toBeVisible();
-    await expect(header.getByRole("link", { name: "Sobre" })).toBeVisible();
-    await expect(header.getByRole("navigation", { name: "Alternar modalidade" })).toBeVisible();
-
-    // The tagline is reserved for Home/institutional/social contexts, never the nav header.
-    await expect(header.getByText("Organize. Analise. Confira.")).toHaveCount(0);
-
-    const logoBox = await header.getByRole("link", { name: "LotoAtlas, página inicial" }).boundingBox();
-    const navBox = await header.getByRole("link", { name: "Sobre" }).boundingBox();
-    const switcherBox = await header.getByRole("navigation", { name: "Alternar modalidade" }).boundingBox();
-    expect(logoBox).not.toBeNull();
-    expect(navBox).not.toBeNull();
-    expect(switcherBox).not.toBeNull();
-    // Logo (row 1) and the modality switcher (row 2) must not vertically overlap.
-    expect(switcherBox!.y).toBeGreaterThanOrEqual(logoBox!.y + logoBox!.height - 1);
-
+    await expect(header.getByRole("button", { name: /Trocar modalidade/ })).toBeVisible();
+    const tabs = page.getByRole("navigation", { name: "Navegação principal" });
+    for (const name of ["Gerar", "Meus jogos", "Análise"]) await expect(tabs.getByRole("link", { name })).toBeVisible();
+    await expect(tabs.getByRole("button", { name: "Mais" })).toBeVisible();
+    const tabsBox = await tabs.boundingBox();
+    const headerBox = await header.boundingBox();
+    expect(headerBox!.y + headerBox!.height).toBeLessThanOrEqual(tabsBox!.y);
+    await expect(page.getByText("Organize. Analise. Confira.")).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
   });
 

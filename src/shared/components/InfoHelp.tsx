@@ -4,12 +4,14 @@ import { CircleHelp } from "lucide-react";
 const POPOVER_WIDTH_PX = 256; // matches the w-64 utility below
 const VIEWPORT_SAFE_MARGIN_PX = 16;
 
-type PopoverAlign = "center" | "left" | "right";
+type PopoverAlign = "center" | "left" | "right" | "clamp";
 
 const ALIGN_CLASS: Record<PopoverAlign, string> = {
   center: "left-1/2 -translate-x-1/2",
   left: "left-0",
   right: "right-0",
+  // Positioned by an inline left offset (see below) when neither centered nor edge-aligned placement fits.
+  clamp: "",
 };
 
 export interface InfoHelpProps {
@@ -39,6 +41,7 @@ export interface InfoHelpProps {
 export function InfoHelp({ title, body, label, triggerContent, className }: InfoHelpProps) {
   const [open, setOpen] = useState(false);
   const [align, setAlign] = useState<PopoverAlign>("center");
+  const [clampLeft, setClampLeft] = useState(0);
   const popoverId = useId();
   const containerRef = useRef<HTMLSpanElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -53,10 +56,19 @@ export function InfoHelp({ title, body, label, triggerContent, className }: Info
     const rect = button.getBoundingClientRect();
     const triggerCenter = rect.left + rect.width / 2;
     const half = POPOVER_WIDTH_PX / 2;
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
     if (triggerCenter - half < VIEWPORT_SAFE_MARGIN_PX) {
       setAlign("left");
-    } else if (triggerCenter + half > window.innerWidth - VIEWPORT_SAFE_MARGIN_PX) {
-      setAlign("right");
+    } else if (triggerCenter + half > viewportWidth - VIEWPORT_SAFE_MARGIN_PX) {
+      // Right-aligned to the trigger only if that stays inside the viewport; otherwise clamp to the right safe margin
+      // (a trigger in the middle of a narrow screen would otherwise push the popover off the LEFT edge).
+      if (rect.right - POPOVER_WIDTH_PX >= VIEWPORT_SAFE_MARGIN_PX) {
+        setAlign("right");
+      } else {
+        const containerLeft = containerRef.current?.getBoundingClientRect().left ?? rect.left;
+        setClampLeft(Math.max(VIEWPORT_SAFE_MARGIN_PX, viewportWidth - VIEWPORT_SAFE_MARGIN_PX - POPOVER_WIDTH_PX) - containerLeft);
+        setAlign("clamp");
+      }
     } else {
       setAlign("center");
     }
@@ -109,7 +121,8 @@ export function InfoHelp({ title, body, label, triggerContent, className }: Info
         <span
           id={popoverId}
           role="tooltip"
-          className={`absolute top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border border-ink-500 bg-ink-600 p-3 text-left text-xs text-ink-100 shadow-overlay ${ALIGN_CLASS[align]}`}
+          style={align === "clamp" ? { left: clampLeft } : undefined}
+          className={`absolute top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded border border-ink-500 bg-ink-600 p-3 text-left text-xs text-ink-100 shadow-overlay ${ALIGN_CLASS[align]}`}
         >
           <span className="mb-1 block font-semibold text-ink-100">{title}</span>
           <span className="block leading-relaxed">{body}</span>

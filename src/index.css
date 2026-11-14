@@ -35,13 +35,7 @@ body {
   outline-offset: 2px;
 }
 
-/* UI-001: motion is short (150 ms max) and respects the user's preference. */
-*,
-*::before,
-*::after {
-  transition-duration: 150ms;
-}
-
+/* UI-001: motion is 150 ms at most (Tailwind transitionDuration default, applied only where a transition class is used) and respects the user preference. */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
