@@ -23,11 +23,30 @@ export interface GameConfigEntry {
   configVersion: string;
 }
 
+/** Sections a modality can expose in the navigation shell (UI-001). */
+export type ModalitySection = "gerar" | "carteiras" | "analise" | "metodologia";
+
+/** One entry of the modality registry in game-config.json (UI-001). */
+export interface ModalityRegistryEntry {
+  id: Modality;
+  slug: string;
+  displayName: string;
+  shortName: string;
+  enabled: boolean;
+  order: number;
+  sections: ModalitySection[];
+  datasetPath: string;
+  officialUrl: string;
+  colors: { accent: string; accentStrong: string; soft: string; onAccent: string; text: string };
+}
+
 export interface GameConfig {
   schemaVersion: number;
   updatedAt: string;
   lotofacil: GameConfigEntry;
   megasena: GameConfigEntry;
+  /** Modality registry; optional only for legacy fixtures, always present in the shipped config. */
+  modalities?: ModalityRegistryEntry[];
 }
 
 /**

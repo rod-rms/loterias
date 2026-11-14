@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { Disclosure, ErrorState, ResponsibleGamingNotice } from "../../shared/components";
 import { loadBacktest } from "../../shared/lib/backtestLoader";
 import { analyzeBacktest, buildAnalysisExport, type ModalityAnalysis } from "../../shared/lib/backtestAnalysis";
@@ -10,11 +9,6 @@ import type { Modality } from "../../shared/types";
 import { AverageChart, LedgerCard, PrizeChart, ShortAnswer, SpreadChart } from "./analise/lay";
 import { TechnicalDetails } from "./analise/technical";
 import { periodFromDraws, strategyLabel } from "./analise/format";
-
-const MODALITIES: { id: Modality; label: string; active: string }[] = [
-  { id: "lotofacil", label: "Lotofácil", active: "bg-lotofacil-500 text-white shadow-sm" },
-  { id: "megasena", label: "Mega-Sena", active: "bg-megasena-600 text-white shadow-sm" },
-];
 
 type LoadState = { status: "loading" } | { status: "error"; message: string } | { status: "ready"; analysis: ModalityAnalysis; period: ReturnType<typeof periodFromDraws> };
 type LedgerState = { lotofacil: LedgerSummary | "unavailable" | null; megasena: LedgerSummary | "unavailable" | null };
@@ -28,9 +22,8 @@ function download(name: string, text: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
-export function AnalisePage() {
-  const [params, setParams] = useSearchParams();
-  const modality: Modality = params.get("modalidade") === "megasena" ? "megasena" : "lotofacil";
+/** UI-001: the shell owns the modality (route /:modalidade/analise); this page no longer has its own toggle. */
+export function AnalisePage({ modality }: { modality: Modality }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [ledger, setLedger] = useState<LedgerState>({ lotofacil: null, megasena: null });
 
@@ -67,21 +60,8 @@ export function AnalisePage() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
+      <header>
         <h1 className="text-2xl font-semibold">Análise de resultados</h1>
-        <nav aria-label="Escolher modalidade da análise" className="flex w-fit gap-1 rounded-lg bg-brand-surfaceElevated p-1">
-          {MODALITIES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              aria-pressed={modality === m.id}
-              onClick={() => setParams({ modalidade: m.id }, { replace: true })}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${modality === m.id ? m.active : "text-brand-textMuted hover:text-brand-text"}`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </nav>
       </header>
 
       {state.status === "loading" && (

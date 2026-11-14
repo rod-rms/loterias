@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-07",
+  "updatedAt": "2026-11-14",
   "lotofacil": {
     "simpleTicketSize": 15,
     "ticketCostBRL": 3.5,
@@ -14,5 +14,43 @@
     "source": "https://loterias.caixa.gov.br/Paginas/Mega-Sena.aspx",
     "referenceDate": "2026-09-07",
     "configVersion": "2026-09-07"
-  }
+  },
+  "modalities": [
+    {
+      "id": "lotofacil",
+      "slug": "lotofacil",
+      "displayName": "Lotofácil",
+      "shortName": "Lotofácil",
+      "enabled": true,
+      "order": 1,
+      "sections": ["gerar", "carteiras", "analise", "metodologia"],
+      "datasetPath": "data/lotofacil/results.json",
+      "officialUrl": "https://loterias.caixa.gov.br/Paginas/Lotofacil.aspx",
+      "colors": {
+        "accent": "#4caf50",
+        "accentStrong": "#2e7d32",
+        "soft": "#16351f",
+        "onAccent": "#ffffff",
+        "text": "#9fe0a3"
+      }
+    },
+    {
+      "id": "megasena",
+      "slug": "megasena",
+      "displayName": "Mega-Sena",
+      "shortName": "Mega-Sena",
+      "enabled": true,
+      "order": 2,
+      "sections": ["gerar", "carteiras", "analise", "metodologia"],
+      "datasetPath": "data/megasena/results.json",
+      "officialUrl": "https://loterias.caixa.gov.br/Paginas/Mega-Sena.aspx",
+      "colors": {
+        "accent": "#7a9fd1",
+        "accentStrong": "#2f4f7c",
+        "soft": "#132540",
+        "onAccent": "#ffffff",
+        "text": "#b3cbef"
+      }
+    }
+  ]
 }
