@@ -59,7 +59,7 @@ describe("AppShell — LotoAtlas public brand", () => {
     expect(screen.getByText(/^LotoAtlas v\d+\.\d+\.\d+/)).toBeInTheDocument();
     expect(screen.queryByText(/^Loterias v/)).not.toBeInTheDocument();
     expect(screen.queryByText("Organize. Analise. Confira.")).not.toBeInTheDocument();
-    expect(await screen.findByText(/concurso/)).toBeInTheDocument(); // freshness from status.json
+    expect((await screen.findAllByText(/concurso/)).length).toBeGreaterThan(0); // freshness from status.json
   });
 
   it("keeps the skip link and main content landmark intact", () => {
