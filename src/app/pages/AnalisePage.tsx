@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { Disclosure, ErrorState, ResponsibleGamingNotice } from "../../shared/components";
 import { loadBacktest } from "../../shared/lib/backtestLoader";
 import { analyzeBacktest, buildAnalysisExport, type ModalityAnalysis } from "../../shared/lib/backtestAnalysis";
@@ -10,11 +9,6 @@ import type { Modality } from "../../shared/types";
 import { AverageChart, LedgerCard, PrizeChart, ShortAnswer, SpreadChart } from "./analise/lay";
 import { TechnicalDetails } from "./analise/technical";
 import { periodFromDraws, strategyLabel } from "./analise/format";
-
-const MODALITIES: { id: Modality; label: string; active: string }[] = [
-  { id: "lotofacil", label: "Lotofácil", active: "bg-lotofacil-500 text-white shadow-sm" },
-  { id: "megasena", label: "Mega-Sena", active: "bg-megasena-600 text-white shadow-sm" },
-];
 
 type LoadState = { status: "loading" } | { status: "error"; message: string } | { status: "ready"; analysis: ModalityAnalysis; period: ReturnType<typeof periodFromDraws> };
 type LedgerState = { lotofacil: LedgerSummary | "unavailable" | null; megasena: LedgerSummary | "unavailable" | null };
@@ -28,9 +22,8 @@ function download(name: string, text: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
-export function AnalisePage() {
-  const [params, setParams] = useSearchParams();
-  const modality: Modality = params.get("modalidade") === "megasena" ? "megasena" : "lotofacil";
+/** UI-001: the shell owns the modality (route /:modalidade/analise); this page no longer has its own toggle. */
+export function AnalisePage({ modality }: { modality: Modality }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [ledger, setLedger] = useState<LedgerState>({ lotofacil: null, megasena: null });
 
@@ -67,25 +60,12 @@ export function AnalisePage() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold">Análise de resultados</h1>
-        <nav aria-label="Escolher modalidade da análise" className="flex w-fit gap-1 rounded-lg bg-brand-surfaceElevated p-1">
-          {MODALITIES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              aria-pressed={modality === m.id}
-              onClick={() => setParams({ modalidade: m.id }, { replace: true })}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${modality === m.id ? m.active : "text-brand-textMuted hover:text-brand-text"}`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </nav>
+      <header>
+        <h1 className="text-2xl font-semibold">Análise de resultados</h1>
       </header>
 
       {state.status === "loading" && (
-        <p role="status" className="text-sm text-brand-textMuted">
+        <p role="status" className="text-sm text-ink-200">
           Carregando…
         </p>
       )}
@@ -101,9 +81,9 @@ export function AnalisePage() {
         </div>
       )}
 
-      <aside aria-label="Aviso sobre estes resultados" className="rounded-lg border border-brand-border bg-brand-surfaceElevated p-4 text-sm text-brand-textMuted" data-testid="analysis-disclaimer">
+      <aside aria-label="Aviso sobre estes resultados" className="border-t border-ink-500 pt-4 text-sm text-ink-200" data-testid="analysis-disclaimer">
         <p>
-          <strong className="text-brand-text">Isto descreve o passado.</strong> Os resultados não garantem nem preveem sorteios futuros e não indicam como jogar.
+          <strong className="text-ink-100">Isto descreve o passado.</strong> Os resultados não garantem nem preveem sorteios futuros e não indicam como jogar.
         </p>
         <p className="mt-2">
           O teste com sorteios passados é otimista: as estratégias foram desenhadas e ajustadas por pessoas que já conheciam esse histórico. Ele serve como triagem, não como prova.
@@ -121,8 +101,8 @@ export function AnalisePage() {
       )}
 
       {analysis && (
-        <footer aria-label="Metadados de auditoria" className="rounded-lg border border-brand-border bg-brand-surfaceElevated p-3 text-xs text-brand-textMuted" data-testid="audit-footer">
-          <p className="font-medium text-brand-text">Metadados de auditoria</p>
+        <footer aria-label="Metadados de auditoria" className="border-t border-ink-500 pt-3 text-xs text-ink-200" data-testid="audit-footer">
+          <p className="font-medium text-ink-100">Metadados de auditoria</p>
           <dl className="mt-1 grid gap-x-4 gap-y-0.5 sm:grid-cols-[auto_1fr]">
             <dt>Execução (runId)</dt>
             <dd className="break-all font-mono">{analysis.meta.runId}</dd>

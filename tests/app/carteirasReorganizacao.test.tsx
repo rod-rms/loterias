@@ -16,6 +16,7 @@ vi.mock("../../src/shared/lib/dataLoaders", async () => {
 });
 
 import { CarteirasPage } from "../../src/app/pages/CarteirasPage";
+import { withRegistry } from "./fixtures/registry";
 
 function daysAgo(n: number): string {
   const now = new Date();
@@ -29,7 +30,7 @@ function make(id: string, modality: Modality, contest: number, createdAt: string
     tickets: [Array.from({ length: size }, (_, i) => i + 1)], metrics: {}, audit: {}, markedAsBet: false,
   };
 }
-const renderPage = () => render(<MemoryRouter><CarteirasPage /></MemoryRouter>);
+const renderPage = () => render(withRegistry(<MemoryRouter><CarteirasPage /></MemoryRouter>));
 
 beforeEach(async () => {
   await db.portfolios.clear();
@@ -46,8 +47,10 @@ describe("CarteirasPage — grouping by day, modality cue, load more", () => {
     expect(within(hoje).getAllByTestId("saved-card")).toHaveLength(2);
     expect(within(screen.getByRole("region", { name: "Ontem" })).getAllByTestId("saved-card")).toHaveLength(1);
     const cards = screen.getAllByTestId("saved-card");
-    expect(cards.find((c) => c.dataset.modality === "megasena")!.className).toContain("border-l-brand-blue");
-    expect(cards.find((c) => c.dataset.modality === "lotofacil")!.className).toContain("border-l-brand-teal");
+    // UI-001: the modality accent is a CSS variable from the modality registry (--mod-accent), applied through one class.
+    expect(cards.find((c) => c.dataset.modality === "megasena")!.className).toContain("border-l-mod-accent");
+    expect(cards.find((c) => c.dataset.modality === "lotofacil")!.className).toContain("border-l-mod-accent");
+    expect(cards.some((c) => c.dataset.modality === "megasena") && cards.some((c) => c.dataset.modality === "lotofacil")).toBe(true);
     // the text label stays alongside the color cue
     expect(within(cards[0]!).getByText(/Mega-Sena|Lotofácil/)).toBeInTheDocument();
   });

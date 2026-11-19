@@ -10,14 +10,14 @@
   --la-offwhite:#F7F9FC; --la-white:#FFFFFF; --la-muted:#6B7280; --la-line:#DDE3EC;
   --la-gradient:linear-gradient(135deg,#6D3CFF 0%,#1677FF 52%,#12C7B0 100%);
   --la-gradient-luck:linear-gradient(135deg,#66D889 0%,#22B96B 100%);
-  --la-font-display:"Inter",system-ui,sans-serif; --la-font-body:"Inter",system-ui,sans-serif;
+  --la-font-display:"IBM Plex Sans",system-ui,sans-serif; --la-font-body:"IBM Plex Sans",system-ui,sans-serif;
 
-  /* v0.3: semantic font roles. Inter remains the only brand/UI family;
-     JetBrains Mono is added exclusively for data-centric values (numbers,
-     contest IDs, timestamps, monetary values) — never for headings, body
-     copy, navigation, or button labels. */
-  --la-font-sans:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
-  --la-font-mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  /* UI-001 (2026-11-14): product typography moved to IBM Plex Sans (UI/text, 400/500/600) and IBM Plex Mono
+     (numbers, contest IDs, seeds, metrics). This is a product-owner decision for the app; the brand kit v0.3
+     typography guideline (Inter + JetBrains Mono) still applies to marketing/brand collateral. Mono is for data
+     values only, never headings, body copy, navigation or button labels. */
+  --la-font-sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --la-font-mono:"IBM Plex Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
 }
 
 /* v0.3: semantic design tokens — dark theme (PRIMARY / default application surface).

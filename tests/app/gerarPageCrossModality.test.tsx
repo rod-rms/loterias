@@ -142,7 +142,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios da Mega-Sena"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     // Simulate the exact defect precondition: edit the config after
     // generating, so the stale-result warning is showing, then "navigate"
@@ -158,7 +158,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Gerar jogos da Lotofácil" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Seus jogos estão prontos" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Jogos gerados" })).not.toBeInTheDocument();
     expect(screen.queryByText(/Você alterou a configuração depois de gerar estes jogos/)).not.toBeInTheDocument();
     expect(screen.queryByText(megasenaStrategy.ux.title)).not.toBeInTheDocument();
     expect(screen.getByText("Escolha uma opção acima para continuar.")).toBeInTheDocument();
@@ -173,7 +173,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios da Lotofácil"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     rerender(
       <MemoryRouter>
@@ -182,7 +182,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Gerar jogos da Mega-Sena" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Seus jogos estão prontos" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Jogos gerados" })).not.toBeInTheDocument();
     expect(screen.queryByText(lotofacilStrategy.ux.title)).not.toBeInTheDocument();
   });
 
@@ -195,7 +195,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios da Mega-Sena"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     rerender(
       <MemoryRouter>
@@ -205,7 +205,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios da Lotofácil"));
 
-    expect(screen.queryByRole("heading", { name: "Seus jogos estão prontos" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Jogos gerados" })).not.toBeInTheDocument();
     expect(screen.queryByText(/Você alterou a configuração depois de gerar estes jogos/)).not.toBeInTheDocument();
   });
 
@@ -220,11 +220,11 @@ describe("GerarPage — cross-modality generation state isolation", () => {
     const quantityInput = await screen.findByRole("spinbutton", { name: /Quantidade de jogos/ });
     fireEvent.change(quantityInput, { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     fireEvent.change(quantityInput, { target: { value: "9" } });
 
-    expect(screen.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Jogos gerados" })).toBeInTheDocument();
     await screen.findByText(/Você alterou a configuração depois de gerar estes jogos/);
   });
 
@@ -237,7 +237,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios da Mega-Sena"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     rerender(
       <MemoryRouter>
@@ -261,7 +261,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios da Mega-Sena"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     rerender(
       <MemoryRouter>
@@ -283,7 +283,7 @@ describe("GerarPage — cross-modality generation state isolation", () => {
 
     fireEvent.click(await screen.findByText("Gerar jogos aleatórios da Lotofácil"));
     fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-    await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+    await screen.findByRole("heading", { name: "Jogos gerados" });
 
     rerender(
       <MemoryRouter>
@@ -291,6 +291,6 @@ describe("GerarPage — cross-modality generation state isolation", () => {
       </MemoryRouter>,
     );
 
-    await waitFor(() => expect(screen.queryByRole("heading", { name: "Seus jogos estão prontos" })).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Jogos gerados" })).not.toBeInTheDocument());
   });
 });

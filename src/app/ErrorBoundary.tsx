@@ -41,15 +41,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return this.props.children;
     }
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-bg text-brand-text">
+      <div className="flex min-h-screen items-center justify-center bg-ink-900 text-ink-100">
         <div role="alert" className="mx-auto flex max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
-          <h1 className="text-xl font-bold text-brand-text">Algo deu errado</h1>
-          <p className="text-sm text-brand-textMuted">Não foi possível carregar esta tela. Seus jogos salvos continuam armazenados neste navegador.</p>
+          <h1 className="text-xl font-semibold text-ink-100">Algo deu errado</h1>
+          <p className="text-sm text-ink-200">Não foi possível carregar esta tela. Seus jogos salvos continuam armazenados neste navegador.</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button type="button" onClick={this.handleRetry} className="rounded-md bg-brand-action px-4 py-2 text-sm font-semibold text-brand-actionForeground">
               Tentar novamente
             </button>
-            <a href="/" className="rounded-md border border-brand-border px-4 py-2 text-sm font-semibold text-brand-text">
+            <a href="/" className="rounded-md border border-ink-500 px-4 py-2 text-sm font-semibold text-ink-100">
               Voltar ao início
             </a>
           </div>

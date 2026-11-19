@@ -18,7 +18,7 @@ test.describe("LotoAtlas — cross-modality generation state isolation", () => {
 
     await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).click();
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
 
     // Edit the configuration after generating, so the stale-result warning appears.
     const quantityInput = page.getByRole("spinbutton", { name: /Quantidade de jogos/ });
@@ -30,7 +30,7 @@ test.describe("LotoAtlas — cross-modality generation state isolation", () => {
 
     await expect(page.getByRole("heading", { name: "Gerar jogos da Lotofácil" })).toBeVisible();
     await expect(page.getByText("Gerar jogos aleatórios")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
     await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toHaveCount(0);
     // No leftover Mega-Sena strategy identifier/result section.
     await expect(page.getByText(/Priorizar Quadra ou mais/)).toHaveCount(0);
@@ -38,7 +38,7 @@ test.describe("LotoAtlas — cross-modality generation state isolation", () => {
     // Selecting a Lotofácil strategy keeps the page internally consistent.
     await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).click();
     await expect(page.getByRole("heading", { name: "2. Quantos jogos você quer gerar?" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     expect(overflow).toBe(false);
@@ -51,11 +51,11 @@ test.describe("LotoAtlas — cross-modality generation state isolation", () => {
 
     await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).click();
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
 
     await page.goBack();
     await expect(page).toHaveURL(/\/megasena\/gerar$/);
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
     await expect(page.getByText(/Gerar jogos aleatórios/)).toBeVisible();
 
     // Forward returns to the Lotofácil route; a fresh page (no restored
@@ -67,7 +67,7 @@ test.describe("LotoAtlas — cross-modality generation state isolation", () => {
     // Going back again must still show no leaked result on Mega-Sena.
     await page.goBack();
     await expect(page).toHaveURL(/\/megasena\/gerar$/);
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
     await expect(page.getByText(/Gerar jogos aleatórios/)).toBeVisible();
   });
 });

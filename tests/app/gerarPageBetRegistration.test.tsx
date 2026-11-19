@@ -112,7 +112,7 @@ async function generateSix() {
   fireEvent.click(await screen.findByText("Gerar jogos aleatórios"));
   fireEvent.change(await screen.findByRole("spinbutton", { name: /Quantidade de jogos/ }), { target: { value: "6" } });
   fireEvent.click(screen.getByRole("button", { name: "Gerar jogos" }));
-  await screen.findByRole("heading", { name: "Seus jogos estão prontos" });
+  await screen.findByRole("heading", { name: "Jogos gerados" });
   fireEvent.click(screen.getByRole("button", { name: "Salvar estes jogos" }));
   await screen.findByRole("dialog", { name: "Salvar carteira" });
 }

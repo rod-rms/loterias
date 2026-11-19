@@ -11,7 +11,7 @@ const HELP: Record<QualityPreset, string> = {
 export function QualityPresetSelector({ value, onChange }: { value: QualityPreset; onChange: (v: QualityPreset) => void }) {
   return (
     <div>
-      <span className="mb-1.5 block text-sm font-medium text-brand-text">Quanto tempo o app deve dedicar à busca?</span>
+      <span className="mb-1.5 block text-sm font-medium text-ink-100">Quanto tempo o app deve dedicar à busca?</span>
       <div role="radiogroup" aria-label="Quanto tempo o app deve dedicar à busca?" className="flex flex-wrap gap-2">
         {(["fast", "balanced", "deep"] as const).map((preset) => (
           <span key={preset} className="inline-flex items-center gap-1">
@@ -20,11 +20,11 @@ export function QualityPresetSelector({ value, onChange }: { value: QualityPrese
               role="radio"
               aria-checked={value === preset}
               onClick={() => onChange(preset)}
-              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm ${value === preset ? "border-brand-action bg-brand-action text-brand-actionForeground" : "border-brand-border bg-brand-surface text-brand-text"}`}
+              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm ${value === preset ? "border-ink-100 bg-ink-600 text-ink-100" : "border-ink-500 bg-ink-700 text-ink-100"}`}
             >
               {LABELS[preset]}
               {preset === "balanced" && (
-                <span className={`rounded-full px-1.5 py-0 text-[10px] ${value === preset ? "bg-white/20 text-white" : "bg-brand-surfaceElevated text-brand-textMuted"}`}>Padrão</span>
+                <span className={`rounded-full px-1.5 py-0 text-xs ${value === preset ? "bg-ink-500 text-ink-100" : "bg-ink-600 text-ink-200"}`}>Padrão</span>
               )}
             </button>
             <InfoHelp title={LABELS[preset]} body={HELP[preset]} />

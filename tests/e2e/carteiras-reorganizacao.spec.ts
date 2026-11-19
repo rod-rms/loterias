@@ -11,7 +11,7 @@ test("Meus jogos salvos: agrupado por dia, data estimada e aviso de resultado pe
   await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill(String(next));
   await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("3");
   await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+  await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
   await page.getByRole("button", { name: "Salvar estes jogos" }).click();
   await page.getByRole("button", { name: "Confirmar e salvar" }).click();
   await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
@@ -34,7 +34,7 @@ test("Detalhes abre logo abaixo do cartão clicado (não no fim da página)", as
     await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).first().click();
     await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill(n);
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
     await page.getByRole("button", { name: "Confirmar e salvar" }).click();
     await expect(page.getByText("Estes jogos foram salvos em Meus jogos salvos.")).toBeVisible();
@@ -63,7 +63,7 @@ for (const viewport of [
       await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).first().click();
       await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill(n);
       await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-      await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+      await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
       await page.getByRole("button", { name: "Salvar estes jogos" }).click();
       // keep the bet registration off so every card starts as "Registrar aposta"
       await page.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }).uncheck();

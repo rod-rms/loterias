@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { strategyRegistry } from "../../shared/lib/strategyRegistry";
 import { loadDataset, loadGameConfig, suggestNextContest } from "../../shared/lib/dataLoaders";
 import { useGenerationWorker } from "../../shared/lib/useGenerationWorker";
@@ -23,7 +22,6 @@ import {
   ResponsibleGamingNotice,
   Disclosure,
   ExportMenu,
-  BackLink,
   BetTicketPicker,
   HistoricalContestNotice,
   NextContestNotice,
@@ -482,36 +480,24 @@ export function GerarPage({ modality }: { modality: Modality }) {
 
   return (
     <div className="space-y-8">
-      <BackLink to="/" label="Voltar ao início" />
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
-        <nav aria-label="Outras páginas desta modalidade" className="flex gap-4 text-sm font-medium text-brand-textMuted">
-          <Link to={`/${modality}/carteiras`} className="underline-offset-2 hover:text-brand-text hover:underline">
-            Meus jogos salvos
-          </Link>
-          <Link to={`/${modality}/metodologia`} className="underline-offset-2 hover:text-brand-text hover:underline">
-            Metodologia
-          </Link>
-        </nav>
-      </div>
+      <h1 className="text-2xl font-semibold">Gerar jogos da {MODALITY_LABEL[modality]}</h1>
 
       <section aria-labelledby="step-strategy">
-        <h2 id="step-strategy" className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-textMuted">
+        <h2 id="step-strategy" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
           1. O que você quer priorizar?
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="border-t border-ink-500 lg:grid lg:grid-cols-2 lg:gap-x-8">
           {strategies.map((s) => (
             <StrategyCard key={s.id} strategy={s} selected={s.id === selectedStrategyId} onSelect={() => setSelectedStrategyId(s.id)} />
           ))}
         </div>
-        {!strategy && <p className="mt-3 text-sm text-brand-textMuted">Escolha uma opção acima para continuar.</p>}
+        {!strategy && <p className="mt-3 text-sm text-ink-200">Escolha uma opção acima para continuar.</p>}
       </section>
 
       {strategy && gameConfig && (
         <>
-          <section aria-labelledby="step-quantity">
-            <h2 id="step-quantity" className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-textMuted">
+          <section aria-labelledby="step-quantity" className="border-t border-ink-500 pt-6">
+            <h2 id="step-quantity" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
               2. Quantos jogos você quer gerar?
             </h2>
             <QuantityBudgetInput
@@ -526,14 +512,14 @@ export function GerarPage({ modality }: { modality: Modality }) {
             />
           </section>
 
-          <section aria-labelledby="step-contest" className="space-y-5">
-            <h2 id="step-contest" className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-textMuted">
+          <section aria-labelledby="step-contest" className="space-y-5 border-t border-ink-500 pt-6">
+            <h2 id="step-contest" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
               {supportsNumberCustomization ? "3. Concurso e personalização" : "3. Concurso"}
             </h2>
 
             <div>
               <label className="block text-sm">
-                <span className="mb-1 flex items-center gap-1.5 font-medium text-brand-text">
+                <span className="mb-1 flex items-center gap-1.5 font-medium text-ink-100">
                   Concurso em que você pretende jogar
                   <InfoHelp
                     title="Concurso em que você pretende jogar"
@@ -549,18 +535,18 @@ export function GerarPage({ modality }: { modality: Modality }) {
                     setContestTouched(true);
                     setContest(e.target.value === "" ? "" : Number(e.target.value));
                   }}
-                  className="w-40 rounded-md border border-brand-border px-2 py-1.5"
+                  className="w-40 rounded-md border border-ink-500 px-2 py-1.5"
                 />
               </label>
               {strategy.requiresTargetContest ? (
                 <p className="mt-1 text-xs font-medium text-amber-300">Obrigatório para esta opção.</p>
               ) : null}
               {strategy.requiresHistoricalDraws && (
-                <p className="mt-1 text-xs text-brand-textMuted">
+                <p className="mt-1 text-xs text-ink-200">
                   Esta opção usa os {strategy.historyWindowSize} concursos imediatamente anteriores como referência para montar o conjunto.
                 </p>
               )}
-              {contest !== "" && datasetLoading && <p className="mt-1 text-sm text-brand-textMuted">Carregando a base de concursos...</p>}
+              {contest !== "" && datasetLoading && <p className="mt-1 text-sm text-ink-200">Carregando a base de concursos...</p>}
               {contestValidation?.status === "ok_historical" && (
                 <div className="mt-2">
                   <HistoricalContestNotice draw={contestValidation.draw} />
@@ -598,13 +584,13 @@ export function GerarPage({ modality }: { modality: Modality }) {
             )}
           </section>
 
-          <section aria-labelledby="step-summary" className="rounded-xl border border-brand-border bg-brand-surface p-4">
-            <h2 id="step-summary" className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-textMuted">
+          <section aria-labelledby="step-summary" className="border-t border-ink-500 pt-6">
+            <h2 id="step-summary" className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-300">
               4. Revisar e gerar
             </h2>
-            <p className="text-base text-brand-text">{summarySentence}</p>
+            <p className="text-base text-ink-100">{summarySentence}</p>
             {(fixedNumbers.length > 0 || excludedNumbers.length > 0) && (
-              <p className="mt-1 text-sm text-brand-textMuted">
+              <p className="mt-1 text-sm text-ink-200">
                 {fixedNumbers.length > 0 && `Obrigatórias: ${[...fixedNumbers].sort((a, b) => a - b).map((n) => String(n).padStart(2, "0")).join(", ")}. `}
                 {excludedNumbers.length > 0 && `Não usar: ${[...excludedNumbers].sort((a, b) => a - b).map((n) => String(n).padStart(2, "0")).join(", ")}.`}
               </p>
@@ -620,12 +606,12 @@ export function GerarPage({ modality }: { modality: Modality }) {
               >
                 {isRunning ? STAGE_LABEL[stage] ?? "Gerando..." : "Gerar jogos"}
               </button>
-              <button type="button" onClick={handleClearConfiguration} className="text-sm text-brand-textMuted underline-offset-2 hover:text-brand-text hover:underline">
+              <button type="button" onClick={handleClearConfiguration} className="text-sm text-ink-200 underline-offset-2 hover:text-ink-100 hover:underline">
                 Limpar configuração
               </button>
             </div>
             {isRunning && (
-              <p role="status" aria-live="polite" className="mt-2 text-sm text-brand-textMuted">
+              <p role="status" aria-live="polite" className="mt-2 text-sm text-ink-200">
                 {STAGE_LABEL[stage]}…
               </p>
             )}
@@ -642,7 +628,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
               disabled={!canGenerateNow}
               title={canGenerateNow ? undefined : "Escolha uma opção e preencha a configuração antes de gerar."}
               onClick={() => handleGenerate()}
-              className="rounded-md bg-amber-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-amber-600"
+              className="rounded bg-amber-500 px-3 py-1.5 text-sm font-medium text-ink-950 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-amber-500"
             >
               Gerar com a nova configuração
             </button>
@@ -660,26 +646,26 @@ export function GerarPage({ modality }: { modality: Modality }) {
       )}
 
       {activeResult && (
-        <section aria-labelledby="step-result" className="space-y-4 rounded-xl border border-brand-border bg-brand-surface p-4">
-          <h2 id="step-result" className="text-xl font-bold text-brand-text">
-            Seus jogos estão prontos
+        <section aria-labelledby="step-result" className="space-y-4 border-t-2 border-mod-accent pt-6">
+          <h2 id="step-result" className="text-xl font-semibold text-ink-100">
+            Jogos gerados
           </h2>
           <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
             <div>
-              <dt className="text-xs text-brand-textMuted">Quantidade de jogos</dt>
+              <dt className="text-xs text-ink-200">Quantidade de jogos</dt>
               <dd className="font-mono text-lg font-semibold tabular-nums">{activeResult.tickets.length}</dd>
             </div>
             <div>
-              <dt className="text-xs text-brand-textMuted">Custo total</dt>
+              <dt className="text-xs text-ink-200">Custo total</dt>
               <dd className="font-mono text-lg font-semibold tabular-nums">{formatBRL(activeResult.costBRL)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-brand-textMuted">Opção usada</dt>
+              <dt className="text-xs text-ink-200">Opção usada</dt>
               <dd className="font-medium">{strategyRegistry.get(activeResult.strategyId)?.ux.title ?? activeResult.strategyId}</dd>
             </div>
             {activeResult.contest !== undefined && (
               <div>
-                <dt className="text-xs text-brand-textMuted">Concurso</dt>
+                <dt className="text-xs text-ink-200">Concurso</dt>
                 <dd className="font-mono font-medium tabular-nums">{activeResult.contest}</dd>
               </div>
             )}
@@ -697,16 +683,16 @@ export function GerarPage({ modality }: { modality: Modality }) {
               >
                 {activeResult.tickets.length === 1 ? "Salvar este jogo" : "Salvar estes jogos"}
               </button>
-              <button type="button" onClick={copyAll} className="rounded-md border border-brand-borderStrong px-4 py-2 text-sm font-semibold text-brand-text hover:bg-white/5">
+              <button type="button" onClick={copyAll} className="rounded-md border border-ink-300 px-4 py-2 text-sm font-semibold text-ink-100 hover:bg-ink-600">
                 Copiar todos
               </button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <button type="button" onClick={() => handleGenerate()} className="rounded border border-brand-border px-3 py-1.5 text-sm text-brand-textMuted hover:bg-white/5">
+              <button type="button" onClick={() => handleGenerate()} className="rounded border border-ink-500 px-3 py-1.5 text-sm text-ink-200 hover:bg-ink-600">
                 Gerar outra opção
               </button>
               <ExportMenu onExportCsv={downloadCsv} onExportJson={downloadJson} />
-              <button type="button" onClick={handleDiscardPreviousResult} className="ml-auto text-sm text-brand-textMuted underline-offset-2 hover:text-brand-textMuted hover:underline">
+              <button type="button" onClick={handleDiscardPreviousResult} className="ml-auto text-sm text-ink-200 underline-offset-2 hover:text-ink-200 hover:underline">
                 Limpar resultado
               </button>
             </div>
@@ -719,12 +705,12 @@ export function GerarPage({ modality }: { modality: Modality }) {
               </p>
             )}
             {saveOpen && (
-              <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded-lg border border-brand-borderStrong bg-brand-action/10 p-4">
-                <h3 className="text-sm font-semibold text-brand-text">Salvar carteira</h3>
-                <p className="text-sm text-brand-textMuted">
+              <div role="dialog" aria-label="Salvar carteira" className="space-y-3 rounded border border-ink-400 bg-ink-600 p-4 shadow-overlay">
+                <h3 className="text-sm font-semibold text-ink-100">Salvar carteira</h3>
+                <p className="text-sm text-ink-200">
                   {activeResult.tickets.length === 1 ? "O jogo gerado será salvo." : `Todos os ${activeResult.tickets.length} jogos gerados serão salvos.`}
                 </p>
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-brand-text">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-100">
                   <input
                     type="checkbox"
                     checked={registerBet}
@@ -751,7 +737,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
                   >
                     Confirmar e salvar
                   </button>
-                  <button type="button" onClick={() => setSaveOpen(false)} className="rounded-md border border-brand-border px-4 py-2 text-sm font-semibold text-brand-text hover:bg-white/5">
+                  <button type="button" onClick={() => setSaveOpen(false)} className="rounded-md border border-ink-500 px-4 py-2 text-sm font-semibold text-ink-100 hover:bg-ink-600">
                     Cancelar
                   </button>
                 </div>
@@ -762,7 +748,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
           <PortfolioTicketList tickets={activeResult.tickets} onCopyTicket={(t) => navigator.clipboard?.writeText(t.join(", "))} />
 
           {probability && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
               {primaryKeys
                 .filter((k) => probability[k])
                 .map((key) => {
@@ -798,7 +784,7 @@ export function GerarPage({ modality }: { modality: Modality }) {
             currentResult={activeResult}
           />
 
-          <div className="space-y-2 border-t border-brand-border pt-3">
+          <div className="space-y-2 border-t border-ink-500 pt-3">
             <Disclosure title="Ver análise detalhada" open={showDetailedAnalysis} onOpenChange={setShowDetailedAnalysis}>
               <div className="space-y-3">
                 {overlap && <OverlapSummary min={overlap.min} max={overlap.max} mean={overlap.mean} histogram={overlap.histogram} />}
@@ -807,40 +793,40 @@ export function GerarPage({ modality }: { modality: Modality }) {
             </Disclosure>
 
             <Disclosure title="Detalhes técnicos do resultado" open={showTechnicalDetails} onOpenChange={setShowTechnicalDetails}>
-              <dl className="grid grid-cols-1 gap-2 text-xs text-brand-textMuted sm:grid-cols-2">
+              <dl className="grid grid-cols-1 gap-2 text-xs text-ink-200 sm:grid-cols-2">
                 <div>
-                  <dt className="font-medium text-brand-text">Estratégia (nome técnico)</dt>
+                  <dt className="font-medium text-ink-100">Estratégia (nome técnico)</dt>
                   <dd>{strategyRegistry.get(activeResult.strategyId)?.ux.technicalName ?? activeResult.strategyId}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-brand-text">Identificador / versão</dt>
+                  <dt className="font-medium text-ink-100">Identificador / versão</dt>
                   <dd className="break-all font-mono">
                     {activeResult.strategyId} · v{activeResult.strategyVersion}
                   </dd>
                 </div>
                 <div className="break-all">
-                  <dt className="font-medium text-brand-text">Seed</dt>
+                  <dt className="font-medium text-ink-100">Seed</dt>
                   <dd className="font-mono">{String(activeResult.seed)}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-brand-text">Método de geração</dt>
+                  <dt className="font-medium text-ink-100">Método de geração</dt>
                   <dd>{activeResult.generationMethod}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-brand-text">Método de avaliação</dt>
+                  <dt className="font-medium text-ink-100">Método de avaliação</dt>
                   <dd>{activeResult.evaluationMethod}</dd>
                 </div>
                 <div className="sm:col-span-2">
                   <button
                     type="button"
                     onClick={() => handleGenerate(String(activeResult.seed))}
-                    className="rounded border border-brand-border px-3 py-1.5 text-xs font-medium text-brand-textMuted hover:bg-white/5"
+                    className="rounded border border-ink-500 px-3 py-1.5 text-xs font-medium text-ink-200 hover:bg-ink-600"
                   >
                     Gerar novamente este mesmo conjunto
                   </button>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="font-medium text-brand-text">Metadados de auditoria</dt>
+                  <dt className="font-medium text-ink-100">Metadados de auditoria</dt>
                   <dd className="overflow-x-auto whitespace-pre-wrap break-all font-mono">{JSON.stringify(activeResult.audit, null, 2)}</dd>
                 </div>
               </dl>

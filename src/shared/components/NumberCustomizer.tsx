@@ -38,16 +38,16 @@ export function NumberCustomizer({
 
   return (
     <div className="space-y-3">
-      <label className="flex items-center gap-2 text-sm font-semibold text-brand-text">
+      <label className="flex items-center gap-2 text-sm font-semibold text-ink-100">
         <input
           type="checkbox"
           checked={enabled}
           disabled={disabled}
           onChange={(e) => setEnabled(e.target.checked)}
-          className="h-4 w-4 rounded border-brand-border"
+          className="h-4 w-4 rounded border-ink-500"
         />
         Quer personalizar suas dezenas?
-        <span className="rounded-full bg-brand-surfaceElevated px-2 py-0.5 text-[11px] font-normal text-brand-textMuted">Opcional</span>
+        <span className="rounded-full bg-ink-600 px-2 py-0.5 text-xs font-normal text-ink-200">Opcional</span>
       </label>
 
       {enabled && (
@@ -117,7 +117,7 @@ function NumberSection({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-1.5">
-        <h4 className="text-sm font-medium text-brand-text">{title}</h4>
+        <h4 className="text-sm font-medium text-ink-100">{title}</h4>
         <InfoHelp title={help.title} body={help.body} />
       </div>
       <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-10" role="group" aria-label={title}>
@@ -133,7 +133,7 @@ function NumberSection({
               aria-label={`Dezena ${pad(n)}${isSelected ? `, ${statusWord}` : ""}`}
               onClick={() => onToggle(n)}
               className={`h-9 rounded-md border font-mono text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus disabled:opacity-30 ${
-                isSelected ? activeStyle : "border-brand-border bg-brand-surface text-brand-text hover:border-brand-borderStrong"
+                isSelected ? activeStyle : "border-ink-500 bg-ink-700 text-ink-100 hover:border-ink-300"
               }`}
             >
               {pad(n)}
@@ -143,7 +143,7 @@ function NumberSection({
       </div>
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {selected.length === 0 ? (
-          <span className="text-brand-textMuted">{emptyLabel}</span>
+          <span className="text-ink-200">{emptyLabel}</span>
         ) : (
           <div className="flex flex-wrap gap-1">
             {[...selected].sort((a, b) => a - b).map((n) => (
@@ -152,7 +152,7 @@ function NumberSection({
           </div>
         )}
         {selected.length > 0 && (
-          <button type="button" onClick={onClear} className="text-xs font-medium text-brand-textMuted underline-offset-2 hover:underline">
+          <button type="button" onClick={onClear} className="text-xs font-medium text-ink-200 underline-offset-2 hover:underline">
             Limpar
           </button>
         )}

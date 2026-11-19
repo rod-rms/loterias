@@ -13,7 +13,7 @@ test.describe("LotoAtlas — per-ticket bet registration and full-portfolio chec
     await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
     await page.getByRole("spinbutton", { name: "Concurso em que você pretende jogar", exact: true }).fill("100");
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
 
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
     await expect(page.getByText("Todos os 6 jogos gerados serão salvos.")).toBeVisible();
@@ -54,7 +54,7 @@ test.describe("LotoAtlas — per-ticket bet registration and full-portfolio chec
     await page.getByRole("button", { name: /Gerar jogos aleatórios/ }).first().click();
     await page.getByRole("spinbutton", { name: /Quantidade de jogos/ }).fill("6");
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
 
     await page.getByRole("button", { name: "Salvar estes jogos" }).click();
     await page.getByRole("checkbox", { name: /Registrar também quais jogos foram apostados/ }).uncheck();

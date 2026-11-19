@@ -69,10 +69,11 @@ function serve(files: Partial<Record<Modality, unknown>>) {
     return new Response("nf", { status: 404 });
   }) as unknown as typeof fetch;
 }
-const renderPage = (path = "/analise") =>
+// UI-001: the shell owns the modality (route /:modalidade/analise); the page receives it as a prop.
+const renderPage = (modality: Modality = "lotofacil") =>
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <AnalisePage />
+    <MemoryRouter initialEntries={[`/${modality}/analise`]}>
+      <AnalisePage modality={modality} />
     </MemoryRouter>,
   );
 
@@ -193,10 +194,7 @@ describe("AnalisePage (lay view)", () => {
   });
 
   it("Mega-Sena: the prize chart is a table of quadra/quina/sena with the too-rare message", async () => {
-    const user = userEvent.setup();
-    renderPage();
-    await screen.findByTestId("short-answer");
-    await user.click(screen.getByRole("button", { name: "Mega-Sena" }));
+    renderPage("megasena");
     await waitFor(() => expect(screen.getByTestId("short-answer")).toHaveTextContent(/acertos por jogo; ao acaso, 0,600/));
     expect(screen.getByTestId("short-answer")).toHaveTextContent("raros demais");
     const prizes = screen.getByTestId("chart-premios");

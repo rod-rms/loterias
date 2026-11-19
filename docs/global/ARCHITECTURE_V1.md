@@ -309,3 +309,15 @@ Por que não "salvar parcialmente": as métricas/auditoria congeladas descrevem 
 **Conferência**: `checkTicketsAgainstDraw` continua recebendo `portfolio.tickets` inteiro (`hitsPerTicket` alinhado a todos os jogos). A comparação apostados × não apostados é derivada apenas de `checkedResult` + seleção, é descritiva ("J6 não foi marcado como apostado e teve 1 acerto a mais que o melhor jogo apostado.") e nunca usa linguagem de decisão boa/ruim nem de prêmio. Rótulos de resultado reutilizam `formatHitResult`.
 
 **Roadmap — OBS-001 (Registro de Pesquisa Observacional)**: os dados gravados já distinguem carteira gerada completa, jogos apostados, jogos deliberadamente não apostados, registro anterior vs. posterior à disponibilidade do resultado e o resultado de cada jogo gerado. O painel de análise NÃO faz parte deste PR; os registros permanecem locais (IndexedDB) e só saem do dispositivo se o usuário exportar um backup.
+
+## 23. Registro de modalidades e shell de navegação (UI-001, `feat/ui-001-redesign`)
+
+A lista de modalidades **não** está no código da interface. Ela vive em `public/data/config/game-config.json`, no array `modalities` (mesmo arquivo versionado que já carrega os preços), validado por `gameConfigSchema` e lido por `src/shared/lib/modalityRegistry.ts`. O shell (`src/app/layout/AppShell.tsx`), as rotas (`src/app/router/routeComponents.tsx`), os acentos de cor, as linhas de atualização dos dados e o Início leem apenas esse registro.
+
+Cada entrada: `id`, `slug`, `displayName`, `shortName`, `enabled`, `order`, `sections` (subconjunto de `gerar`, `carteiras`, `analise`, `metodologia`), `datasetPath`, `officialUrl` e `colors` (`accent`, `accentStrong`, `soft`, `onAccent`, `text`; vão para as variáveis CSS `--mod-*`, usadas pelas classes `mod-*` do Tailwind).
+
+**O que uma nova modalidade (ex.: Quina) precisa, sem editar o shell:** (1) uma entrada em `modalities` e as chaves de preço e de dados da modalidade no `game-config.json`/`status.json`/`results.json`; (2) o módulo de domínio e as estratégias no Strategy Registry (`src/modules/<modalidade>/`) e o adaptador de geração; (3) o tipo `Modality`, o esquema de `gameConfigSchema` e o rótulo de acertos/prêmios em `src/app/pages/analise/`. Os itens (2) e (3) são código de domínio/estatística e continuam exigindo decisão própria; o item (1) é o que a navegação precisa.
+
+**Rotas canônicas:** `/:modalidade/{gerar,carteiras,analise,metodologia}`. URLs legadas preservadas: `/lotofacil` e `/megasena` → `/<modalidade>/gerar`; `/analise?modalidade=x` → `/x/analise` (replace); `/carteiras` (todas as modalidades) e `/sobre` inalteradas. Um `slug` desconhecido mostra "Página não encontrada".
+
+**Shell:** desktop (≥ 1024 px) com barra lateral fixa e recolhível (estado em `localStorage`, conveniência por visitante); celular com barra superior (logotipo + seletor de modalidade em folha inferior) e abas inferiores Gerar · Meus jogos · Análise · Mais (gaveta com Metodologia, Todos os meus jogos, Sobre e atualização dos dados). A modalidade atual vem da rota; nas páginas globais usa a última visitada.

@@ -8,7 +8,7 @@ async function selectStrategy(page: Page, name: string) {
 
 async function generateAndWait(page: Page) {
   await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible({ timeout: 20000 });
+  await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible({ timeout: 20000 });
 }
 
 interface DatasetSnapshot {
@@ -39,7 +39,7 @@ function formatDateBR(isoDate: string): string {
 test.describe("LotoAtlas — critical flows", () => {
   test("1. abrir home", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: /Monte seus jogos com estratégia e transparência/ })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Início" })).toBeVisible();
     await expect(page.getByRole("link", { name: /Gerar jogos da Lotofácil/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /Gerar jogos da Mega-Sena/ })).toBeVisible();
   });
@@ -384,43 +384,43 @@ test.describe("LotoAtlas — critical flows", () => {
     expect(download.suggestedFilename()).toMatch(/\.csv$/);
   });
 
-  test("30. links de navegação (Meus jogos salvos / Metodologia) aparecem no topo de Gerar", async ({ page }) => {
+  test("30. navegação da modalidade (Meus jogos / Metodologia) fica na barra lateral", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
-    const pageNav = page.getByRole("navigation", { name: "Outras páginas desta modalidade" });
-    await expect(pageNav.getByRole("link", { name: "Meus jogos salvos" })).toBeVisible();
-    await expect(pageNav.getByRole("link", { name: "Metodologia" })).toBeVisible();
-    await pageNav.getByRole("link", { name: "Metodologia" }).click();
+    const sections = page.getByRole("navigation", { name: "Navegação principal" });
+    await expect(sections.getByRole("link", { name: "Meus jogos" })).toBeVisible();
+    await expect(sections.getByRole("link", { name: "Metodologia" })).toBeVisible();
+    await sections.getByRole("link", { name: "Metodologia" }).click();
     await expect(page).toHaveURL(/\/lotofacil\/metodologia$/);
   });
 
-  test("31. navegação de volta é determinística (não depende do histórico do navegador)", async ({ page }) => {
+  test("31. navegação é determinística (links fixos da barra lateral, não o histórico do navegador)", async ({ page }) => {
     await page.goto("/lotofacil/metodologia");
-    await page.getByRole("link", { name: /Voltar para Lotofácil/ }).click();
+    await page.getByRole("navigation", { name: "Navegação principal" }).getByRole("link", { name: "Gerar jogos" }).click();
     await expect(page).toHaveURL(/\/lotofacil\/gerar$/);
 
     await page.goto("/lotofacil/carteiras");
-    await page.getByRole("link", { name: /Voltar para Lotofácil/ }).click();
+    await page.getByRole("navigation", { name: "Navegação principal" }).getByRole("link", { name: "Gerar jogos" }).click();
     await expect(page).toHaveURL(/\/lotofacil\/gerar$/);
 
     await page.goto("/carteiras");
-    await page.getByRole("link", { name: "Voltar ao início" }).click();
+    await page.getByRole("link", { name: "LotoAtlas, página inicial" }).click();
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test("31b. 'Voltar ao início' está visível em ambas as páginas de geração e leva a '/'", async ({ page }) => {
+  test("31b. o logotipo leva a '/' a partir de ambas as páginas de geração", async ({ page }) => {
     await page.goto("/lotofacil/gerar");
-    const lfBack = page.getByRole("link", { name: "Voltar ao início" });
-    await expect(lfBack).toBeVisible();
-    await lfBack.focus();
-    await expect(lfBack).toBeFocused();
-    await lfBack.click();
+    const lfHome = page.getByRole("link", { name: "LotoAtlas, página inicial" });
+    await expect(lfHome).toBeVisible();
+    await lfHome.focus();
+    await expect(lfHome).toBeFocused();
+    await lfHome.click();
     await expect(page).toHaveURL(/\/$/);
 
     await page.goto("/megasena/gerar");
-    const msBack = page.getByRole("link", { name: "Voltar ao início" });
-    await expect(msBack).toBeVisible();
-    await expect(msBack).toHaveAttribute("href", "/");
-    await msBack.click();
+    const msHome = page.getByRole("link", { name: "LotoAtlas, página inicial" });
+    await expect(msHome).toBeVisible();
+    await expect(msHome).toHaveAttribute("href", "/");
+    await msHome.click();
     await expect(page).toHaveURL(/\/$/);
   });
 
@@ -436,7 +436,7 @@ test.describe("LotoAtlas — critical flows", () => {
       page.getByText("Você alterou a configuração depois de gerar estes jogos. Os jogos abaixo ainda correspondem à configuração anterior."),
     ).toBeVisible();
     // The previous result must still be shown, unchanged, not silently regenerated.
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible();
     const stillSameTickets = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
     expect(stillSameTickets).toBe(firstTickets);
   });
@@ -490,7 +490,7 @@ test.describe("LotoAtlas — critical flows", () => {
 
     // The form was reset (no strategy selected), but the result stays visible and unchanged.
     await expect(page.getByText("Escolha uma opção acima para continuar.")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toBeVisible();
     const ticketsAfterClear = await page.getByRole("list", { name: /Lista de \d+ jogos/ }).innerText();
     expect(ticketsAfterClear).toBe(firstTickets);
 
@@ -525,7 +525,7 @@ test.describe("LotoAtlas — critical flows", () => {
     // Now clear again and use the explicit discard action.
     await page.getByRole("button", { name: "Limpar configuração" }).click();
     await page.getByRole("button", { name: "Descartar resultado anterior" }).click();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
     await expect(page.getByText(/Você alterou a configuração depois de gerar estes jogos/)).toHaveCount(0);
   });
 
@@ -577,7 +577,7 @@ test.describe("LotoAtlas — critical flows", () => {
     await expect(page.getByText(new RegExp(`próximo concurso disponível é o ${ds.nextContest}`))).toBeVisible();
     await page.getByRole("button", { name: "Gerar jogos", exact: true }).click();
     await expect(page.getByRole("alert").first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Seus jogos estão prontos" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Jogos gerados" })).toHaveCount(0);
   });
 
   test("41. Lotofácil: fluxo histórico equivalente com rótulos de 11 a 15 acertos", async ({ page }) => {

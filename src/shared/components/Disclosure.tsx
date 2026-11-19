@@ -24,20 +24,20 @@ export function Disclosure({ title, subtitle, defaultOpen = false, children, ope
   const setOpen = onOpenChange ?? setInternalOpen;
 
   return (
-    <div className="rounded-lg border border-brand-border bg-brand-surface">
+    <div className="rounded border border-ink-500">
       <button
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 rounded-lg px-4 py-3 text-left text-sm font-medium text-brand-text hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
+        className="flex w-full items-center justify-between gap-2 rounded-lg px-4 py-3 text-left text-sm font-medium text-ink-100 hover:bg-ink-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
       >
         <span className="inline-flex items-center gap-2">
           {title}
-          {subtitle && <span className="rounded-full bg-brand-surfaceElevated px-2 py-0.5 text-[11px] font-normal text-brand-textMuted">{subtitle}</span>}
+          {subtitle && <span className="rounded-full bg-ink-600 px-2 py-0.5 text-xs font-normal text-ink-200">{subtitle}</span>}
         </span>
-        <ChevronDown aria-hidden className={`h-4 w-4 shrink-0 text-brand-textMuted transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown aria-hidden className={`h-4 w-4 shrink-0 text-ink-200 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="border-t border-brand-border px-4 py-3">{children}</div>}
+      {open && <div className="border-t border-ink-500 px-4 py-3">{children}</div>}
     </div>
   );
 }

@@ -52,12 +52,39 @@ export const gameConfigEntrySchema = z.object({
   configVersion: z.string().min(1),
 });
 
-export const gameConfigSchema = z.object({
-  schemaVersion: z.number().int().positive(),
-  updatedAt: z.string().min(1),
-  lotofacil: gameConfigEntrySchema,
-  megasena: gameConfigEntrySchema,
+const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/, "expected a #rrggbb colour");
+
+/** UI-001: one registry entry per CAIXA modality (navigation, routes, accents and freshness read from it). */
+export const modalityRegistryEntrySchema = z.object({
+  id: z.enum(["lotofacil", "megasena"]),
+  slug: z.string().regex(/^[a-z0-9-]+$/),
+  displayName: z.string().min(1),
+  shortName: z.string().min(1),
+  enabled: z.boolean(),
+  order: z.number().int(),
+  sections: z.array(z.enum(["gerar", "carteiras", "analise", "metodologia"])).min(1),
+  datasetPath: z.string().min(1),
+  officialUrl: z.string().url(),
+  colors: z.object({ accent: hexColor, accentStrong: hexColor, soft: hexColor, onAccent: hexColor, text: hexColor }),
 });
+
+export const gameConfigSchema = z
+  .object({
+    schemaVersion: z.number().int().positive(),
+    updatedAt: z.string().min(1),
+    lotofacil: gameConfigEntrySchema,
+    megasena: gameConfigEntrySchema,
+    /** Optional for older fixtures; the shipped config always carries it and the shell fails closed without it. */
+    modalities: z.array(modalityRegistryEntrySchema).optional(),
+  })
+  .superRefine((cfg, ctx) => {
+    const slugs = new Set<string>();
+    for (const [i, m] of (cfg.modalities ?? []).entries()) {
+      if (slugs.has(m.slug)) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "duplicate modality slug", path: ["modalities", i, "slug"] });
+      slugs.add(m.slug);
+      if (!(m.id in cfg)) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "modality has no price entry", path: ["modalities", i, "id"] });
+    }
+  });
 
 export const checkedResultSchema = z.object({
   contest: z.number().int().positive(),

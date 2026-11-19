@@ -19,8 +19,6 @@ export * from "./SavedPortfolioCard";
 export * from "./EmptyState";
 export * from "./ErrorState";
 export * from "./ResponsibleGamingNotice";
-export * from "./DataFreshnessBadge";
-export * from "./GameSwitcher";
 export * from "./BackLink";
 export * from "./HistoricalContestNotice";
 export * from "./BetTicketPicker";
