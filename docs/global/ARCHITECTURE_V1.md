@@ -254,6 +254,8 @@ Issues criadas manualmente nunca são tocadas, porque só o rótulo que este wor
 
 ## 19. Integração visual da marca LotoAtlas (branch `feat/lotoatlas-brand-integration`)
 
+> **Atualização (2026-11-20, `DEC-027`):** os ativos de logotipo/símbolo descritos abaixo (trevo, Brand Kit v0.3) foram **substituídos** pelo Brand Kit v1 (ver §24). Esta seção permanece como histórico; os tokens de cor/tipografia da interface citados aqui seguem em vigor até decisão própria (tipografia já migrada para IBM Plex na `UI-001`, §23).
+
 A partir desta branch, a marca pública do aplicativo é **LotoAtlas** (antes "Loterias"), com o LotoAtlas Brand Kit v0.3 (`docs/global/LotoAtlas_BrandKit_v0.3/`, agora versionado no repositório) como fonte de verdade visual. Esta é uma mudança de identidade visual e de UX responsiva — **nenhuma matemática de loteria, comportamento de estratégia, restrição da RMS, saída de oráculo, distribuição de geração aleatória, regra de validação de concurso, comportamento de no-look-ahead, semântica do atualizador ou schema de persistência foi alterada.**
 
 - **Tema escuro por padrão**: `index.html` define `<html data-theme="dark">`, `color-scheme: dark` e `theme-color: #101729`; não há alternância clara/escuro nesta entrega (tema claro documentado como alternativa secundária/institucional no próprio Brand Kit, para um toggle futuro).
@@ -321,3 +323,21 @@ Cada entrada: `id`, `slug`, `displayName`, `shortName`, `enabled`, `order`, `sec
 **Rotas canônicas:** `/:modalidade/{gerar,carteiras,analise,metodologia}`. URLs legadas preservadas: `/lotofacil` e `/megasena` → `/<modalidade>/gerar`; `/analise?modalidade=x` → `/x/analise` (replace); `/carteiras` (todas as modalidades) e `/sobre` inalteradas. Um `slug` desconhecido mostra "Página não encontrada".
 
 **Shell:** desktop (≥ 1024 px) com barra lateral fixa e recolhível (estado em `localStorage`, conveniência por visitante); celular com barra superior (logotipo + seletor de modalidade em folha inferior) e abas inferiores Gerar · Meus jogos · Análise · Mais (gaveta com Metodologia, Todos os meus jogos, Sobre e atualização dos dados). A modalidade atual vem da rota; nas páginas globais usa a última visitada.
+
+## 24. Brand Kit v1 como identidade oficial (`DEC-027`, PR #52)
+
+**Fonte de verdade dos ativos de marca:** `docs/global/LotoAtlas_BrandKit_v1/` (versionado; o `.zip` do kit não é versionado). Kits v0.1–v0.3 são histórico superado.
+
+| Onde | Arquivo (cópia byte-idêntica do kit) | Observação |
+|---|---|---|
+| Menu lateral expandido e barra superior (celular) | `src/assets/brand/lotoatlas-logo-compact-reversed.svg` | 140 px de largura (mínimo do kit: 130 px); SVG transparente, sem tagline |
+| Menu lateral recolhido | `src/assets/brand/lotoatlas-symbol-on-dark.svg` | ≥ 32 px; traz o próprio fundo Navy Dark por desenho do kit |
+| Aba do navegador | `public/brand/lotoatlas-favicon.svg`, `lotoatlas-favicon.ico`, `-16.png`, `-32.png` | nomes de arquivo mantidos (o `index.html` não muda) |
+| Ícone de aplicativo / iOS | `public/brand/lotoatlas-app-icon.svg`, `-180.png`, `-192.png`, `-512.png` | |
+| Imagem de compartilhamento | `public/social/lotoatlas-og-image.png` (1200×630) | **derivada**: composta a partir de `lotoatlas-logo-horizontal-tagline-reversed.svg` sobre Navy Dark (o kit não traz arquivo 1200×630) |
+
+**Regras de uso (README do kit):** logotipo colorido sobre fundo claro; versões `reversed`/`mono-white` sobre fundo escuro; o símbolo colorido e o micro-símbolo foram desenhados para fundo claro (os módulos escuros somem no tema escuro do aplicativo: use `symbol-on-dark`); sem contorno, sombra, bevel ou brilho; área de proteção de um módulo do símbolo. A faixa ciano pode inspirar estados selecionados, mas não deve virar ornamento repetido.
+
+**Para adicionar ou trocar um ativo:** copie o arquivo do kit **sem editar** e acrescente-o a `tests/shared/logoAssetIntegrity.test.ts`. Não há `site.webmanifest` no aplicativo (o do kit é só referência).
+
+**Pendência de design (não decidida):** alinhar os tokens de cor da interface (v0.3) aos do kit v1 (Navy Dark, violeta, ciano). Exige decisão do product owner e preview (`DEC-022`).
