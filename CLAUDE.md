@@ -19,6 +19,8 @@ Depois, os documentos técnicos da tarefa (fontes técnicas, em ordem):
 
 `00_START_HERE_CLAUDE_CODE.md` é o **handoff histórico da implementação original da v1**; o app já está implementado e esse arquivo **não** é mais a autoridade de estado/roadmap atual.
 
+**Identidade visual oficial:** `docs/global/LotoAtlas_BrandKit_v1/` (README do kit; `DEC-027`). Copie ativos do kit sem editar; kits v0.1–v0.3 são histórico superado.
+
 `reference/` é histórico/oráculo, não UI spec atual, exceto regras canônicas RMS indicadas pela documentação.
 
 Em caso de divergência entre a documentação e o GitHub (SHAs, PRs, datasets), o estado real do GitHub/repositório prevalece.
