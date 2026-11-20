@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs>
+      <linearGradient id="atlasGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#6C3DFF"/><stop offset="100%" stop-color="#7A3DFF"/>
+      </linearGradient>
+      <linearGradient id="intervalGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#25B6F2"/><stop offset="55%" stop-color="#00D6C6"/><stop offset="100%" stop-color="#18C8D8"/>
+      </linearGradient>
+    </defs><rect x="52.000" y="7.000" width="24.000" height="22.000" rx="5.000" fill="#10162F"/><rect x="30.000" y="37.000" width="28.000" height="20.000" rx="5.000" fill="#10162F"/><rect x="70.000" y="37.000" width="28.000" height="20.000" rx="5.000" fill="#10162F"/><rect x="18.000" y="66.000" width="28.000" height="20.000" rx="5.000" fill="#10162F"/><rect x="50.000" y="66.000" width="28.000" height="20.000" rx="5.000" fill="#10162F"/><rect x="82.000" y="66.000" width="28.000" height="20.000" rx="5.000" fill="#10162F"/><rect x="12.000" y="98.000" width="30.000" height="20.000" rx="5.000" fill="#10162F"/><rect x="86.000" y="98.000" width="30.000" height="20.000" rx="5.000" fill="#10162F"/></svg>

@@ -4,6 +4,8 @@ Registro de mudanças voltadas ao usuário e à operação do produto. Não é u
 
 ## [Unreleased]
 
+- **Nova identidade visual.** O aplicativo passa a usar o novo logotipo e símbolo da LotoAtlas (menu lateral, barra superior no celular, ícone da aba, ícone de aplicativo e imagem ao compartilhar o link). Nenhuma mudança em funções, cálculos ou avisos.
+
 - **Novo visual e nova navegação.** Barra lateral no computador (recolhível) e abas na parte de baixo no celular, com a modalidade escolhida sempre à vista; o início virou um painel com o próximo concurso, o último resultado e os jogos aguardando resultado; fontes IBM Plex; menos caixas, números em destaque. Os endereços antigos continuam funcionando. A análise de resultados agora usa a modalidade escolhida na navegação. Nenhuma mudança nos cálculos, nas estratégias, nos dados ou nos avisos.
 
 - **Nova página "Análise de resultados" (incremento 1: teste com sorteios passados).** Uma resposta curta em linguagem simples, seguida de três gráficos: pontos por jogo em média, quantos jogos foram premiados e o melhor e o pior jogo de cada carteira, sempre comparados com o acaso. Nos sorteios passados simulados (Lotofácil: concursos 3388–3827; Mega-Sena: 2950–3084), nenhuma estratégia ficou diferente do acaso na média. Mostra também o andamento do teste de verdade (jogos registrados antes de cada sorteio). É descritiva: não prevê sorteios, não ordena nem recomenda estratégias; o teste com o passado é otimista porque as estratégias foram desenhadas conhecendo esse histórico. Detalhes técnicos e exportação em CSV/JSON ficam recolhidos.
