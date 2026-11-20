@@ -1342,6 +1342,341 @@
       "cutoffAt": "2026-11-19T23:00:00.000Z",
       "valid": true,
       "codeCommit": "757377eebde93f74b1257b64e0b3b02063e4084e"
+    },
+    {
+      "ledgerSchemaVersion": 1,
+      "modality": "megasena",
+      "targetContest": 3089,
+      "strategyId": "megasena.rolling_20_v2",
+      "strategyVersion": "2.1.0",
+      "algorithmVersion": "2.1.0+rolling20-grouping-allocation-filters-search-v1",
+      "seed": "ledger:megasena:3089:megasena.rolling_20_v2:2.1.0",
+      "qualityPreset": "balanced",
+      "tickets": [
+        [
+          1,
+          16,
+          20,
+          28,
+          41,
+          50
+        ],
+        [
+          1,
+          4,
+          25,
+          27,
+          54,
+          60
+        ],
+        [
+          11,
+          22,
+          41,
+          50,
+          58,
+          59
+        ],
+        [
+          3,
+          8,
+          14,
+          19,
+          40,
+          58
+        ],
+        [
+          18,
+          27,
+          38,
+          46,
+          47,
+          56
+        ],
+        [
+          5,
+          7,
+          16,
+          20,
+          45,
+          55
+        ]
+      ],
+      "generatedAt": "2026-11-20T17:06:31.096Z",
+      "datasetLatestContest": 3088,
+      "datasetSha256": "4bac6235d280aecbd1b653d69bdc818c8e72142de6b9198ad97867067cf802d9",
+      "estimatedDrawAt": "2026-11-22T14:00:00.000Z",
+      "cutoffAt": "2026-11-22T13:00:00.000Z",
+      "valid": true,
+      "codeCommit": "064630f7f8fe6e32eee2faee6f826bbc83d3ec20"
+    },
+    {
+      "ledgerSchemaVersion": 1,
+      "modality": "megasena",
+      "targetContest": 3089,
+      "strategyId": "megasena.max_f4",
+      "strategyVersion": "1.0.0",
+      "algorithmVersion": "coverage-greedy-local-v1-exact",
+      "seed": "ledger:megasena:3089:megasena.max_f4:1.0.0",
+      "qualityPreset": "balanced",
+      "tickets": [
+        [
+          3,
+          12,
+          24,
+          38,
+          41,
+          44
+        ],
+        [
+          8,
+          9,
+          13,
+          28,
+          43,
+          54
+        ],
+        [
+          1,
+          13,
+          14,
+          15,
+          22,
+          41
+        ],
+        [
+          1,
+          11,
+          19,
+          38,
+          54,
+          55
+        ],
+        [
+          4,
+          7,
+          22,
+          34,
+          39,
+          51
+        ],
+        [
+          10,
+          12,
+          19,
+          21,
+          32,
+          36
+        ]
+      ],
+      "generatedAt": "2026-11-20T17:06:31.096Z",
+      "datasetLatestContest": 3088,
+      "datasetSha256": "4bac6235d280aecbd1b653d69bdc818c8e72142de6b9198ad97867067cf802d9",
+      "estimatedDrawAt": "2026-11-22T14:00:00.000Z",
+      "cutoffAt": "2026-11-22T13:00:00.000Z",
+      "valid": true,
+      "codeCommit": "064630f7f8fe6e32eee2faee6f826bbc83d3ec20"
+    },
+    {
+      "ledgerSchemaVersion": 1,
+      "modality": "megasena",
+      "targetContest": 3089,
+      "strategyId": "megasena.max_f5",
+      "strategyVersion": "1.0.0",
+      "algorithmVersion": "coverage-greedy-local-v1-exact",
+      "seed": "ledger:megasena:3089:megasena.max_f5:1.0.0",
+      "qualityPreset": "balanced",
+      "tickets": [
+        [
+          1,
+          26,
+          30,
+          35,
+          45,
+          48
+        ],
+        [
+          18,
+          39,
+          40,
+          42,
+          44,
+          50
+        ],
+        [
+          5,
+          29,
+          31,
+          45,
+          52,
+          55
+        ],
+        [
+          5,
+          7,
+          11,
+          17,
+          34,
+          37
+        ],
+        [
+          12,
+          33,
+          34,
+          35,
+          46,
+          55
+        ],
+        [
+          19,
+          33,
+          42,
+          46,
+          48,
+          56
+        ]
+      ],
+      "generatedAt": "2026-11-20T17:06:31.096Z",
+      "datasetLatestContest": 3088,
+      "datasetSha256": "4bac6235d280aecbd1b653d69bdc818c8e72142de6b9198ad97867067cf802d9",
+      "estimatedDrawAt": "2026-11-22T14:00:00.000Z",
+      "cutoffAt": "2026-11-22T13:00:00.000Z",
+      "valid": true,
+      "codeCommit": "064630f7f8fe6e32eee2faee6f826bbc83d3ec20"
+    },
+    {
+      "ledgerSchemaVersion": 1,
+      "modality": "megasena",
+      "targetContest": 3089,
+      "strategyId": "megasena.max_diversification",
+      "strategyVersion": "1.0.0",
+      "algorithmVersion": "coverage-greedy-local-v1+diversification-lexicographic-v1",
+      "seed": "ledger:megasena:3089:megasena.max_diversification:1.0.0",
+      "qualityPreset": "balanced",
+      "tickets": [
+        [
+          14,
+          34,
+          38,
+          42,
+          56,
+          57
+        ],
+        [
+          17,
+          23,
+          28,
+          31,
+          33,
+          52
+        ],
+        [
+          2,
+          8,
+          20,
+          21,
+          35,
+          58
+        ],
+        [
+          3,
+          13,
+          25,
+          36,
+          37,
+          50
+        ],
+        [
+          10,
+          24,
+          27,
+          45,
+          47,
+          48
+        ],
+        [
+          6,
+          7,
+          9,
+          18,
+          19,
+          53
+        ]
+      ],
+      "generatedAt": "2026-11-20T17:06:31.096Z",
+      "datasetLatestContest": 3088,
+      "datasetSha256": "4bac6235d280aecbd1b653d69bdc818c8e72142de6b9198ad97867067cf802d9",
+      "estimatedDrawAt": "2026-11-22T14:00:00.000Z",
+      "cutoffAt": "2026-11-22T13:00:00.000Z",
+      "valid": true,
+      "codeCommit": "064630f7f8fe6e32eee2faee6f826bbc83d3ec20"
+    },
+    {
+      "ledgerSchemaVersion": 1,
+      "modality": "megasena",
+      "targetContest": 3089,
+      "strategyId": "megasena.uniform_random",
+      "strategyVersion": "1.0.0",
+      "algorithmVersion": "uniform-random-v1",
+      "seed": "ledger:megasena:3089:megasena.uniform_random:1.0.0",
+      "qualityPreset": "balanced",
+      "tickets": [
+        [
+          32,
+          33,
+          41,
+          44,
+          54,
+          56
+        ],
+        [
+          17,
+          27,
+          33,
+          45,
+          51,
+          60
+        ],
+        [
+          13,
+          21,
+          44,
+          52,
+          55,
+          57
+        ],
+        [
+          9,
+          21,
+          26,
+          30,
+          34,
+          41
+        ],
+        [
+          7,
+          14,
+          31,
+          39,
+          53,
+          59
+        ],
+        [
+          17,
+          21,
+          34,
+          44,
+          47,
+          52
+        ]
+      ],
+      "generatedAt": "2026-11-20T17:06:31.096Z",
+      "datasetLatestContest": 3088,
+      "datasetSha256": "4bac6235d280aecbd1b653d69bdc818c8e72142de6b9198ad97867067cf802d9",
+      "estimatedDrawAt": "2026-11-22T14:00:00.000Z",
+      "cutoffAt": "2026-11-22T13:00:00.000Z",
+      "valid": true,
+      "codeCommit": "064630f7f8fe6e32eee2faee6f826bbc83d3ec20"
     }
   ]
 }

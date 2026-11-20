@@ -177,7 +177,6 @@
       "targetContest": 3087,
       "strategyId": "megasena.rolling_20_v2",
       "strategyVersion": "2.1.0",
-      "scoredAt": "2026-11-18T17:26:16.481Z",
       "valid": true,
       "hitsPerTicket": [
         0,
@@ -188,13 +187,13 @@
         1
       ],
       "bestHits": 2,
+      "scoredAt": "2026-11-18T17:26:16.481Z",
       "resultNumbersSha256": "db4c34a4348f36ecb34c6ffaccca1e2e245077f8bf508719dd9aedc0f5599534"
     },
     {
       "targetContest": 3087,
       "strategyId": "megasena.max_f4",
       "strategyVersion": "1.0.0",
-      "scoredAt": "2026-11-18T17:26:16.481Z",
       "valid": true,
       "hitsPerTicket": [
         0,
@@ -205,13 +204,13 @@
         1
       ],
       "bestHits": 2,
+      "scoredAt": "2026-11-18T17:26:16.481Z",
       "resultNumbersSha256": "db4c34a4348f36ecb34c6ffaccca1e2e245077f8bf508719dd9aedc0f5599534"
     },
     {
       "targetContest": 3087,
       "strategyId": "megasena.max_f5",
       "strategyVersion": "1.0.0",
-      "scoredAt": "2026-11-18T17:26:16.481Z",
       "valid": true,
       "hitsPerTicket": [
         1,
@@ -222,13 +221,13 @@
         1
       ],
       "bestHits": 2,
+      "scoredAt": "2026-11-18T17:26:16.481Z",
       "resultNumbersSha256": "db4c34a4348f36ecb34c6ffaccca1e2e245077f8bf508719dd9aedc0f5599534"
     },
     {
       "targetContest": 3087,
       "strategyId": "megasena.max_diversification",
       "strategyVersion": "1.0.0",
-      "scoredAt": "2026-11-18T17:26:16.481Z",
       "valid": true,
       "hitsPerTicket": [
         0,
@@ -239,13 +238,13 @@
         0
       ],
       "bestHits": 2,
+      "scoredAt": "2026-11-18T17:26:16.481Z",
       "resultNumbersSha256": "db4c34a4348f36ecb34c6ffaccca1e2e245077f8bf508719dd9aedc0f5599534"
     },
     {
       "targetContest": 3087,
       "strategyId": "megasena.uniform_random",
       "strategyVersion": "1.0.0",
-      "scoredAt": "2026-11-18T17:26:16.481Z",
       "valid": true,
       "hitsPerTicket": [
         1,
@@ -256,7 +255,93 @@
         0
       ],
       "bestHits": 2,
+      "scoredAt": "2026-11-18T17:26:16.481Z",
       "resultNumbersSha256": "db4c34a4348f36ecb34c6ffaccca1e2e245077f8bf508719dd9aedc0f5599534"
+    },
+    {
+      "targetContest": 3088,
+      "strategyId": "megasena.rolling_20_v2",
+      "strategyVersion": "2.1.0",
+      "scoredAt": "2026-11-20T17:06:31.096Z",
+      "valid": true,
+      "hitsPerTicket": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "bestHits": 1,
+      "resultNumbersSha256": "c64f1ca7e69710544d585229c1c25783e65bf72b7512eab2a6c6e8707b0f2549"
+    },
+    {
+      "targetContest": 3088,
+      "strategyId": "megasena.max_f4",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-20T17:06:31.096Z",
+      "valid": true,
+      "hitsPerTicket": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "bestHits": 1,
+      "resultNumbersSha256": "c64f1ca7e69710544d585229c1c25783e65bf72b7512eab2a6c6e8707b0f2549"
+    },
+    {
+      "targetContest": 3088,
+      "strategyId": "megasena.max_f5",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-20T17:06:31.096Z",
+      "valid": true,
+      "hitsPerTicket": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "bestHits": 1,
+      "resultNumbersSha256": "c64f1ca7e69710544d585229c1c25783e65bf72b7512eab2a6c6e8707b0f2549"
+    },
+    {
+      "targetContest": 3088,
+      "strategyId": "megasena.max_diversification",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-20T17:06:31.096Z",
+      "valid": true,
+      "hitsPerTicket": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "bestHits": 1,
+      "resultNumbersSha256": "c64f1ca7e69710544d585229c1c25783e65bf72b7512eab2a6c6e8707b0f2549"
+    },
+    {
+      "targetContest": 3088,
+      "strategyId": "megasena.uniform_random",
+      "strategyVersion": "1.0.0",
+      "scoredAt": "2026-11-20T17:06:31.096Z",
+      "valid": true,
+      "hitsPerTicket": [
+        1,
+        1,
+        2,
+        1,
+        0,
+        0
+      ],
+      "bestHits": 2,
+      "resultNumbersSha256": "c64f1ca7e69710544d585229c1c25783e65bf72b7512eab2a6c6e8707b0f2549"
     }
   ]
 }
