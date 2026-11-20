@@ -6,8 +6,10 @@ import { APP_VERSION } from "../../shared/lib/appVersion";
 import { SECTION_LABEL, SECTION_ORDER, modalityCssVars, sectionPath, useCurrentModality, useModalities, useModalityRegistry } from "../../shared/lib/modalityRegistry";
 import { useMediaQuery } from "../../shared/lib/useMediaQuery";
 import type { DataStatus, ModalityRegistryEntry, ModalitySection } from "../../shared/types";
-import lotoatlasLogoUi from "../../assets/brand/lotoatlas-logo-ui-reversed.svg";
-import lotoatlasSymbolUi from "../../assets/brand/lotoatlas-symbol-ui-on-dark.svg";
+// Brand Kit v1 (docs/global/LotoAtlas_BrandKit_v1): compact reversed lockup for headers/sidebar (min 130 px wide) and the
+// ready-made on-dark symbol (min 32 px) for the collapsed sidebar.
+import lotoatlasLogoCompact from "../../assets/brand/lotoatlas-logo-compact-reversed.svg";
+import lotoatlasSymbolOnDark from "../../assets/brand/lotoatlas-symbol-on-dark.svg";
 
 /**
  * Navigation shell (UI-001). Desktop (>= 1024 px): fixed left sidebar, collapsible to icons. Mobile: top bar with a
@@ -101,9 +103,9 @@ function Sidebar({ modalities, current, section, status }: { modalities: Modalit
       data-collapsed={collapsed ? "true" : "false"}
       className={`sticky top-0 flex h-screen shrink-0 flex-col border-r border-ink-500 bg-ink-900 ${collapsed ? "w-14" : "w-60"}`}
     >
-      <div className={`flex h-14 items-center ${collapsed ? "justify-center" : "justify-between px-3"}`}>
+      <div className={`flex h-16 items-center ${collapsed ? "justify-center" : "justify-between px-3"}`}>
         <Link to="/" className="flex items-center" aria-label="LotoAtlas, página inicial">
-          {collapsed ? <img src={lotoatlasSymbolUi} alt="LotoAtlas" className="h-6 w-auto" width={28} height={24} /> : <img src={lotoatlasLogoUi} alt="LotoAtlas" className="h-6 w-auto" width={82} height={24} />}
+          {collapsed ? <img src={lotoatlasSymbolOnDark} alt="LotoAtlas" className="h-8 w-auto" width={36} height={32} /> : <img src={lotoatlasLogoCompact} alt="LotoAtlas" className="h-9 w-auto" width={140} height={36} />}
         </Link>
         {!collapsed && (
           <button type="button" onClick={() => setCollapsed(true)} aria-label="Recolher menu" title="Recolher menu" className="rounded p-1 text-ink-300 hover:bg-ink-800 hover:text-ink-100">
@@ -255,7 +257,7 @@ function MobileChrome({ modalities, current, section, status, children }: { moda
       <header className="sticky top-0 z-30 border-b border-ink-500 bg-ink-900">
         <div className="flex h-12 items-center justify-between px-4">
           <Link to="/" className="flex items-center" aria-label="LotoAtlas, página inicial">
-            <img src={lotoatlasSymbolUi} alt="LotoAtlas" className="h-6 w-auto" width={28} height={24} />
+            <img src={lotoatlasLogoCompact} alt="LotoAtlas" className="h-9 w-auto" width={140} height={36} />
           </Link>
           {current && (
             <button

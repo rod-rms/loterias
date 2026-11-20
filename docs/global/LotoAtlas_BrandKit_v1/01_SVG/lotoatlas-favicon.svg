@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs>
+      <linearGradient id="atlasGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#6C3DFF"/><stop offset="100%" stop-color="#7A3DFF"/>
+      </linearGradient>
+      <linearGradient id="intervalGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#25B6F2"/><stop offset="55%" stop-color="#00D6C6"/><stop offset="100%" stop-color="#18C8D8"/>
+      </linearGradient>
+    </defs><rect width="128" height="128" rx="26" fill="#07142F"/><rect x="54.812" y="20.359" width="18.375" height="16.844" rx="3.828" fill="#FFFFFF"/><rect x="37.969" y="43.328" width="21.438" height="15.312" rx="3.828" fill="#B59CFF"/><rect x="68.594" y="43.328" width="21.438" height="15.312" rx="3.828" fill="#B59CFF"/><rect x="28.781" y="65.531" width="21.438" height="15.312" rx="3.828" fill="#2EE6D6"/><rect x="53.281" y="65.531" width="21.438" height="15.312" rx="3.828" fill="#2EE6D6"/><rect x="77.781" y="65.531" width="21.438" height="15.312" rx="3.828" fill="#2EE6D6"/><rect x="24.188" y="90.031" width="22.969" height="15.312" rx="3.828" fill="#FFFFFF"/><rect x="80.844" y="90.031" width="22.969" height="15.312" rx="3.828" fill="#FFFFFF"/></svg>
