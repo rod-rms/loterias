@@ -2,19 +2,19 @@
   "schemaVersion": 1,
   "lotofacil": {
     "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil",
-    "latestContest": 3838,
-    "latestDrawDate": "2026-11-25",
-    "lastUpdatedAt": "2026-11-26T10:02:36.983Z",
-    "lastCheckedAt": "2026-11-26T10:02:36.983Z",
+    "latestContest": 3839,
+    "latestDrawDate": "2026-11-26",
+    "lastUpdatedAt": "2026-11-27T10:08:27.750Z",
+    "lastCheckedAt": "2026-11-27T10:08:27.750Z",
     "status": "ok",
     "gapCount": 0
   },
   "megasena": {
     "source": "https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena",
-    "latestContest": 3090,
-    "latestDrawDate": "2026-11-24",
-    "lastUpdatedAt": "2026-11-25T10:29:09.933Z",
-    "lastCheckedAt": "2026-11-25T19:43:30.574Z",
+    "latestContest": 3091,
+    "latestDrawDate": "2026-11-26",
+    "lastUpdatedAt": "2026-11-27T10:08:27.750Z",
+    "lastCheckedAt": "2026-11-27T10:08:27.750Z",
     "status": "ok",
     "gapCount": 0
   }
